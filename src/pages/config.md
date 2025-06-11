@@ -1,5 +1,5 @@
 - pathPrefix:
-    - /dev-site-documentation-template/
+    - /cloud-storage/
 
 - versions:
     - [v2.0](/) selected
