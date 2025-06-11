@@ -82,3 +82,4 @@ The timeout for API requests through adobe.io is currently *60 seconds*.
 
 The default rate limit for an Cat Analytics Company is *120 requests per minute*. (The limit is enforced as *12 requests every 6 seconds*).
 When rate limiting is being enforced you will get `429` HTTP response codes with the following response body: `{"error_code":"429050","message":"Too many requests"}`.
+ 
