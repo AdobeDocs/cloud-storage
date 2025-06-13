@@ -7,9 +7,9 @@ contributors:
 
 <HeroSimple slots="heading, text"/>
 
-# Cat Analytics API
+# Cloud Store and Collaboration
 
-Cat Product API offers limitless ways to integrate your most important customer data into key business processes. Cat Product API offer limitless ways.
+<Overview of Cloud Storage and Collaboration APIs>
 
 <Resources slots="heading, links"/>
 
@@ -20,7 +20,7 @@ Cat Product API offers limitless ways to integrate your most important customer 
 
 ## Overview
 
-This documentation provides instructions for Catt Analytics 2.0 APIs. For working with Cat Analytics APIs, see [Cat Analytics API Documentation](https://github.com/AdobeDocs/dev-site).
+This documentation provides instructions for third-party APIs of Cloud Storage and Collaboration. For working with Cat Analytics APIs, see [Cat Analytics API Documentation](https://github.com/AdobeDocs/dev-site).
 
 The Cat Analytics APIs are a collection of APIs that power Cat Analytics products like Cat Workspace.
 The APIs allow for the creation of data rich user interfaces that you can use to manipulate and integrate data.
@@ -82,4 +82,3 @@ The timeout for API requests through adobe.io is currently *60 seconds*.
 
 The default rate limit for an Cat Analytics Company is *120 requests per minute*. (The limit is enforced as *12 requests every 6 seconds*).
 When rate limiting is being enforced you will get `429` HTTP response codes with the following response body: `{"error_code":"429050","message":"Too many requests"}`.
- 
