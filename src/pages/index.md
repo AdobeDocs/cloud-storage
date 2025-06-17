@@ -7,7 +7,7 @@ contributors:
 
 <HeroSimple slots="heading, text"/>
 
-# Cloud Store and Collaboration
+# Cloud Storage and Collaboration
 
 <Overview of Cloud Storage and Collaboration APIs>
 
@@ -20,7 +20,7 @@ contributors:
 
 ## Overview
 
-This documentation provides instructions for third-party APIs of Cloud Storage and Collaboration. For working with Cat Analytics APIs, see [Cat Analytics API Documentation](https://github.com/AdobeDocs/dev-site).
+This documentation provides instructions for third-party APIs of Cloud Storage and Collaboration. For working with Adobe Cloud Storage and Collaboration APIs, see [Cloud Storage and Collaboration API Documentation](https://github.com/AdobeDocs/dev-site).
 
 The Cat Analytics APIs are a collection of APIs that power Cat Analytics products like Cat Workspace.
 The APIs allow for the creation of data rich user interfaces that you can use to manipulate and integrate data.
