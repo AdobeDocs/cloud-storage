@@ -9,7 +9,7 @@ contributors:
 
 # Cloud Storage and Collaboration
 
-<Overview of Cloud Storage and Collaboration APIs>
+Overview of Cloud Storage and Collaboration APIs
 
 <Resources slots="heading, links"/>
 
