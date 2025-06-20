@@ -4,19 +4,16 @@
 - pages:
     - [Cloud Storage and Collaboration](/index.md)
     - [Guides](/guides/index.md)
-    - API Reference
-        - [Introduction to third-party APIs](/api/overview.md)
-        - [API specifications](/api/index.md)
+    - [API Reference](/api/overview.md)
     - [Support](/support/index.md)
 
 - subPages:
     - [Overview](/guides/index.md)
         - [Authentication setup](/guides/authen/index.md)
-        - [Constructus](./guides/overview/constructs.md)
-        - [Limits](./guides/overview/limits.md)
-        - [Limits](./guides/overview/permissions.md)
+        - [Collaboration constructs](./guides/overview/constructs.md)
+        - [Rate limits](./guides/overview/limits.md)
+        - [Roles and permissions](./guides/overview/permissions.md)
     - [Getting started](./guides/getting_started/index.md)
-    - Third-party APIs
-        - [Introduction to third-party APIs](/api/overview.md)
+    - [Third-party APIs](/api/overview.md)
         - [API specifications](/api/index.md)
     - [Support](./support/index.md)
