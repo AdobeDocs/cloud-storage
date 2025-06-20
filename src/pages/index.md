@@ -23,7 +23,7 @@ contributors:
 * [Quickstart Guide](./guides/quick_start/index.md)
 * [API reference](./api/index.md)
 
-# Overview
+## Overview
 
 The Adobe Cloud Storage and Collaboration API gives you programmatic access to content in Adobe storage for business. Adobe storage for business is Adobe’s cloud storage that enables business organizations to store digital content at a central location and collaborate across multiple Adobe apps from any location or devices.
 
@@ -31,10 +31,10 @@ With the Adobe Cloud Storage and Collaboration API, you can create and list proj
 
 This documentation will assist you in:
 
-- Setting up your development project in Adobe Developer Console
-- Obtaining and authenticating your credentials
-- Automating work in progress workflows using the Adobe Cloud Storage and Collaboration API
-- Using the Adobe Cloud Storage and Collaboration API with other Adobe APIs
+* Setting up your development project in Adobe Developer Console
+* Obtaining and authenticating your credentials
+* Automating work in progress workflows using the Adobe Cloud Storage and Collaboration API
+* Using the Adobe Cloud Storage and Collaboration API with other Adobe APIs
 
 ## Discover
 
@@ -48,4 +48,4 @@ This documentation will assist you in:
 
 ## Support
 
-<mark>Placeholder for the support DL</mark>
+`Placeholder for the support DL`
