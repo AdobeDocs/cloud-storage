@@ -17,7 +17,7 @@ contributors:
 layout: none
 ---
 
-# Getting started with the Adobe Cloud Storage and Collaboration API
+# Getting started with the Adobe Cloud Storage and Collaboration APIs
 
 The first step in accessing the Adobe Cloud Storage and Collaboration API is getting authenticated. For that, you will need an access token and an API Key. The steps below will show you how to generate an access token and make your first API call.
 
