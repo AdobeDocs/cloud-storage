@@ -1,84 +1,56 @@
 ---
-title: Overview - Cat Analytics
-description: This is the overview page of Cat Analytics
+title: Overview - Adobe Cloud Storage and Collaboration API
+description: An overview of the Adobe Cloud Storage and Collaboration API
+keywords:
+ - Adobe Cloud Storage and Collaboration
+ - Adobe Cloud Storage and Collaboration API
+ - Adobe Cloud Storage
+ - Creative production workflows
+ - Adobe workflows
+ - Cloud Storage overview
 contributors:
-  - https://github.com/icaraps 
+- https://github.com/michael-hodgson
 ---
 
-<HeroSimple slots="heading, text"/>
+![Hero image](../pages/guides/images/banner.png)
 
 # Cloud Storage and Collaboration
 
-Overview of Cloud Storage and Collaboration APIs
+<<<<<<< HEAD
+The Adobe Cloud Storage and Collaboration API gives you programmatic access to content in Adobe storage for business. Adobe storage for business is Adobe’s cloud storage that enables business organizations to store digital content at a central location and collaborate across multiple Adobe apps from any location or devices.
+=======
+>>>>>>> 9e0f52b19d92ef8589f64f71f065a42187a10338
 
 <Resources slots="heading, links"/>
 
 #### Resources
 
-* [Quickstart Guide](https://developer.adobe.com)
-* [Cat Analytics Github Repo](https://github.com/AdobeDocs/dev-site)
+* [Quickstart Guide](./guides/quick_start/index.md)
+* [API reference](./api/index.md)
 
-## Overview
+# Overview
 
-This documentation provides instructions for third-party APIs of Cloud Storage and Collaboration. For working with Adobe Cloud Storage and Collaboration APIs, see [Cloud Storage and Collaboration API Documentation](https://github.com/AdobeDocs/dev-site).
+With the Adobe Cloud Storage and Collaboration API, you can create and list projects, set user roles, create project folders, upload/download project files, and more to automate creative production workflows and integrate Adobe cloud storage with your existing systems. 
 
-The Cat Analytics APIs are a collection of APIs that power Cat Analytics products like Cat Workspace.
-The APIs allow for the creation of data rich user interfaces that you can use to manipulate and integrate data.
-You can also create reports to explore, get insights, or answer important questions about your data.
+This documentation will assist you in:
+
+- Setting up your development project in Adobe Developer Console
+- Obtaining and authenticating your credentials
+- Automating work in progress workflows using the Adobe Cloud Storage and Collaboration API
+- Using the Adobe Cloud Storage and Collaboration API with other Adobe APIs
 
 ## Discover
 
-<DiscoverBlock width="100%" slots="heading, link, text"/>
-
 ### Get Started
 
-[Quickstart Guide](guides/index.md)
+[Getting Started Guide](./guides/getting_started/index.md)
 
-Get started with the Cat Analytics APIs.
 
-<DiscoverBlock slots="heading, link, text"/>
-
-### Guides
-
-[Calculated Metrics API](guides/dummy_metrics_api/index.md)
-
-Returns information on the user's company that is necessary for making other Cat Analytics API calls.
-
-<DiscoverBlock slots="link, text"/>
-
-[Segments API](guides/dummy_oauth_client/index.md)
-
-Provides configuration guidance and best practices for the /segments endpoint.
-
-<DiscoverBlock slots="link, text"/>
-
-[Reporting Guide API](guides/dummy_using_postman/index.md)
-
-Provides configuration guidance and best practices for the /reports endpoint.
-
-<DiscoverBlock slots="link, text"/>
-
-[Migrating from 1.4 to 2.0](guides/migrating/index.md)
-
-For help migrating from the 1.4 versions of the Analytics API to the newer and more capable /reports API.
-
-<DiscoverBlock width="100%" slots="heading, link, text"/>
 
 ### API References
 
-[Try the API](api/index.md)
+[Adobe Cloud Storage and Collaboration API](./api/index.md)
 
-Try the Analytics API with Swagger UI. Explore, make calls, with full endpoint descriptions.
+## Support
 
-## Contributing
-
-We encourage you to participate in our open documentation initiative, if you have suggestions, corrections, additions
-or deletions for this documentation, check out the source from [this github repo](https://github.com/adobe/gatsby-theme-spectrum-example), and submit a pull
-request with your contribution. For more information, refer to the [contributing page](support/contribute/index.md).
-
-## API Requests & Rate Limits
-
-The timeout for API requests through adobe.io is currently *60 seconds*.
-
-The default rate limit for an Cat Analytics Company is *120 requests per minute*. (The limit is enforced as *12 requests every 6 seconds*).
-When rate limiting is being enforced you will get `429` HTTP response codes with the following response body: `{"error_code":"429050","message":"Too many requests"}`.
+<mark>Placeholder for the support DL</mark>
