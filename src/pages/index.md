@@ -20,7 +20,7 @@ contributors:
 
 #### Resources
 
-* [Quickstart Guide](./guides/quick_start/index.md)
+* [Quickstart Guide](./guides/quick-start/index.md)
 * [API reference](./api/index.md)
 
 ## Overview
@@ -40,7 +40,7 @@ This documentation will assist you in:
 
 ### Get Started
 
-[Getting Started Guide](./guides/getting_started/index.md)
+[Getting Started Guide](./guides/getting-started/index.md)
 
 ### API References
 

@@ -14,7 +14,7 @@
         - [Rate limits](./guides/overview/limits.md)
         - [Roles and permissions](/src/pages/guides/overview/permissions.md)
     - [Getting started](/src/pages/guides/getting_started/index.md)
-    - [Quick Start Guide](./guides/quick_start/index.md)
+    - [Quick Start Guide](./guides/quick-start/index.md)
     - [Third-party APIs](/src/pages/api/overview.md)
         - [API specifications](/src/pages/api/index.md)
     - [Support](./support/index.md)
