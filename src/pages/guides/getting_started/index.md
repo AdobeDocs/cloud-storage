@@ -17,7 +17,7 @@ contributors:
 layout: none
 ---
 
-# Getting started with the Adobe Cloud Storage and Collaboration APIs
+# Getting started with the Adobe Cloud Storage and Collaboration API
 
 The first step in accessing the Adobe Cloud Storage and Collaboration API is getting authenticated. For that, you will need an access token and an API Key. The steps below will show you how to generate an access token and make your first API call.
 
@@ -35,7 +35,7 @@ Enterprise customers must be assigned the System Administrator or Developer role
 
 ## Generate an API Key and access token from the Adobe Developer Console
 
-f you have already been provisioned with access through your organization, you will need to create a project in the Adobe Developer Console.
+If you have already been provisioned with access through your organization, you will need to create a project in the Adobe Developer Console.
 
 ### Step 1: Create a project
 
@@ -88,7 +88,7 @@ You can add other APIs to your developer project by repeating [step 2](#step-2-a
 
 Access tokens can be generated or refreshed in two ways:
 
-- Manual generation: Click **Generate an access token** for quick experimentation using the Developer Console
+- Manual generation: Click **Generate an access token** for quick experimentation using the Developer Console.
 - Programmatic generation: Click **view the cURL command** to learn how to generate access tokens programmatically. [Learn more](https://developer.adobe.com/developer-console/docs/guides/authentication/ServerToServerAuthentication/implementation/) about how to do it.
 
 #### Scopes
@@ -116,16 +116,16 @@ Granting permissions to the Technical Account is done through the [Adobe Admin C
 
    ![Adobe Admins Console](../images/admin_console_start.png)
 
-3. Choose _API Credentials_ from the menu on the left
+3. Choose _API Credentials_ from the menu on the left.
 4. Locate the credential you created earlier in the list. Click on the _view details_ icon to see information about the credential.
 
    ![API credential list](../images/api_credential_list.jpg)
 
-5. Copy the Technical Account's username data
+5. Copy the Technical Account's username data.
 
    ![User name](../images/ta_username.jpg)
 
-6. Choose _Administrators_ from the menu on the left
+6. Choose _Administrators_ from the menu on the left.
 7. Click the _Add Admin_ button.
 
    ![Add Admin option](../images/add_admin.jpg)
@@ -138,7 +138,7 @@ Granting permissions to the Technical Account is done through the [Adobe Admin C
 
    ![Admin next](../images/ta_admin_next.jpg)
 
-10. Activate teh _Storage administrator_ option and click _Save_. This will make the Technical Account a Storage Administrator, which gives the account access to all of the content in your organization's Adobe cloud storage.
+10. Activate the _Storage administrator_ option and click _Save_. This will make the Technical Account a Storage Administrator, which gives the account access to all of the content in your organization's Adobe cloud storage.
 
 ![Storage Admin](../images/ta_storage_admin.jpg)
 
@@ -164,6 +164,7 @@ Congratulations! You just made your first request to the Cloud Storage and Colla
 **Note:** that your access token will expire every 24 hours at which time it will need to be refreshed.
 
 Start building your applications
+
 Now that you have obtained an Access Token and Client ID, you can utilize them to develop your application with Cloud Storage and Collaboration API.
 
 The [Quickstart guide](../quickstart/index.md) will provide an example to help you get started.
