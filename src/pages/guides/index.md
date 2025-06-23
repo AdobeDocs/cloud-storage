@@ -30,7 +30,7 @@ This documentation will assist you in:
 
 ### Get Started
 
-[Getting Started Guide](./getting_started/index.md)
+[Getting Started Guide](./getting-started/index.md)
 Get started with the Adobe Cloud Storage and Collaboration API
 
 ### API References
