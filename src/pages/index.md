@@ -11,13 +11,10 @@ keywords:
 contributors:
 - https://github.com/michael-hodgson
 ---
-<Hero slots="image, heading, text" background="rgb(64, 34, 138)" hideBreadcrumbNav={false}/>
 
-![Hero image](../pages/guides/images/banner.png)
+![Hero image](./illustration.png)
 
 # Cloud Storage and Collaboration
-
-The Adobe Cloud Storage and Collaboration API gives you programmatic access to content in Adobe storage for business. Adobe storage for business is Adobe’s cloud storage that enables business organizations to store digital content at a central location and collaborate across multiple Adobe apps from any location or devices.
 
 <Resources slots="heading, links"/>
 
@@ -28,7 +25,7 @@ The Adobe Cloud Storage and Collaboration API gives you programmatic access to c
 
 ## Overview
 
-
+The Adobe Cloud Storage and Collaboration API gives you programmatic access to content in Adobe storage for business. Adobe storage for business is Adobe’s cloud storage that enables business organizations to store digital content at a central location and collaborate across multiple Adobe apps from any location or devices.
 
 With the Adobe Cloud Storage and Collaboration API, you can create and list projects, set user roles, create project folders, upload/download project files, and more to automate creative production workflows and integrate Adobe cloud storage with your existing systems.
 

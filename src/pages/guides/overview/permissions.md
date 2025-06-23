@@ -1,23 +1,3 @@
----
-title: Roles and Permissions - Adobe Cloud Storage and Collaboration API
-description: Adobe Cloud Storage and Collaboration API roles and permissions
-keywords:
- - Adobe Cloud Storage and Collaboration
- - Adobe Cloud Storage and Collaboration API
- - Adobe Cloud Storage
- - Creative production workflows
- - Adobe workflows
- - Cloud Storage endpoints
- - Cloud Storage autorization
- - User roles
- - Access Control
- - Permissions
- - User group
-contributors:
-- https://github.com/michael-hodgson
-layout: none
----
-
 # Roles and Permissions
 
 Adobe cloud storage includes an access control systm that manages access to projects, folders, and files. Authorization is granted based on roles:
@@ -52,7 +32,7 @@ The Edit and Comment roles can be assigned to a user or group in two ways:
 
 ## Setting roles with the API
 
-The [Project permissions API](=== TODO: insert the link to the API reference ===) takes a JSON document that defines the changes in a project's permissions. The document has three sections (JSON objects):
+The `[Project permissions API](=== TODO: insert the link to the API reference ===)` takes a JSON document that defines the changes in a project's permissions. The document has three sections (JSON objects):
 
 1. additions: grants a role to one or more principals
 2. updates: changes the role for one or more principals
@@ -66,7 +46,7 @@ There are three types of principals, each with different applicable values for t
 | -------------- | -------------------- | ----- |
 | user           | user's email address | Indicates a specific user |
 | group          | user group name      | Indicates a [user goup](https://helpx.adobe.com/enterprise/using/user-groups.html) |
-| predefined     | either: <ul><li>_everybody</li><li>authenticated</li><li>all</li> </ul> | Indicates a special principal (see below) |
+| predefined     | either: <br />- everybody<br /> - authenticated<br /> - all | Indicates a special principal (see below) |
 
 ### Predefined principals
 
@@ -78,7 +58,7 @@ There are three special principals:
 
 ## Examples
 
-The following adds a user _bob@acme.com_ as an editor, updates the _Marketing_ group's permissions to allow editing, allows anyone in the organization to comment on the project's content, and removes public access
+The following adds a user `_bob@acme.com_` as an editor, updates the _Marketing_ group's permissions to allow editing, allows anyone in the organization to comment on the project's content, and removes public access
 
 ```JSON
 {
