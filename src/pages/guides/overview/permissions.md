@@ -3,7 +3,7 @@
 Adobe cloud storage includes an access control systm that manages access to projects, folders, and files. Authorization is granted based on roles:
 
 | Permission                           |  Administrator | Creator | Edit | Comment |
-| :----------------------------------- | :-------------:| :-----: | :--: | :------:|
+| ------------------------------------ | -------------- | ------- | ---- | ------- |
 | Rename a project                     | ✅             | ✅      |      |         |
 | Discard a project                    | ✅             | ✅      |      |         |
 | View files and folders               | ✅             | ✅      | ✅   | ✅      |

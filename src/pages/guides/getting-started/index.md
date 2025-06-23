@@ -128,8 +128,8 @@ Granting permissions to the Technical Account is done through the [Adobe Admin C
 Once you have created your access token, you can follow the steps below to make your first API call.
 
 - Open your terminal and paste the code below.
-- Replace the variables <YOUR_ACCESS_TOKEN> with the token you generated on the Adobe Developer Console.
-- Replace <YOUR_CLIENT_ID>. You can find this on the same page you generated your token on.
+- Replace the variables `<YOUR_ACCESS_TOKEN>` with the token you generated on the Adobe Developer Console.
+- Replace `<YOUR_CLIENT_ID>`. You can find this on the same page you generated your token on.
 - Once all variables have been replaced you can run the command.
 
 ```json
