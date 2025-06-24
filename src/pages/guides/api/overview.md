@@ -2,4 +2,4 @@
 
 - Introduction
 - List of APIs
-- [API specifications](/api/index.md)
+- [API specifications](./index.md)
