@@ -10,7 +10,7 @@
 - subPages:
     - [Overview](./guides/index.md)
     - [Getting started](./guides/getting-started/index.md)
-    - [Concepts]
+    - [Concepts](./guides/authentication/index.md) header
         - [Authentication setup](./guides/authentication/index.md)
         - [Collaboration constructs](./guides/overview/constructs.md)
         - [Rate limits](./guides/overview/limits.md)
