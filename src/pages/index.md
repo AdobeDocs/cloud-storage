@@ -12,9 +12,11 @@ contributors:
 - https://github.com/michael-hodgson
 ---
 
-![Hero image](./illustration.png)
+<HeroSimple slots="heading, text"/>
 
 # Cloud Storage and Collaboration
+
+The Adobe Cloud Storage and Collaboration API gives you programmatic access to content stored in Adobe storage for business.
 
 <Resources slots="heading, links"/>
 
@@ -25,26 +27,32 @@ contributors:
 
 ## Overview
 
-The Adobe Cloud Storage and Collaboration API gives you programmatic access to content in Adobe storage for business. Adobe storage for business is Adobe’s cloud storage that enables business organizations to store digital content at a central location and collaborate across multiple Adobe apps from any location or devices.
+Adobe storage for business is Adobe’s cloud storage that enables business organizations to store digital content at a central location and collaborate across multiple Adobe apps from any location or device.
 
-With the Adobe Cloud Storage and Collaboration API, you can create and list projects, set user roles, create project folders, upload/download project files, and more to automate creative production workflows and integrate Adobe cloud storage with your existing systems.
+With the Adobe Cloud Storage and Collaboration API, you can:
 
-This documentation will assist you in:
+* Create and manage projects
+* Assign user roles
+* Organize content with project folders
+* Upload and download project files
+* Automate creative workflows
+* Integrate Adobe cloud storage with your existing systems
+
+### What You’ll Learn
+
+This documentation will guide you through:
 
 * Setting up your development project in Adobe Developer Console
-* Obtaining and authenticating your credentials
-* Automating work in progress workflows using the Adobe Cloud Storage and Collaboration API
-* Using the Adobe Cloud Storage and Collaboration API with other Adobe APIs
+* Obtaining and managing your credentials
+* Automating work in progress workflows
+* Using Adobe Cloud Storage and Collaboration API with other Adobe APIs
 
 ## Discover
 
-### Get Started
-
-[Getting Started Guide](./guides/getting-started/index.md)
-
-### API References
-
-[Adobe Cloud Storage and Collaboration API](./api/index.md)
+* [Overview](./guides/index.md)
+* [Getting Started Guide](./guides/getting-started/index.md)
+* [Quick Start Guide](./guides/quick-start/index.md)
+* [API Reference](./guides/api/overview.md)
 
 ## Support
 

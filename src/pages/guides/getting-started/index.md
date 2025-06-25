@@ -1,6 +1,6 @@
 # Getting started with the Adobe Cloud Storage and Collaboration API
 
-The first step in accessing the Adobe Cloud Storage and Collaboration API is authentication. For that, you will need an access token and an API Key. The steps below explain how to generate an access token and make your first API call.
+The first step in accessing the Adobe Cloud Storage and Collaboration API is authentication. For that, you will need an access token and an API key. The steps below explain how to generate an access token and make your first API call.
 
 ## Overview
 
@@ -11,19 +11,19 @@ Follow these steps to get started with the Adobe Cloud Storage and Collaboration
 Enterprise customers must be assigned the **System Administrator** or **Developer** role in the Adobe Admin Console to access the Adobe Developer Console.
 
 - Identify an Adobe Admin in your organization. This may be as simple as checking the notes in your Adobe account, or you can ask your Adobe solution consultant for the appropriate contact.
-- Ask the Admin set up either **System Administrator** or **Developer roles** for users who need to generate API keys.
+- Ask the Admin to set up either **System Administrator** or **Developer roles** for users who need to generate API keys.
   - Alternatively, ask your Admin to generate the keys if they prefer not to elevate roles.
   - If your Admin does this for you, skip to the [Make your first API Call](#make-your-first-api-call) section.
-- If your Admin allows you to generate your API keys, the Admin also must assign the **Adobe Cloud Storage and Collaboration** product to you in the Admin Console.
+- If your Admin allows you to generate your API keys, the Admin must also assign the **Adobe Cloud Storage and Collaboration** product to you in the Admin Console.
 
-## Generate an API Key and access token
+## Generate an API key and access token
 
 If your organization has provisioned access, follow these steps to create a project and generate credentials in the Adobe Developer Console.
 
 ### Step 1: Create a project
 
 1. Go to [https://developer.adobe.com/console/home](https://developer.adobe.com/console/home) and sign in to the Developer Console.
-2. Select **Create new project** under the **Quick start** section on the middle of your screen:
+2. Select **Create new project** under the **Quick start** section in the middle of your screen:
 
 ![Create a project](../images/create-dev-project.jpg)
 
@@ -37,7 +37,7 @@ If your organization has provisioned access, follow these steps to create a proj
 
    ![Pick Cloud Storage API option](../images/pick-cloudstorage-api.jpg)
 
-### Step 3: Set Credentials
+### Step 3: Set credentials
 
 1. Choose your preferred authentication method:
 
@@ -77,7 +77,7 @@ Access tokens can be generated or refreshed in two ways:
 
 Scopes define the specific actions or data your application is allowed to access. As a security best practice, your application should request only the minimum scopes necessary to function properly.
 
-Click **View scopes per service** to understand the services and scopes associated with it.
+Click **View scopes per service** to see the available services and their scopes.
 
 ![Get scopes](../images/get_scopes.jpg)
 

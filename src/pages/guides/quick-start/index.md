@@ -120,7 +120,7 @@ export FIREFLY_SERVICES_ACCESS_TOKEN=yourAccessTokenAsdf123
 
 Now that you have an access token you can begin to work with Adobe Creative Cloud projects. A project is a durable shared space within your organization. For more information about Adobe Creative Cloud Projects see: [Creative Cloud projects overview](https://helpx.adobe.com/creative-cloud/help/projects-overview.html).
 
-You can start by geting a list of the existing projects. Its important to note that only projects that the requesting user or Technical Account has access to will be included in the response.
+You can start by getting a list of the existing projects. It is important to note that only projects that the requesting user or Technical Account has access to will be included in the response.
 
 ```js
 //Get a list of existing projects

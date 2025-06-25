@@ -1,6 +1,6 @@
 # Roles and Permissions
 
-Adobe cloud storage includes an access control systm that manages access to projects, folders, and files. Authorization is granted based on roles:
+Adobe cloud storage includes an access control system that manages access to projects, folders, and files. Authorization is granted based on roles:
 
 | Permission                           |  Administrator | Creator | Edit | Comment |
 | ------------------------------------ | -------------- | ------- | ---- | ------- |
@@ -15,7 +15,7 @@ Adobe cloud storage includes an access control systm that manages access to proj
 
 ### Administrators
 
-Users and groups can ony be assigned to an administrator role using the [Adobe Admin Console](https://helpx.adobe.com/enterprise/using/admin-roles.html).
+Users and groups can only be assigned to an administrator role using the [Adobe Admin Console](https://helpx.adobe.com/enterprise/using/admin-roles.html).
 Note that both System Administrators and Storage Administrators have admin permissions to content in Adobe cloud storage
 
 ### Creator
@@ -45,7 +45,7 @@ There are three types of principals, each with different applicable values for t
 | Principal type | Principal id         | Notes |
 | -------------- | -------------------- | ----- |
 | user           | user's email address | Indicates a specific user |
-| group          | user group name      | Indicates a [user goup](https://helpx.adobe.com/enterprise/using/user-groups.html) |
+| group          | user group name      | Indicates a [user group](https://helpx.adobe.com/enterprise/using/user-groups.html) |
 | predefined     | either: everybody, authenticated, all | Indicates a special principal (see below) |
 
 ### Predefined principals
