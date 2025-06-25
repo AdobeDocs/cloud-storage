@@ -16,7 +16,7 @@ contributors:
 layout: none
 ---
 
-# Authentication
+# Authentication setup
 
 Learn how to authenticate requests to the Adobe Cloud Storage and Collaboration API.
 

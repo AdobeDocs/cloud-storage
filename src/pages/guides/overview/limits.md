@@ -8,7 +8,7 @@ keywords:
  - Creative production workflows
  - Adobe workflows
  - Cloud Storage endpoints
- - Cloud Storage authentication and autorization
+ - Cloud Storage authentication and authorization
  - Rate Limits
  - Throttling
 contributors:
@@ -22,7 +22,7 @@ The Adobe Cloud Storage and Collaboration API places default rate limits on the 
 
 ## Summary of Rate Limits
 
-Our API imposes the following rate limits per client id/API key:
+Our API imposes the following rate limits per client ID/API key:
 
 - 25 requests per minute (RPM)
 
