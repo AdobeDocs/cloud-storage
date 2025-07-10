@@ -1,1 +1,1 @@
-<RedoclyAPIBlock src="/cloud-storage/static/index.yml" />
+<RedoclyAPIBlock src="/cloud-storage/index.yml" />
