@@ -2,14 +2,15 @@
 title: Overview - Adobe Cloud Storage and Collaboration API
 description: An overview of the Adobe Cloud Storage and Collaboration API
 keywords:
- - Adobe Cloud Storage and Collaboration
- - Adobe Cloud Storage and Collaboration API
- - Adobe Cloud Storage
- - Creative production workflows
- - Adobe workflows
- - Cloud Storage overview
+  - Adobe Cloud Storage and Collaboration
+  - Adobe Cloud Storage and Collaboration API
+  - Adobe Cloud Storage
+  - Creative production workflows
+  - Adobe workflows
+  - Cloud Storage overview
 contributors:
-- https://github.com/michael-hodgson
+  - https://github.com/michael-hodgson
+  - https://github.com/lijumjose
 layout: none
 ---
 
@@ -35,4 +36,4 @@ Get started with the Adobe Cloud Storage and Collaboration API
 
 ### API References
 
-[Adobe Cloud Storage and Collaboration API](../api/overview.md)
+[Adobe Cloud Storage and Collaboration API](./api/index.md)

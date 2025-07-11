@@ -2,17 +2,18 @@
 title: Rate Limits - Adobe Cloud Storage and Collaboration API
 description: Adobe Cloud Storage and Collaboration API rate limits
 keywords:
- - Adobe Cloud Storage and Collaboration
- - Adobe Cloud Storage and Collaboration API
- - Adobe Cloud Storage
- - Creative production workflows
- - Adobe workflows
- - Cloud Storage endpoints
- - Cloud Storage authentication and authorization
- - Rate Limits
- - Throttling
+  - Adobe Cloud Storage and Collaboration
+  - Adobe Cloud Storage and Collaboration API
+  - Adobe Cloud Storage
+  - Creative production workflows
+  - Adobe workflows
+  - Cloud Storage endpoints
+  - Cloud Storage authentication and autorization
+  - Rate Limits
+  - Throttling
 contributors:
-- https://github.com/michael-hodgson
+  - https://github.com/michael-hodgson
+  - https://github.com/lijumjose
 layout: none
 ---
 
@@ -24,7 +25,7 @@ The Adobe Cloud Storage and Collaboration API places default rate limits on the 
 
 Our API imposes the following rate limits per client ID/API key:
 
-- 25 requests per minute (RPM)
+- 20 requests per second (RPS)
 
 ## What to Do If You Run Into Issues
 

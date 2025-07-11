@@ -2,18 +2,20 @@
 title: Cloud Storage Collaboration Concepts - Adobe Cloud Storage and Collaboration API
 description: Adobe Cloud Storage and Collaboration API cloud storage concepts
 keywords:
- - Adobe Cloud Storage and Collaboration
- - Adobe Cloud Storage and Collaboration API
- - Adobe Cloud Storage
- - Creative production workflows
- - Adobe workflows
- - Cloud Storage endpoints
- - Cloud Storage authentication and authorization
- - Projects
- - Folder
- - File
+  - Adobe Cloud Storage and Collaboration
+  - Adobe Cloud Storage and Collaboration API
+  - Adobe Cloud Storage
+  - Creative production workflows
+  - Adobe workflows
+  - Cloud Storage endpoints
+  - Cloud Storage authentication and authorization
+  - Projects
+  - Folder
+  - File
 contributors:
-- https://github.com/michael-hodgson
+  - https://github.com/michael-hodgson
+  - https://github.com/lijumjose
+
 layout: none
 ---
 
@@ -32,4 +34,13 @@ A folder is a container to organize and store content. You can use folders to st
 
 ## File
 
-Files are used to store content in Adobe's cloud storage. Files can be cloud documents that are optimized for web applications - such as Photoshop cloud (PSDC) and Adobe Express documents, or regular files typically used in conjunction with Adobe applications, such as jpeg, png, and mp4 files.
+Files are used to store content in Adobe cloud storage. Files come in three types;
+
+- [Cloud documents](https://helpx.adobe.com/creative-cloud/help/about-cloud-documents.html) are cloud-native files optimized for web applications. You can open and edit in compatible apps such as Adobe Express, Adobe Photoshop, Adobe Illustrator, Adobe InDesign, Adobe Fresco, Adobe Aero, and Adobe XD
+- Brands and [Libraries](https://helpx.adobe.com/creative-cloud/help/libraries.html) are collections of reusable assets and guidelines to aid content reuse across documents
+- Regular, binary files such as those ued in conjunction with Adobe applications, such as jpeg, png, and mp4 files.
+
+While most Cloud Storage and Collaboration API operations are the same across all types of files, there are a few differences:
+
+- Cloud documents cannot be downloaded as they are cloud constructs. Use the file `renditions` function to get a flat file representation of a cloud document asset
+- Brands and Libraries cannot be downloaded or used to generate a rendtion as these are container objects
