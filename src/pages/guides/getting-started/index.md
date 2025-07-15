@@ -14,7 +14,7 @@ contributors:
 layout: none
 ---
 
-# Getting started with the Adobe Cloud Storage and Collaboration API
+# Getting started with Adobe Cloud Storage and Collaboration APIs
 
 The Adobe Cloud Storage and Collaboration API gives you programmatic access to content stored in Adobe cloud storage for enterprises. With the Adobe Cloud Storage and Collaboration API, you can create and list projects, set user roles, create project folders, upload/download project files, and more to automate creative production workflows and integrate Adobe cloud storage with your existing systems.
 
@@ -22,7 +22,7 @@ The Adobe Cloud Storage and Collaboration API gives you programmatic access to c
 
 Before you can use the Cloud Storage and Collaboration API, you must use the [Adobe Developer Console](https://developer.adobe.com/) to create a development project. The integration registers your application as a client of the Cloud Storage and Collaboration API, and gives you the credentials you need to authorize calls to the API.
 
-- For information on setting up an Adobe Developer Console project, see [Developer Console](./developer-console.md)
+- For information on setting up an Adobe Developer Console project, see [Developer Console](./developer-console.md).
 - For information about client credential authentication and retrieving Client ID, Client Secret, Scopes, or access tokens, see [Authentication Setup](./authentication.md).
 
 ## Make your first API call

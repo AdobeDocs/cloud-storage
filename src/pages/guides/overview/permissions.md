@@ -19,7 +19,7 @@ contributors:
 layout: none
 ---
 
-# Roles and Permissions
+# Roles and permissions
 
 Adobe cloud storage includes an access control system that manages access to projects, folders, and files. Authorization is granted based on roles:
 
@@ -32,7 +32,7 @@ Adobe cloud storage includes an access control system that manages access to pro
 | Create and add files, create folders |      ✅       |   ✅    |  ✅  |         |
 | Set roles                            |      ✅       |   ✅    |  ✅  |         |
 
-## Assigning Roles
+## Assigning roles
 
 ### Administrators
 
@@ -169,11 +169,12 @@ You can remove a user, group, or predefined principal's access to a project usin
 
 For example, the following request deletes the permissions of two users. The first user has accepted the invitation and therefore their ID is a unique GUID. The second user has not yet accepted the invitation, so their id is still their email address.
 
-```bash
+```json
 {
-  "direct": {
-  "deletions": [
+  "direct": 
   {
+  "deletions": [
+    {
     "id": "C1D71E08680BCA8C0A49420A@c1651e08680bc694494118.e",
     "type": "user"
     },

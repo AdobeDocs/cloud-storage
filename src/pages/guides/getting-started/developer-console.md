@@ -78,7 +78,7 @@ Choose the appropriate product profile(s) and select **Save configured API**.
 
 You can add other credentials using the **Connect another credential** button on the Developer Console project page.
 
-To add more APIs to your project, repeat [step 2](#step-2-add-api-to-your-project) until all required APIs are included.
+To add more APIs to your project, repeat [step 2](#step-2-add-the-api-to-your-project) until all required APIs are included.
 
 ![Connect another credential](../images/connect_another_credential.jpg)
 
