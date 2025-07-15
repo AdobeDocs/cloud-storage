@@ -1,4 +1,4 @@
---- 
+---
 title: Authentication - Adobe Cloud Storage and Collaboration API
 description: Adobe Cloud Storage and Collaboration API authentication guide
 keywords:
@@ -28,17 +28,24 @@ Every request made to Adobe Cloud Storage and Collaboration APIs must include an
 
 ## Prerequisites
 
-Before proceeding, work with your Adobe Representative and ensure you have the following:This tutorial assumes you have worked with your Adobe Representative and have the following:
+This document assumes you have worked with your organization's Administrator and have the following:
 
-- An [Adobe Developer Console](https://developer.adobe.com/) account.
-- An [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/projects/projects-empty/) with [OAuth server-to-server](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s) or [OAuth user authentication](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-user-authentication) credentials for the Adobe Cloud Storage and Collaboration APIs.
-- Access to your Client ID and Client Secret from the [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s#api-overview). Securely store these credentials and never expose them in client-side or public code.
+- A user account with a Developer role authorized for an Adobe product that uses Enterprise Storage. This grants access to the [Adobe Developer Console](https://developer.adobe.com/).
+- An [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/projects/projects-empty/) configured with either OAuth server-to-server or OAuth user authentication credentials for the Adobe Cloud Storage and Collaboration APIs.
+- Access to your Client ID and Client Secret from the Adobe Developer Console project. Securely store these credentials and never expose them in client-side or public code.
+
+For more information about setting up an Adobe Developer Console project, see [Adobe Developer Console](./developer-console.md)
 
 ## Authentication Types
 
-The Adobe Cloud Storage and Collaboration API supports both Server-to-Server (OAuth Server-to-Server credentials) and User authentication (OAuth Web App and OAuth Single Page App credentials).
+The Adobe Cloud Storage and Collaboration API supports the following authentication method:
 
-The [Adobe Developer Authentication Guide](https://developer.adobe.com/developer-console/docs/guides/authentication/) has more information about the authentication types and their uses.
+- Server-to-Server authenitcation using OAuth Server-to-Server credentials
+- User authentication using OAuth Web App and OAuth Single Page App credentials
+
+Each method is designed for different use cases, depending on whether your application acts independently or on behalf of a user.
+
+For a detailed comparison and implementation guidance, refer to [Adobe Developer Authentication Guide](https://developer.adobe.com/developer-console/docs/guides/authentication/).
 
 ## Server-to-Server Authentication
 
@@ -76,7 +83,7 @@ Perform the following steps:
    }
    ```
 
-   The expires_in field indicates the token’s validity in seconds, typically, 24 hours. Your application should securely store the token and refresh it before expiration.
+   The `expires_in` field indicates the token’s validity in seconds, typically, 24 hours. Your application should securely store the token and refresh it before expiration.
 
 3. Export your access token as an environment variable:
 
@@ -86,13 +93,19 @@ Perform the following steps:
 
 ### Technical Account Permissions
 
-API requestes made using OAuth Server-to-Server calls are made using a Technical Account. The Technical Account is created automatically when you added Server-to-Server authentication to your Developer Console Project. However, you must grant the Technical Account permissions to allow it to access the Adobe cloud storage conent.
+When using OAuth Server-to-Server authentication, all API requests are executed through a Technical Account. This account is automatically created when you configure Server-to-Server authentication in your Adobe Developer Console project.
 
-Granting permissions to the Technical Account is done through the [Adobe Admin Console](https://adminconsole.adobe.com/). Note: **You must be an Administrator for your organization to grant permissions to the Technical Account.** The [Getting Started guide](../../getting-started/index.md) has detailed instructions for granting privileges to a Technical Account.
+However, to enable access to Adobe cloud storage content, you must explicitly grant permissions to the Technical Account.
+
+Granting permissions to the Technical Account is done through the [Adobe Admin Console](https://adminconsole.adobe.com/).
+
+**Note:** You must be an Administrator for your organization to grant permissions to the Technical Account.
+
+For step-by-step instructions, refer to the [Developer Console](./developer-console.md).
 
 ## User Authentication
 
-User authentication is used when your application needs to execute actions on Adobe cloud storage content on behalf of a particular user (with that user's concent).
+User authentication is used when your application needs to execute actions on Adobe cloud storage content on behalf of a particular user (with that user's consent).
 
 The Adobe Cloud Storage and Collaboration API supports both OAuth Web App and OAuth Single Page App credentials for user authentication.
 
@@ -101,6 +114,6 @@ The following Adobe Developer documents provide details on User Authentication:
 - [User Authentication Implementation Guide](https://developer.adobe.com/developer-console/docs/guides/authentication/UserAuthentication/implementation)
 - [User Authentication Credentials API Reference](https://developer.adobe.com/developer-console/docs/guides/authentication/UserAuthentication/ims#fetching-access-tokens)
 
-### User Permissions
+### User permissions
 
-API calls made with User authentication use a user token to make the request on behalf of a specific user. The user's [roles and permissions](https://file+.vscode-resource.vscode-cdn.net/Users/mhodgson/Library/CloudStorage/OneDrive-Adobe/Adobe_Projects/Development/torii/docs/public/src/pages/concepts/permissions/index.md) determine what projects, folders, and files can be accessed via the Adobe Cloud Storage and Collaboration API.
+API calls made with User authentication use a user token to make the request on behalf of a specific user. The user's [roles and permissions](https://file+.vscode-resource.vscode-cdn.net/Users/mhodgson/Library/CloudStorage/OneDrive-Adobe/Adobe_Projects/Development/torii/docs/public/src/pages/concepts/permissions/index.md) determine what projects, folders, and files can be accessed using the Adobe Cloud Storage and Collaboration API.
