@@ -45,15 +45,15 @@ Projects are durable spaces used by teams to organize and collaborate on cloud d
 
 | Task                                                                                                    | Operation | Endpoint                                 | Description                                                                                                              |
 |---------------------------------------------------------------------------------------------------------|-----------|------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| Get list of projects                                               | GET       | /projects                                | Returns a paginated list of all projects within the organization's enterprise shared storage                             |
-| Create a new project                                           | POST      | /projects                                | Creates a new project within the organization's enterprise shared storage                                                |
-| Get a project's metadata                                 | GET       | /projects/{assetId}                      | Retrieves full metadata for a specific project                                                                           |
-|Discard a project                                               | POST      | /projects/{assetId}/discard              | Marks a project for discard (soft deletion) along with all its descendant assets                                         |
-| List the contents of a project                                | GET       | /projects/{assetId}/list                 | Retrieves a paginated list of top-level assets (folders, files, or other resources) contained within a specified project |
-| Get the current user's permissions for a project | GET       | /projects/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific project                                    |
-| Get all the permissions for a project                    | GET       | /projects/{assetId}/permissions          | Retrieves the explicit roles and permissions assigned to all users and groups for a specific project                     |
-| Set the permissions for a project                      | PATCH     | /projects/{assetId}/permissions          | Adds, updates, or removes direct permissions of a specific project                                                       |
-| Package a project and its files                                 | POST      | /projects/{assetId}/package              | Packages a project, and all its contents, into a downloadable format                                                     |
+| [Get list of projects](./specification#operation/getProjects)                                               | GET       | /projects                                | Returns a paginated list of all projects within the organization's enterprise shared storage                             |
+| [Create a new project](./specification#operation/createProject)                                             | POST      | /projects                                | Creates a new project within the organization's enterprise shared storage                                                |
+| [Get a project's metadata](./specification#operation/getProject)                                            | GET       | /projects/{assetId}                      | Retrieves full metadata for a specific project                                                                           |
+| [Discard a project](./specification#operation/discardProject)                                               | POST      | /projects/{assetId}/discard              | Marks a project for discard (soft deletion) along with all its descendant assets                                         |
+| [List the contents of a project](./specification#operation/getProjectAssets)                                | GET       | /projects/{assetId}/list                 | Retrieves a paginated list of top-level assets (folders, files, or other resources) contained within a specified project |
+| [Get the current user's permissions for a project](./specification#operation/getProjectEffectivePermission) | GET       | /projects/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific project                                    |
+| [Get all the permissions for a project](./specification#operation/getProjectPermissions)                    | GET       | /projects/{assetId}/permissions          | Retrieves the explicit roles and permissions assigned to all users and groups for a specific project                     |
+| [Set the permissions for a project](./specification#operation/patchProjectPermissions)                      | PATCH     | /projects/{assetId}/permissions          | Adds, updates, or removes direct permissions of a specific project                                                       |
+| [Package a project and its files](./specification#operation/packageProject)                                 | POST      | /projects/{assetId}/package              | Packages a project, and all its contents, into a downloadable format                                                     |
 
 ### Folders
 
@@ -61,10 +61,10 @@ Folders are a construct that can contain files and other folders, enabling logic
 
 | Task                                                                                                   | Operation | Endpoint                                | Description                                                                                                             |
 | ------------------------------------------------------------------------------------------------------ | --------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Create a folder                                                  | POST      | /folders                                | Creates a folder under a specified parent container (project or another folder)                                         |
-| Get a folder's metadata                                            | GET       | /folders/{assetId}                      | Retrieves full metadata for a specific Folder                                                                           |
-| List the contents of a folder                                 | GET       | /folders/{assetId}/list                 | Retrieves a paginated list of top-level assets (folders, files, or other resources) contained within a specified folder |
-| Get the current user's permissions for a project | GET       | /folders/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific folder                                    |
+| [Create a folder](./specification#operation/createFolder)                                                  | POST      | /folders                                | Creates a folder under a specified parent container (project or another folder)                                         |
+| [Get a folder's metadata](./specification#operation//getFolder)                                            | GET       | /folders/{assetId}                      | Retrieves full metadata for a specific Folder                                                                           |
+| [List the contents of a folder](./specification#operation/getFolderAssets)                                 | GET       | /folders/{assetId}/list                 | Retrieves a paginated list of top-level assets (folders, files, or other resources) contained within a specified folder |
+| [Get the current user's permissions for a project](./specification#operation/getFolderEffectivePermission) | GET       | /folders/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific folder                                    |
 
 ### Files
 
@@ -72,12 +72,12 @@ Files are used to store content in Adobe cloud storage. See [Cloud Storage and C
 
 | Task                                                                                              | Operation | Endpoint                              | Description                                                                                                                               |
 | ------------------------------------------------------------------------------------------------- | --------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Get file metadata                                                | GET       | /files/{assetId}                      | Retrieves full metadata for a specific file                                                                                               |
-| Get the current user's permissions for a file | GET       | /files/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific file                                                        |
-| Download a file                                             | GET       | /files/{assetId}/download             | Creates pre-signed URLs for downloading a file                                                                                            |
-| Get an image rendition of a file                   | GET       | /files/{assetId}/image-rendition      | Returns an image rendition of the specified file                                                                                          |
-| Initiate a file upload                          | POST      | /files/upload/init                    | Initiates the uploading of a file to Adobe cloud storage. Supports multiple blocks for large files                                        |
-| Complete a file upload                      | POST      | /files/upload/finalize                | Finalizes the block upload process by initiating an asynchronous job that will merge all uploaded blocks and creates the final file asset |
+| [Get file metadata](./specification#operation/getFile)                                                | GET       | /files/{assetId}                      | Retrieves full metadata for a specific file                                                                                               |
+| [Get the current user's permissions for a file](./specification#operation/getFileEffectivePermission) | GET       | /files/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific file                                                        |
+| [Download a file](./specification#operation/downloadFile)                                             | GET       | /files/{assetId}/download             | Creates pre-signed URLs for downloading a file                                                                                            |
+| [Get an image rendition of a file](./specification#operation/getFileImageRendition)                   | GET       | /files/{assetId}/image-rendition      | Returns an image rendition of the specified file                                                                                          |
+| [Initiate a file upload](./specification#operation/initBlockBasedFileUpload)                          | POST      | /files/upload/init                    | Initiates the uploading of a file to Adobe cloud storage. Supports multiple blocks for large files                                        |
+| [Complete a file upload](./specification#operation/finalizeBlockBasedFileUpload)                      | POST      | /files/upload/finalize                | Finalizes the block upload process by initiating an asynchronous job that will merge all uploaded blocks and creates the final file asset |
 
 ### Jobs Operations
 
@@ -85,7 +85,7 @@ Manages asynchronous jobs in the system.
 
 | Task                                                                        | Operation | Endpoint        | Description                                         |
 | --------------------------------------------------------------------------- | --------- | --------------- | --------------------------------------------------- |
-| Get the status of an asynchronous job | GET       | /status/{jobId} | Retrieves the current status of an asynchronous job |
+| [Get the status of an asynchronous job](./specification#operation/getJobStatus) | GET       | /status/{jobId} | Retrieves the current status of an asynchronous job |
 
 ## What's next?
 
