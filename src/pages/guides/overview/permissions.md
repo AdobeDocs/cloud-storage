@@ -15,7 +15,7 @@ keywords:
   - User group
 contributors:
   - https://github.com/michael-hodgson
-  - https://github.com/lijumjose
+  - https://github.com/lmjose
 layout: none
 ---
 
@@ -24,65 +24,65 @@ layout: none
 Adobe cloud storage includes an access control system that manages access to projects, folders, and files. Authorization is granted based on roles:
 
 | Permission                           | Administrator | Creator | Edit | Comment |
-|:-------------------------------------|:-------------:|:-------:|:----:|:-------:|
-| Rename a project                     |       ✅       |    ✅    |      |         |
-| Discard a project                    |       ✅       |    ✅    |      |         |
-| View files and folders               |       ✅       |    ✅    |  ✅   |    ✅    |
-| Edit files                           |       ✅       |    ✅    |  ✅   |         |
-| Create and add files, create folders |       ✅       |    ✅    |  ✅   |         |
-| Set roles                            |       ✅       |    ✅    |  ✅   |         |
+| :----------------------------------- | :-----------: | :-----: | :--: | :-----: |
+| Rename a project                     |      ✅       |   ✅    |      |         |
+| Discard a project                    |      ✅       |   ✅    |      |         |
+| View files and folders               |      ✅       |   ✅    |  ✅  |   ✅    |
+| Edit files                           |      ✅       |   ✅    |  ✅  |         |
+| Create and add files, create folders |      ✅       |   ✅    |  ✅  |         |
+| Set roles                            |      ✅       |   ✅    |  ✅  |         |
 
 ## Assigning Roles
 
 ### Administrators
 
-Users and groups can ony be assigned to an administrator role using the [Adobe Admin Console](https://helpx.adobe.com/enterprise/using/admin-roles.html).
-Note that both System Administrators and Storage Administrators have admin permissions to content in Adobe cloud storage
+The Administrator role can be assigned to users and groups exclusively through the [Adobe Admin Console](https://helpx.adobe.com/enterprise/using/admin-roles.html).
+Both **System Administrators** and **Storage Administrators** have administrative  permissions to content in Adobe Cloud Storage.
 
 ### Creator
 
-The Creator role is automatically assigned to a user when they create a project.
+The Creator role is automatically assigned to a user who creates a project.
 
 ### Edit and Comment
 
 The Edit and Comment roles can be assigned to a user or group in two ways:
 
-1. By inviting others as collaborators using an Adobe UI, such as Creative Cloud Home. See [Share Projects](https://helpx.adobe.com/creative-cloud/help/share-project.html) for more information
-2. Using the **Adobe Cloud Storage and Collaboration API** to set the user/group's permission to either _edit_ or _comment_
+1. By inviting collaborators through an Adobe UI, such as Creative Cloud Home. See [Share Projects](https://helpx.adobe.com/creative-cloud/help/share-project.html) for more information.
+2. By using the **Adobe Cloud Storage and Collaboration API**.
 
 ## Setting roles with the API
 
-The [Project permissions API](https://developer.adobe.com/cloud-storage/guides/api/#operation/patchProjectPermissions) takes a JSON document that defines the changes in a project's permissions. The document has three sections (JSON objects):
+The [Project permissions API](../../api/api-spec/#operation/patchProjectPermissions) accepts a JSON document that defines changes to a project's permissions. This document includes up to three optional sections:
 
-1. additions: grants a role to one or more principals
-2. updates: changes the role for one or more principals
-3. deletions: removes the role for one or more principals
+1. additions: Grants a role to one or more principals.
+2. updates: Modifies existing roles for one or more principals.
+3. deletions: Removes the role for one or more principals.
 
-The sections are optional, and you only need to included the ones that are necessary for the changes you want to make to the project's permissions.
+The sections are optional, and you only need to include the ones that are necessary for the changes you want to make to the project's permissions.
 
-Each section will contain an array of objects that define the who you are changing the permissions for, and their new role.
+Each section contains an array of objects that specify the principal and the role being assigned, updated, or removed.
 
 ### Additions
 
-Granting access to a project is done by putting an entry into the _additions_ section of the request. Each entry consists of three properties:
+To grant access, include entries in the _additions_ section. Each entry must include:
 
-- **type** - the type of principal. There are 3 types of principals:
-  - **user** - an individual user
-  - **group** - a named group of users. See [Manage user groups](https://helpx.adobe.com/enterprise/using/user-groups.html)
-  - **predefined** - one of the special [predefined principals](#predefined-principals)
-- **recipient** - the principal who you are giving access
+- **type**: The type of principal. There are three types of principals:
+  - **user** - An individual user
+  - **group** - A named group of users. See [Manage user groups](https://helpx.adobe.com/enterprise/using/user-groups.html).
+  - **predefined** - One of the special [predefined principals](#predefined-principals).
+- **recipient**: The principal to whom you are giving access
   - The recipient value for _user_ types is the prefix _mailto:_ followed by the user's email address
   - The recipient value for _group_ or _predefined_ types is the prefix _name:_ followed by the name of the group or predefined principal
-- **role** - the role they will be assigned. Possible values are edit and comment. See [Roles and Permissions](#roles-and-permissions)
+- **role**: The role they will be assigned. Possible values are edit and comment. See [Roles and Permissions](#roles-and-permissions).
 
-For example, the following invites Bob Smith to be an editor, sets all members of the Graphic Design group to be editors, and allow anyone in the organization to comment on the files in a project
+For example, the following invites Bob Smith to be an editor, sets all members of the Graphic Design group to be editors, and allows anyone in the organization to comment on the files in a project.
 
 ```bash
 {
   "direct": {
     "additions": [
       {
-        "recipient": "mailto:bob-smith@mycompay.com",
+        "recipient": "mailto:bob-smith@mycompany.com",
         "type": "user",
         "role": "edit"
       },
@@ -103,14 +103,15 @@ For example, the following invites Bob Smith to be an editor, sets all members o
 
 ### Updates
 
-Changing existing permissions is done using the _updates_ section of the request. Each updates entry consists of three properties:
+Changing existing permissions is done using the _updates_ section of the request. Each update entry consists of three properties:
 
-- **type** - the type of principal. Same as with [additions](#additions).
-- **id** - the unique identifier for a user, group, or predefined principal. The _id_ is not the same as the additions _recipient_ property. It is a unique identifier assigned by the system when a permission is granted.
+- **type**: The type of principal. Same as with [additions](#additions).
+- **id**: The unique identifier for a user, group, or predefined principal. The _id_ is not the same as the additions _recipient_ property. It is a unique identifier that the system assigns when permission is granted.
+- **role** - the role they will be assigned. Same as with [additions](#additions).
 
-  - You can find a user or group's _id_ using the [GET permissions](https://developer.adobe.com/cloud-storage/guides/api/#operation/getProjectPermissions) call for the project.
+  - You can find a user or group's _id_ using the [GET permissions](../api/index.md) call for the project.
 
-  For example the following _GET permissions_ response provides the _id_ properties for the _\_everybody_ predefined principal, as well as two users. One who has accepted the invitation, and one who's invitation is pending.
+  For example, the following _GET permissions_ response provides the _id_ properties for the _\_everybody_ predefined principal, as well as two users. One who has accepted the invitation, and one whose invitation is pending.
 
   ```json
   {
@@ -130,18 +131,15 @@ Changing existing permissions is done using the _updates_ section of the request
   ],
   "pending": [
     {
-      "email": "bob-smith@mycompay.com",
+      "email": "bob-smith@mycompany.com",
       "role": "edit",
       "created": "2025-07-09T17:13:11.588Z",
-      "id": "mailto:bob-smith@mycompay.com"
+      "id": "mailto:bob-smith@mycompany.com"
     }
   ]
-}
-```
+  }
 
-* **role** - the role they will be assigned. Same as with [additions](#additions).
-
-For example, the following request updates the permissions of two users to the *comment* role. The first user has accepted the invitation and therefore their id is a unique GUID. The second user has not yet accepted the invitation, so their id is still their email address.
+For example, the following request updates the permissions of two users to the *comment* role. The first user has accepted the invitation and therefore their ID is a unique GUID. The second user has not yet accepted the invitation, so their id is still their email address.
 
 ```bash
 {
@@ -153,23 +151,23 @@ For example, the following request updates the permissions of two users to the *
       "role": "comment"
     },
     {
-      "id": "mailto:bob-smith@mycompay.com",
+      "id": "mailto:bob-smith@mycompany.com",
       "type": "user",
       "role": "comment"
     }
   ]
 }
 }
-````
+```
 
 ### Deletions
 
-You can remove a user, group, or predefined principal's access to a project using the deletions section of a request. Each deletions entry consists of two properties:
+You can remove a user, group, or predefined principal's access to a project using the deletions section of a request. Each deletion entry consists of two properties:
 
-- **type** - the type of principal. Same as with [additions](#additions).
-- **id** - the unique identifier for a user, group, or predefined principal. Same as with [updates](#updates).
+- **type**: The type of principal. Same as with [additions](#additions).
+- **id**: The unique identifier for a user, group, or predefined principal. Same as with [updates](#updates).
 
-For example, the following request deletes the permissions of two users. The first user has accepted the invitation and therefore their id is a unique GUID. The second user has not yet accepted the invitation, so their id is still their email address.
+For example, the following request deletes the permissions of two users. The first user has accepted the invitation and therefore their ID is a unique GUID. The second user has not yet accepted the invitation, so their id is still their email address.
 
 ```bash
 {
@@ -180,7 +178,7 @@ For example, the following request deletes the permissions of two users. The fir
     "type": "user"
     },
     {
-      "id": "mailto:bob-smith@mycompay.com",
+      "id": "mailto:bob-smith@mycompany.com",
       "type": "user"
     }
     ]
@@ -192,8 +190,8 @@ For example, the following request deletes the permissions of two users. The fir
 
 There are two special principals:
 
-- **\_everybody** - includes all users that are [members of the organization](https://helpx.adobe.com/enterprise/using/manage-directory-users.html)
-- **authenticated** - includes all users that have signed in, whether they are members of the organization or not.
+- **_everybody**: Includes all users who are [members of the organization](https://helpx.adobe.com/enterprise/using/manage-directory-users.html)
+- **authenticated**: Includes all users who have signed in, whether they are members of the organization or not.
 
 ### Summary
 

@@ -31,7 +31,7 @@ If you don't already have a Cloud Storage and Collaboration **Client ID**, **Cli
 
 ### Setting up your environment
 
-Before we begin this tutorial, run the following in a secure terminal:
+Before we begin this tutorial, run the following command in a secure terminal:
 
 ```bash
 mkdir cloud-storage-api-getstarted-tutorial
@@ -45,78 +45,75 @@ Depending on your learning style, you may prefer to walk through this tutorial s
 
 ## Retrieve an Access Token
 
-Open a secure terminal and export your **Client ID**, **Client Secret**, and **Scopes** as environment variables so that your later commands can access them:
+1. Open a secure terminal and export your **Client ID**, **Client Secret**, and **Scopes** as environment variables so that your later commands can access them:
 
-```bash
-export CLOUD_STORAGE_CLIENT_ID=yourClientId
-export CLOUD_STORAGE_CLIENT_SECRET=yourClientSecret
-export CLOUD_STORAGE_SCOPES=yourClientScopes
-```
+   ```bash
+   export CLOUD_STORAGE_CLIENT_ID=yourClientId
+   export CLOUD_STORAGE_CLIENT_SECRET=yourClientSecret
+   export CLOUD_STORAGE_SCOPES=yourClientScopes
+   ```
 
-Generate an access token:
+2. Generate an access token:
 
-<CodeBlock slots="heading, code" repeat="2" languages="bash, JavaScript" />
+   **cURL**
 
-#### cURL
+   ```bash
+   curl --location 'https://ims-na1.adobelogin.com/ims/token/v3' \
+   --header 'Content-Type: application/x-www-form-urlencoded' \
+   --data-urlencode 'grant_type=client_credentials' \
+   --data-urlencode "client_id=$CLOUD_STORAGE_CLIENT_ID" \
+   --data-urlencode "client_secret=$CLOUD_STORAGE_CLIENT_SECRET" \
+   --data-urlencode "scope=$CLOUD_STORAGE_SCOPES'
+   ```
 
-```bash
-curl --location 'https://ims-na1.adobelogin.com/ims/token/v3' \
---header 'Content-Type: application/x-www-form-urlencoded' \
---data-urlencode 'grant_type=client_credentials' \
---data-urlencode "client_id=$CLOUD_STORAGE_CLIENT_ID" \
---data-urlencode "client_secret=$CLOUD_STORAGE_CLIENT_SECRET" \
---data-urlencode "scope=$CLOUD_STORAGE_SCOPES'
-```
+   **JavaScript**
 
-#### JavaScript
-
-```js
-// Generate access token
-async function retrieveAccessToken() {
-  const CLIENT_ID = process.env.CLOUD_STORAGE_CLIENT_ID;
-  const CLIENT_SECRET = process.env.CLOUD_STORAGE_CLIENT_SECRET;
-  const SCOPES = process.env.CLOUD_STORAGE_SCOPES;
-
-  console.log("Generating Access Token");
-  const data = qs.stringify({
+   ```js
+   // Generate access token
+    async function retrieveAccessToken() {
+    const CLIENT_ID = process.env.CLOUD_STORAGE_CLIENT_ID;
+    const CLIENT_SECRET = process.env.CLOUD_STORAGE_CLIENT_SECRET;
+    const SCOPES = process.env.CLOUD_STORAGE_SCOPES;
+    console.log("Generating Access Token");
+    const data = qs.stringify({
     grant_type: "client_credentials",
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET,
     scope: SCOPES,
-  });
-
-  const config = {
+   });
+   const config = {
     method: "post",
     url: "https://ims-na1.adobelogin.com/ims/token/v2",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     data: data,
-  };
-
-  try {
+    };
+    try {
     const response = await axios.request(config);
     console.log("Access Token Retrieved");
     return response.data.access_token;
-  } catch (error) {
+    } 
+    catch (error) 
+    {
     console.error("Error retrieving access token:", error.response.data);
-  }
-}
-```
+    }
+   }
+   ```
 
-The response will look like this:
+   The response will look like this:
 
-```bash
-{"access_token":"yourAccessTokenAsdf123","token_type":"bearer","expires_in":86399}
-```
+   ```bash
+   {"access_token":"yourAccessTokenAsdf123","token_type":"bearer","expires_in":86399}
+   ```
 
-Export this access token so that the next script can conveniently access it:
+3. Export this access token so that the next script can conveniently access it:
 
-```bash
-export CLOUD_STORAGE_SERVICES_ACCESS_TOKEN=yourAccessTokenAsdf123
-```
+    ```bash
+    export CLOUD_STORAGE_SERVICES_ACCESS_TOKEN=yourAccessTokenAsdf123
+   ```
 
 ## List projects
 
-Now that you have an access token you can begin to work with Adobe Creative Cloud projects. A project is a durable shared space within your organization. For more information about Adobe Creative Cloud Projects see: [Creative Cloud projects overview](https://helpx.adobe.com/creative-cloud/help/projects-overview.html).
+Now that you have an access token you can begin to work with Adobe Creative Cloud projects. A project is a durable, shared space within your organization. For more information, see: [Creative Cloud projects overview](https://helpx.adobe.com/creative-cloud/help/projects-overview.html).
 
 You can start by getting a list of the existing projects. It is important to note that only projects that the requesting user or Technical Account has access to will be included in the response.
 
@@ -150,7 +147,7 @@ async function getProjects(accessToken) {
 }
 ```
 
-The response will look like this (assuming you have at least one existing Creative Cloud project):
+Sample response (assuming you have at least one existing Creative Cloud project):
 
 ```js
 {
@@ -173,9 +170,9 @@ The response will look like this (assuming you have at least one existing Creati
 
 ## Create a project
 
-Next you will create a new Adobe cloud storage project so you have a place where the creative production team can store and share content.
+Next you can create a new Adobe Cloud Storage project to provide a shared space where the creative production team can store and collaborate on content.
 
-Start by making a request to create a new project with the name you have selected
+Start by sending a request to create a new project with the name you have selected:
 
 ```js
 //Create a new project
@@ -219,11 +216,9 @@ async function createProject(accessToken, projectName) {
 }
 ```
 
-Notice there is a check if the create project request throws a 409 error (Conflict). This happens if there is already a project with the same name. In that case code invokes a function to get the asset id of the existing project.
+The function checks for a 409 Conflict error, which occurs if a project with the same name already exists. In that case, it attempts to retrieve the existing project’s ID.
 
-For security reasons, if the requestor doesn't have access permissions to the existing project they won't be able to retrive the project's asset id and error will be thrown.
-
-The function to get the asset id for an existing project starts by getting a list of existing projects, then checks for a matching name.
+For security reasons, if the requestor doesn't have access permission to the existing project, they won't be able to retrieve the project's asset ID and error will be returned.
 
 ```js
 //get an existing project's asset id
@@ -241,7 +236,7 @@ async function getExistingProjectId(accessToken, projectName) {
 }
 ```
 
-The response for creating a new project will look like this:
+Sample response for creating a new project:
 
 ```js
 {
@@ -258,9 +253,11 @@ The response for creating a new project will look like this:
 }
 ```
 
-## Get info about a project
+## Get project information
 
-We can retrieve information about a project that is created using either the APIs, or through Adobe Creative Cloud applications such as Adobe Express, Photoshop Web, or Adobe.com using the Cloud Storage and Collaboration APIs
+You can retrieve information about a project that is created using either the APIs, or through Adobe Creative Cloud applications such as Adobe Express, Photoshop Web, or Adobe.com.
+
+Get project information using the Cloud Storage and Collaboration API:
 
 ```js
 //get project info
@@ -290,7 +287,7 @@ async function getProjectInfo(accessToken, projectId) {
 }
 ```
 
-The response will look like this:
+Sample response:
 
 ```js
 {
@@ -309,7 +306,7 @@ The response will look like this:
 
 ## Invite a user to a project
 
-Now that we have a project, we want to invite other users so we can all collaborate on the assets within the project. Collaborators can be assigned and _edit_ or _comment_ permissions, which apply to all items within a project. You will invite a user to the project using their email address.
+To enable collaboration, invite users using their email IDs to the project by assigning them either edit or comment roles.
 
 ```js
 //set the user role for a project
@@ -351,7 +348,7 @@ async function inviteUser(accessToken, projectId, userEmail, userRole) {
     }
 ```
 
-The response will look like this:
+Sample response:
 
 ```js
 {
@@ -369,9 +366,9 @@ The response will look like this:
 }
 ```
 
-## Get project sharing info
+## Get project sharing information
 
-We can use the API to see which users have access to the project and their roles
+Use the API to view which users have access to the project and their assigned roles.
 
 ```js
 //get project sharing info
@@ -401,7 +398,7 @@ async function getSharing(accessToken, projectId) {
 }
 ```
 
-The response will look like this:
+Sample response:
 
 ```js
 {
@@ -419,13 +416,13 @@ The response will look like this:
 
 ## Upload a file to a project
 
-Next we will use the Cloud Storage and Collaboration APIs to upload a file to the project. In this case we will upload a JPG file from the same location as our application (_cloud-storage-api-getstarted-tutorial_).
+You can use the Cloud Storage and Collaboration APIs to upload a file to a project. In this example, a JPG file located in the same directory as your application (cloud-storage-api-getstarted-tutorial) will be uploaded.
 
 File uploading is an asynchronous action that involves several steps.
 
 ### Initiate Upload
 
-You start by getting the file's data and then informing Adobe cloud storage that a file will be uploaded by initiating the upload
+Start by reading the file and notifying Adobe Cloud Storage that a file upload is about to begin.
 
 ```js
 //upload a file
@@ -481,9 +478,9 @@ async function uploadFile(accessToken, projectId, fileName) {
 
 ```
 
-The response will include an _uploadId_ that you will use to identify the upload operation, and one or more _transferLinks_ that provide a location to put the file's data. If the file is large, you will have multiple transferLinks, each with its own _partNumber_. You will upload each of the file's blocks to its own transfer link.
+The response will include an `uploadId` that you can use to identify the upload operation, and one or more `transferLinks` that provide a location to put the file's data. If the file is large, you will have multiple `transferLinks`, each with its own `partNumber`. You will upload each of the file's blocks to its own transfer link.
 
-For example, the response for a small (one block) file would look something like this
+Sample response for a small (one block) file:
 
 ```js
 {
@@ -501,7 +498,7 @@ For example, the response for a small (one block) file would look something like
 
 ### Upload Blocks
 
-Next, you upload the file's block(s) to the provided transfer link location(s). Since the transfer link is a pre-signed URL, you don't include an Authorization header with this request
+Upload the file block(s) to the provided pre-signed URL(s). Do not include an Authorization header for this request, as the transfer link is a pre-signed URL.
 
 ```js
 //upload block to presigned URL
@@ -534,7 +531,7 @@ try {
 
 ### Finalize the Upload
 
-After al the blocks are uploaded, you finalize the upload operation. The finalize call takes the _uploadId_ from the initialize step as a parameter. It also takes an array of _partnumbers_ corresponding to the _transferLinks_ you used to upload the file's blocks.
+After all file blocks have been uploaded, the next step is to finalize the upload. This involves making a POST request to the finalize endpoint, passing the uploadId (from the initialization step) and an array of part numbers that correspond to the transferLinks used during the upload.
 
 ```js
 //finalize the file upload
@@ -565,11 +562,11 @@ try {
   console.log("Finalize file upload:");
   console.log(JSON.stringify(response.data));
 } catch (error) {
-  console.error("Error finializing the upload: ", error.response?.data || error.message);
+  console.error("Error finalizing the upload: ", error.response?.data || error.message);
 }
 ```
 
-The finialize function returns a _jobId_ that you will use to check the status of the upload request
+The finalize function returns a `jobId` that you will use to check the status of the upload request
 
 ```js
 {"jobId":"VkE2OjA6OTBiODY2M2QtNjRhNC00NmJkLThlMTUtZTVlNmExMTU3Yzk3"}
@@ -577,7 +574,7 @@ The finialize function returns a _jobId_ that you will use to check the status o
 
 ### Monitor status
 
-Lastly, you can check on the status of the upload by using the GET status function with the _jobId_ from the finalize function.
+You can check on the status of the upload by using the GET status function with the `jobId` from the finalize function.
 
 ```js
     //Get the status and the asset id
@@ -620,7 +617,7 @@ Lastly, you can check on the status of the upload by using the GET status functi
 }
 ```
 
-When the operation is complete, the status will be updated to "succeeded" and the response will include the asset id for the uploaded file
+When the operation is complete, the status will be updated to "succeeded", and the response will include the asset ID for the uploaded file:
 
 ```js
 {
@@ -652,7 +649,7 @@ When the operation is complete, the status will be updated to "succeeded" and th
 
 ## List the contents of a project
 
-Now that we have a file in the project, we can get a list of the projects contents. The contents will include all files and folders that are created by through the API, or that are added to the project using Creative Cloud applications.
+After the file is uploaded, you can retrieve the contents of the project, including all files and folders created through the API, or added through Creative Cloud applications.
 
 ```js
 //get a list of the files/folders in a project
@@ -683,7 +680,7 @@ async function getProjectContents(accessToken, projectId) {
 }
 ```
 
-The response will look like this:
+Sample response:
 
 ```js
 {
@@ -710,12 +707,12 @@ The response will look like this:
 
 ## Get a rendition of a file
 
-We can use the Cloud Storage and Collaboration API to get a rendition of an asset stored in Adobe cloud storage. A rendition is a representation of a file, typically containing less data than the asset from which it is derived. The prototypical example of a rendition is the thumbnail of an image, which is usually a lossy and smaller version of the original image.
+You can use the Cloud Storage and Collaboration API to generate a rendition of an asset stored in Adobe Cloud Storage. A rendition is a simplified or transformed version of the original file, commonly used for thumbnails or previews. For example, a thumbnail is a smaller, often compressed version of an image.
 
 ```js
 //get a file rendition
 async function getFileRendition(accessToken, fileId, renditionSize, renditionFileName) {
-  console.log("Gettting a rendition of the file");
+  console.log("Getting a rendition of the file");
 
   const headers = {
     "Content-Type": "image/jpg",
@@ -751,7 +748,7 @@ async function getFileRendition(accessToken, fileId, renditionSize, renditionFil
 }
 ```
 
-In this example, the resulting rendition is saved to the same location as our application (cloud-storage-api-getstarted-tutorial) in a file named rendition.jpg. You can open the file and see that the image size is reduced.
+In this example, the rendition is saved to the same directory as your application (cloud-storage-api-getstarted-tutorial) under the specified filename, such as rendition.jpg. You can open the file to verify that the image has been resized or compressed as expected.
 
 ![rendition](../images/rendition.jpg)
 
@@ -759,7 +756,7 @@ In this example, the resulting rendition is saved to the same location as our ap
 
 You can download binary files to your client application using the _download_ function.
 
-Note: Download is not supported for cloud-native files such as Cloud Documents, Brands, and Libraries. See [Collaboration Constructs](../overview/constructs.md) for more information about supported file types.
+**Note:** Download is not supported for cloud-native files such as Cloud Documents, Brands, and Libraries. For more details on supported file types, refer to  [Collaboration Constructs](../overview/constructs.md).
 
 ```js
 //Download a file
@@ -790,7 +787,7 @@ async function downloadFile(accessToken, fileId, downloadFileName) {
 }
 ```
 
-The response will look like this:
+Sample response:
 
 ```js
 {
@@ -801,10 +798,10 @@ The response will look like this:
 }
 ```
 
-The Cloud Storage and Collaboration API's download function will return a pre-signed URL from which you can download the requiested file.
+The Cloud Storage and Collaboration API's download function will return a pre-signed URL from which you can download the requested file.
 
 ```js
-//download a file from a presigned URL
+//download a file from a pre-signed URL
 async function downloadFromPresignedURL(presignedURL, downloadFileName) {
   const headers = {
     "Content-Type": "image/jpg",
@@ -831,23 +828,24 @@ async function downloadFromPresignedURL(presignedURL, downloadFileName) {
 }
 ```
 
-In this example, the resulting rendition is saved to the same location as our application (_cloud-storage-api-getstarted-tutorial_) in a file named _download.jpg_. You can open the file and see that it is the same as the uploaded image.
+In this example, the resulting rendition is saved to the same location as our application (_cloud-storage-api-getstarted-tutorial_) with the name _download.jpg_. You can open the file to verify that it matches the original upload.
 
-## See project in UI
+## View project in UI
 
-You can use the [Adobe Creative Clound Home](https://www.adobe.com/home) web application to see the project you created in this tutorial.
+To view the project and its contents in the [Adobe Creative Clound Home](https://www.adobe.com/home):
 
-- Open a browser and navigate to the [Adobe Creative Cloud Home](https://www.adobe.com/home) web application
-- Sign in as the user that you invited to the project in the **[Invite a user to a project](#invite-a-user-to-a-project)** step.
-- You should see a red dot in the Notifications icon (bell icon in the upper right of the screen). Click on the bell icon to see a list of notifications.
-- Click on the notification about the invite to the project. This will take you to the project
+1. Open a browser and navigate to the [Adobe Creative Cloud Home](https://www.adobe.com/home).
+2. Sign in as the user that you invited to the project in the **[Invite a user to a project](#invite-a-user-to-a-project)** step.
+3. Click on the bell icon in the upper right of the screen to view the list of notifications.
+4. Click on the notification about the invite to the project. This will take you to the project
 
-You can also navigate to the projects diretly using the Creative Cloud Home UI:
+Alternatively, you can navigate manually:
 
-- Click on the _Files_ icon
-- Choose _Projects_
-- You should see the project that you created earlier in the _Projects_ panel. Click on it to view the contents
-- The contnts of the project will be shown, including the file you uploaded through the API.
+1. Click the Files icon.
+2. Select Projects from the sidebar.
+3. Locate and click on the project you created.
+
+The content of the project will be shown, including the file you uploaded through the API.
 
   ![Resutl](../images/work-with-api_result.png)
 
@@ -1229,7 +1227,7 @@ async function uploadFile(accessToken, projectId, fileName) {
     console.log("Finalize file upload:");
     console.log(JSON.stringify(response.data));
   } catch (error) {
-    console.error("Error finializing the upload: ", error.response?.data || error.message);
+    console.error("Error finalizing the upload: ", error.response?.data || error.message);
   }
 
   //Get the status and the asset id
@@ -1254,7 +1252,7 @@ async function uploadFile(accessToken, projectId, fileName) {
   };
 
   var jobStatus = "";
-  //loop unitl the status indicates the file is ready
+  //loop until the status indicates the file is ready
   while (jobStatus != "succeeded") {
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await delay(500); /// wait 500ms before checking
@@ -1391,4 +1389,4 @@ async function downloadFromPresignedURL(presignedURL, downloadFileName) {
 
 ## Deepen your understanding
 
-This quick start guide provides only a sample of what the Cloud Storage and Collaboration APIs can do. Please see the [API Reference](./api-reference.md) for details on the available functions and options the Cloud Storage and Collaboration APIs provides.
+his quick start guide provides only a sample of what Cloud Storage and Collaboration APIs can do. To fully explore the available features, functions, and configuration options, refer to [API Reference](../../api/index.md).

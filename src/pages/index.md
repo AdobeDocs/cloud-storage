@@ -15,16 +15,16 @@ contributors:
 
 <HeroSimple slots="heading, text"/>
 
-# Cloud Storage and Collaboration
+# Adobe Cloud Storage and Collaboration
 
-The Adobe Cloud Storage and Collaboration API gives you programmatic access to content stored in Adobe storage for business.
+The Adobe Cloud Storage and Collaboration APIs give you programmatic access to content stored in Adobe storage for business.
 
 <Resources slots="heading, links"/>
 
 #### Resources
 
 - [Working with Cloud Storage and Collaboration APIs](./guides/quick-start/index.md)
-- [API reference](./guides/api/overview.md)
+- [API reference](./guides/api/index.md)
 
 ## Overview
 
@@ -53,7 +53,7 @@ This documentation will guide you through:
 - [Overview](./guides/index.md)
 - [Getting Started Guide](./guides/getting-started/index.md)
 - [Working with Cloud Storage and Collaboration APIs](./guides/quick-start/index.md)
-- [API Reference](./guides/api/overview.md)
+- [API Reference](./guides/api/index.md)
 
 ## Support
 
