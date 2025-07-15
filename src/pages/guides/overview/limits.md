@@ -17,15 +17,15 @@ contributors:
 layout: none
 ---
 
-# Rate Limits
+# Rate limits
 
 The Adobe Cloud Storage and Collaboration API enforces default rate limits on the volume and frequency of API calls.
 
-## Summary of Rate Limits
+## Summary of rate limits
 
 Each client ID or API key is subject to the following limit: 20 requests per second (RPS).
 
-## Purpose of Rate Limits
+## Purpose of rate limits
 
 API rate limits are a standard practice designed to:
 
@@ -33,7 +33,7 @@ API rate limits are a standard practice designed to:
 - **Protect against downtime:** Reduces the risk of service interruptions.
 - **Control costs:** Helps manage resource consumption and associated expenses.
 
-## Handling Rate Limit Errors
+## Handling rate limit errors
 
 When the client-specific or global access limit is exceeded, the API responds with an _HTTP 429 Too Many Requests_ error. This response includes a Retry-After header, which indicates the minimum time the client must wait before making another request. For detailed specifications, refer to [RFC 7231](https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3).
 

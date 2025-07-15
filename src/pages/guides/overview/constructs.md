@@ -19,7 +19,7 @@ contributors:
 layout: none
 ---
 
-# Collaboration Constructs
+# Collaboration constructs
 
 The Adobe Cloud Storage and Collaboration API provides programmatic access to constructs designed to support asset management and team collaboration. Each construct serves a unique purpose, providing users with tailored environments for storing assets, organizing workflows, and achieving specific outcomes.
 
