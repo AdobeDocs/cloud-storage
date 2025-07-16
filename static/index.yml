@@ -2017,8 +2017,6 @@ components:
         Following fields are supported for filtering:
           - `mediaType`: Filter by media type (operators allowed are ==). Multiple values can be provided by following the FIQL syntax.
           - `assetType`: Filter by asset type (operators allowed are ==). Multiple values can be provided by following the FIQL syntax.
-          - `modified`: Filter by last modified date (operators allowed are date comparison operators).
-          - `created`: Filter by creation date (operators allowed are date comparison operators).
 
         ---
         > NOTE:  
