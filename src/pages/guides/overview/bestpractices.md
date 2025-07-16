@@ -25,15 +25,15 @@ The Adobe Cloud Storage and Collaboration API provides powerful functionality fo
 ## Authentication and client credentials
 
 - Authenticate using OAuth 2.0 to ensure secure access to API resources.
-- As access tokens are valid for 24 hours, ensure a token refresh mechanism is in place to maintain continuous access without interruptions.
+- Access tokens are valid for 24 hours. Implement a mechanism to refresh tokens before they expire to maintain uninterrupted access.
 - Keep client credentials safe. Never expose the Client ID, Client Secret, scopes, or access tokens in client-side code.
 - Regularly rotate your credential secrets to enhance your application's security posture.
-- Request only the scopes essential for your application's functionality, in line with the principle of least privilege. **Note:** Scope availability may change over time, so review it periodically.
+- Only request the scopes necessary for your application's functionality to adhere to the principle of least privilege. Note that the available Scopes are subject to change and should be verified periodically.
 
 ## API requests
 
 - Always use HTTPS to safeguard data privacy and ensure secure communication.
-- Refer to the API documentation for correct endpoint usage and parameter formatting.
+- Refer to the [API documentation](../api/index.md) for correct endpoint usage and parameter formatting.
 - Handle rate limiting by implementing exponential backoff and retry mechanisms.
 
 ## Security

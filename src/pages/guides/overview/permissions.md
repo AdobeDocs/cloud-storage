@@ -21,7 +21,9 @@ layout: none
 
 # Roles and permissions
 
-Adobe cloud storage includes an access control system that manages access to projects, folders, and files. Authorization is granted based on roles:
+Adobe cloud storage provides an access control system to enaure only authorized users can access cloud content. Access to projects, folders, and files is based on the permissions granted to a user through their assigned role.
+
+The following table indicates the permissions available to each role:
 
 | Permission                           | Administrator | Creator | Edit | Comment |
 | :----------------------------------- | :-----------: | :-----: | :--: | :-----: |
@@ -52,7 +54,7 @@ The Edit and Comment roles can be assigned to a user or group in two ways:
 
 ## Setting roles with the API
 
-The [Project permissions API](../../api/api-spec/#operation/patchProjectPermissions) accepts a JSON document that defines changes to a project's permissions. This document includes up to three optional sections:
+The [Project permissions API](../api/specification.md#operation/patchProjectPermissions) accepts a JSON document that defines changes to a project's permissions. This document includes up to three optional sections:
 
 1. additions: Grants a role to one or more principals.
 2. updates: Modifies existing roles for one or more principals.
@@ -69,7 +71,7 @@ To grant access, include entries in the _additions_ section. Each entry must inc
 - **type**: The type of principal. There are three types of principals:
   - **user** - An individual user
   - **group** - A named group of users. See [Manage user groups](https://helpx.adobe.com/enterprise/using/user-groups.html).
-  - **predefined** - One of the special [predefined principals](#predefined-principals).
+  - **predefined** - One of the special [predefined principals](./permissions.md#predefined-principals).
 - **recipient**: The principal to whom you are giving access
   - The recipient value for _user_ types is the prefix _mailto:_ followed by the user's email address
   - The recipient value for _group_ or _predefined_ types is the prefix _name:_ followed by the name of the group or predefined principal
@@ -109,7 +111,7 @@ Changing existing permissions is done using the _updates_ section of the request
 - **id**: The unique identifier for a user, group, or predefined principal. The _id_ is not the same as the additions _recipient_ property. It is a unique identifier that the system assigns when permission is granted.
 - **role** - the role they will be assigned. Same as with [additions](#additions).
 
-  - You can find a user or group's _id_ using the [GET permissions](../api/index.md) call for the project.
+  - You can find a user or group's _id_ using the [GET permissions](../api/specification.md/#operation/getProjectPermissions) call for the project.
 
   For example, the following _GET permissions_ response provides the _id_ properties for the _\_everybody_ predefined principal, as well as two users. One who has accepted the invitation, and one whose invitation is pending.
 

@@ -42,5 +42,5 @@ Files are used to store content in Adobe cloud storage. Files come in three type
 
 Although most operations within the Cloud Storage and Collaboration API apply uniformly across all file types, certain differences exist:
 
-- Cloud documents cannot be downloaded as they are cloud constructs. Use the file `renditions` function to get a flat file representation of a cloud document asset.
+- Cloud documents cannot be downloaded as they are cloud constructs. Use the [image renditions](../api/specification.md#operation/getFileImageRendition) function to get a flat file representation of a cloud document asset.
 - Brands and Libraries cannot be downloaded or used to generate a rendition, as these are container objects.

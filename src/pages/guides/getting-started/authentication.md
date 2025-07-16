@@ -38,9 +38,9 @@ For more information about setting up an Adobe Developer Console project, see [A
 
 ## Authentication Types
 
-The Adobe Cloud Storage and Collaboration API supports the following authentication method:
+The Adobe Cloud Storage and Collaboration API supports the following authentication methods:
 
-- Server-to-Server authenitcation using OAuth Server-to-Server credentials
+- Server-to-Server authentication using OAuth Server-to-Server credentials
 - User authentication using OAuth Web App and OAuth Single Page App credentials
 
 Each method is designed for different use cases, depending on whether your application acts independently or on behalf of a user.
