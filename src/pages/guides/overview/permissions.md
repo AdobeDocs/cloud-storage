@@ -111,7 +111,7 @@ Changing existing permissions is done using the _updates_ section of the request
 - **id**: The unique identifier for a user, group, or predefined principal. The _id_ is not the same as the additions _recipient_ property. It is a unique identifier that the system assigns when permission is granted.
 - **role** - the role they will be assigned. Same as with [additions](#additions).
 
-  - You can find a user or group's _id_ using the [GET permissions](../api/specification.md/#operation/getProjectPermissions) call for the project.
+  - You can find a user or group's _id_ using the [GET permissions](../api/specification.md#operation/getProjectPermissions) call for the project.
 
   For example, the following _GET permissions_ response provides the _id_ properties for the _\_everybody_ predefined principal, as well as two users. One who has accepted the invitation, and one whose invitation is pending.
 
