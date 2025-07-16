@@ -15,7 +15,7 @@ keywords:
   - User group
 contributors:
   - https://github.com/michael-hodgson
-  - https://github.com/lmjose
+  - https://github.com/lijumjose
 layout: none
 ---
 
@@ -38,7 +38,7 @@ The following table indicates the permissions available to each role:
 
 ### Administrators
 
-The Administrator role can be assigned to users and groups exclusively through the [Adobe Admin Console](https://helpx.adobe.com/enterprise/using/admin-roles.html).
+The Administrator role can be assigned to users and groups exclusively through [Adobe Admin Console](https://helpx.adobe.com/enterprise/using/admin-roles.html).
 Both **System Administrators** and **Storage Administrators** have administrative  permissions to content in Adobe Cloud Storage.
 
 ### Creator
