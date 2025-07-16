@@ -48,4 +48,4 @@ Congratulations! You yave just made your first request to the Cloud Storage and 
 
 Explore the [Working with Cloud Storage and Collaboration APIs](../quick-start/index.md) tutorial for a working example of the Cloud Storage and Collaboration API's capabilities.
 
-See the [API Reference](../../api/index.md) for details about the Cloud Storage and Collaboration API functions
+See the [API Reference](../api/index.md) for details about the Cloud Storage and Collaboration API functions

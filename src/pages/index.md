@@ -46,7 +46,6 @@ This documentation will guide you through:
 - Setting up your development project in Adobe Developer Console
 - Obtaining and managing your credentials
 - Automating work in progress workflows
-- Using Adobe Cloud Storage and Collaboration API with other Adobe APIs
 
 ## Discover
 
@@ -54,7 +53,3 @@ This documentation will guide you through:
 - [Getting Started Guide](./guides/getting-started/index.md)
 - [Working with Cloud Storage and Collaboration APIs](./guides/quick-start/index.md)
 - [API Reference](./guides/api/index.md)
-
-## Support
-
-`Placeholder for the support DL`

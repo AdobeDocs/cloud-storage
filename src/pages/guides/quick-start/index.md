@@ -748,9 +748,7 @@ async function getFileRendition(accessToken, fileId, renditionSize, renditionFil
 }
 ```
 
-In this example, the rendition is saved to the same directory as your application (cloud-storage-api-getstarted-tutorial) under the specified filename, such as rendition.jpg. You can open the file to verify that the image has been resized or compressed as expected.
-
-![rendition](../images/rendition.jpg)
+In this example, the resulting rendition is saved to the same location as our application (cloud-storage-api-getstarted-tutorial) in a file named rendition.jpg. You can open the file and see that the image size is reduced.
 
 ## Download a file
 
