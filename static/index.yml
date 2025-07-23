@@ -250,10 +250,10 @@ paths:
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
-  /projects/{assetId}/list:
+  /projects/{assetId}/children:
     get:
-      operationId: getProjectAssets
-      summary: Get Paginated List of Assets inside a Project
+      operationId: getProjectChildren
+      summary: Get Paginated List of Children inside a Project
       tags:
         - Projects
       description: |
@@ -605,10 +605,10 @@ paths:
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
-  /folders/{assetId}/list:
+  /folders/{assetId}/children:
     get:
-      operationId: getFolderAssets
-      summary: Get Paginated List of Assets inside a Folder
+      operationId: getFolderChildren
+      summary: Get Paginated List of Children inside a Folder
       tags:
         - Folders
       description: |
@@ -1101,7 +1101,7 @@ components:
       type: string
       title: ErrorCodeEnums
       description: |
-        It describes the type of error through a human readable code.  
+        It describes the type of error through a human readable code.
       enum:
         - invalid_request
         - unauthorized
@@ -1121,7 +1121,7 @@ components:
       type: string
       title: AssetType
       description: |
-        Describes the type of asset.  
+        Describes the type of asset.
       enum:
         - folder
         - file
@@ -1132,7 +1132,7 @@ components:
       type: string
       title: PatchPermissionResultEnums
       description: |
-        Describes the result of the permission patch for each principal.  
+        Describes the result of the permission patch for each principal.
       enum:
         - successful
         - failed
@@ -1141,7 +1141,7 @@ components:
       type: string
       title: JobTypeEnums
       description: |
-        It describes the type of asynchronous job, depends on the original API invocation that created the job.  
+        It describes the type of asynchronous job, depends on the original API invocation that created the job.
       enum:
         - file_upload
         - copy_asset
@@ -1151,7 +1151,7 @@ components:
       type: string
       title: JobStatusEnums
       description: |
-        It describes the status of an asynchronous job.  
+        It describes the status of an asynchronous job.
       enum:
         - running
         - succeeded
@@ -1383,7 +1383,7 @@ components:
       properties:
         paging:
           $ref: "#/components/schemas/pagination"
-        items:
+        children:
           type: array
           items:
             $ref: "#/components/schemas/asset"
@@ -2312,9 +2312,9 @@ components:
         **Paginated Assets** - The server successfully retrieved the assets
       value:
         paging:
-          nextUrl: https://cloudstorage.adobe.io/v1/projects/7eb8f0f0-dbe8-466d-9f74-84c653dfaf22/list?cursor=eyJvZmZzZXQiOjN9
+          nextUrl: https://cloudstorage.adobe.io/v1/projects/7eb8f0f0-dbe8-466d-9f74-84c653dfaf22/children?cursor=eyJvZmZzZXQiOjN9
           limit: 20
-        items:
+        children:
           - assetType: folder
             assetId: urn:aaid:sc:US:11111111-aaaa-bbbb-cccc-222222222222
             name: Design Assets
