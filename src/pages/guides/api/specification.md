@@ -1,1 +1,1 @@
-<RedoclyAPIBlock src="/cloud-storage/index.yml" scrollYOffset={64} width="600px" generateCodeSamples="languages: [{lang: 'curl, JavaScript'}]" />
+<RedoclyAPIBlock src="/cloud-storage/index.yml" scrollYOffset={64} width="600px" generateCodeSamples="languages: [{lang: 'curl'} {lang: 'JavaScript'}]" />
