@@ -1099,6 +1099,13 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: IMS User Token or Service 2 Service (Technical Account). Required for all API endpoints. Must be a valid JWT token.
+    AccessToken: 
+      type: http
+      scheme: bearer
+    X-Api-Key:
+      type: apiKey
+      name: x-api-key
+      in: header
   schemas:
     errorCodeEnums:
       type: string
