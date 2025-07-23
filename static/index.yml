@@ -6,6 +6,9 @@ servers:
   - url: https://cloudstorage.adobe.io/v1
     description: Production Server
     x-audience: prod
+security:
+  - X-Api-Key: []
+  - AccessToken: []
 tags:
   - name: Projects
     x-displayName: Projects
