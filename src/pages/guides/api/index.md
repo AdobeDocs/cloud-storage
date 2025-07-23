@@ -57,7 +57,7 @@ Projects are durable spaces used by teams to organize and collaborate on cloud d
 
 ### Folders
 
-Folders are a construct that can contain files and other folders, enabling logical organization of assets.
+Folders can contain files and other folders, enabling logical organization of assets.
 
 | Task                                                                                                          | Operation | Endpoint                                | Description                                                                                                               |
 | ------------------------------------------------------------------------------------------------------------- | --------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
