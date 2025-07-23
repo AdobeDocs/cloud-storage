@@ -70,32 +70,30 @@ Depending on your learning style, you may prefer to walk through this tutorial s
 
    ```js
    // Generate access token
-    async function retrieveAccessToken() {
-    const CLIENT_ID = process.env.CLOUD_STORAGE_CLIENT_ID;
-    const CLIENT_SECRET = process.env.CLOUD_STORAGE_CLIENT_SECRET;
-    const SCOPES = process.env.CLOUD_STORAGE_SCOPES;
-    console.log("Generating Access Token");
-    const data = qs.stringify({
-    grant_type: "client_credentials",
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET,
-    scope: SCOPES,
-   });
-   const config = {
-    method: "post",
-    url: "https://ims-na1.adobelogin.com/ims/token/v2",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    data: data,
-    };
-    try {
-    const response = await axios.request(config);
-    console.log("Access Token Retrieved");
-    return response.data.access_token;
-    } 
-    catch (error) 
-    {
-    console.error("Error retrieving access token:", error.response.data);
-    }
+   async function retrieveAccessToken() {
+     const CLIENT_ID = process.env.CLOUD_STORAGE_CLIENT_ID;
+     const CLIENT_SECRET = process.env.CLOUD_STORAGE_CLIENT_SECRET;
+     const SCOPES = process.env.CLOUD_STORAGE_SCOPES;
+     console.log("Generating Access Token");
+     const data = qs.stringify({
+       grant_type: "client_credentials",
+       client_id: CLIENT_ID,
+       client_secret: CLIENT_SECRET,
+       scope: SCOPES,
+     });
+     const config = {
+       method: "post",
+       url: "https://ims-na1.adobelogin.com/ims/token/v2",
+       headers: { "Content-Type": "application/x-www-form-urlencoded" },
+       data: data,
+     };
+     try {
+       const response = await axios.request(config);
+       console.log("Access Token Retrieved");
+       return response.data.access_token;
+     } catch (error) {
+       console.error("Error retrieving access token:", error.response.data);
+     }
    }
    ```
 
@@ -107,8 +105,8 @@ Depending on your learning style, you may prefer to walk through this tutorial s
 
 3. Export this access token so that the next script can conveniently access it:
 
-    ```bash
-    export CLOUD_STORAGE_SERVICES_ACCESS_TOKEN=yourAccessTokenAsdf123
+   ```bash
+   export CLOUD_STORAGE_SERVICES_ACCESS_TOKEN=yourAccessTokenAsdf123
    ```
 
 ## List projects
@@ -664,14 +662,14 @@ async function getProjectContents(accessToken, projectId) {
 
   const config = {
     method: "get",
-    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/list", //
+    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/children", //
     headers: headers,
   };
 
   try {
     const response = await axios(config);
-    const projectContents = response.data.items;
-    console.log("Get projects file/folder list:");
+    const projectContents = response.data.children;
+    console.log("Get projects file/folder children:");
     console.log(JSON.stringify(response.data));
     return projectContents;
   } catch (error) {
@@ -684,7 +682,7 @@ Sample response:
 
 ```js
 {
-  "items": [
+  "children": [
     {
       "assetType": "file",
       "assetId": "urn:aaid:sc:US:9c528050-3c56-3949-b08b-a40593e6c0de",
@@ -754,7 +752,7 @@ In this example, the resulting rendition is saved to the same location as our ap
 
 You can download binary files to your client application using the _download_ function.
 
-**Note:** Download is not supported for cloud-native files such as Cloud Documents, Brands, and Libraries. For more details on supported file types, refer to  [Collaboration Constructs](../overview/constructs.md).
+**Note:** Download is not supported for cloud-native files such as Cloud Documents, Brands, and Libraries. For more details on supported file types, refer to [Collaboration Constructs](../overview/constructs.md).
 
 ```js
 //Download a file
@@ -845,7 +843,7 @@ Alternatively, you can navigate manually:
 
 The content of the project will be shown, including the file you uploaded through the API.
 
-  ![Resutl](../images/work-with-api_result.png)
+![Resutl](../images/work-with-api_result.png)
 
 ## Full example
 
@@ -1279,14 +1277,14 @@ async function getProjectContents(accessToken, projectId) {
 
   const config = {
     method: "get",
-    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/list", //
+    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/children", //
     headers: headers,
   };
 
   try {
     const response = await axios(config);
-    const projectContents = response.data.items;
-    console.log("Get projects file/folder list:");
+    const projectContents = response.data.children;
+    console.log("Get projects file/folder children:");
     console.log(JSON.stringify(response.data));
     return projectContents;
   } catch (error) {
