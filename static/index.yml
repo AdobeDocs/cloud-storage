@@ -1,43 +1,30 @@
 openapi: 3.0.3
 info:
-  title: Cloud Storage and Collaboration API
+  title: Adobe Cloud Storage and Collaboration
   version: v1
 servers:
   - url: https://cloudstorage.adobe.io/v1
     description: Production Server
     x-audience: prod
 security:
-  - X-Api-Key: []
-  - AccessToken: []
+  - Authorization: []
 tags:
   - name: Projects
-    x-displayName: Projects
     description: |
-      Projects are durable spaces used by teams to organize and collaborate on cloud documents and related cloud content. Along with serving as a collection, they can be used to point to a particular asset.   
-
-      Operations include:
+      Projects are durable spaces used by teams to organize and collaborate on cloud documents and related cloud
+      content. Along with serving as a collection, they can be used to point to a particular asset.
   - name: Folders
-    x-displayName: Folders
     description: |
-      A construct that can contain assets and other folders, enabling logical organization of assets.  
-
-      Operations include:
-      - Set Permissions for a folder
+      A construct that can contain assets and other folders, enabling logical organization of assets.
   - name: Files
-    x-displayName: Files
     description: |
-      Assets typically created through non-Adobe applications. The MIME type indicates the asset type.  
-
-      Operations include:
-      - Modify file by ID (upload and or metadata)
+      Assets typically created through non-Adobe applications. The MIME type indicates the asset type.
   - name: Jobs
-    x-displayName: Jobs Operations
     description: |
-      This endpoint manages asynchronous jobs in the system.
-  - name: PolicyOperations
-    x-displayName: Policy Operations
+      Represents long running tasks in the system that are created by invoking specific operations.
+  - name: Policies
     description: |
-      This endpoint manages policies in the system.
+      Represents a set of rules that govern how assets and operations are managed and accessed within the system.
 paths:
   /projects:
     get:
@@ -65,27 +52,10 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/paginatedProjectsResponse"
-        "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                invalidLimitType:
-                  $ref: "#/components/examples/invalidLimitType"
-                invalidLimitRange:
-                  $ref: "#/components/examples/invalidLimitRange"
-                invalidPaginationParameterCombination:
-                  $ref: "#/components/examples/invalidPaginationParameterCombination"
-                multipleInvalidRequestViolations:
-                  $ref: "#/components/examples/multipleInvalidRequestViolations"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
+        "422":
+          $ref: "#/components/responses/invalidRequestPagedResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -108,8 +78,6 @@ paths:
           headers:
             location:
               $ref: "#/components/headers/location"
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -120,20 +88,7 @@ paths:
                 createProject:
                   $ref: "#/components/examples/singleProject"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -141,20 +96,7 @@ paths:
         "415":
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
-          description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequiredField:
-                  $ref: "#/components/examples/missingRequiredField"
-                invalidName:
-                  $ref: "#/components/examples/invalidName"
+          $ref: "#/components/responses/unprocessableEntityResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -179,15 +121,12 @@ paths:
         - Projects
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifNoneMatch"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
           description: |
             **Success** - Retrieved information about the project
           headers:
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -197,8 +136,6 @@ paths:
               examples:
                 projectById:
                   $ref: "#/components/examples/singleProject"
-        "304":
-          $ref: "#/components/responses/matchedEtagResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -221,15 +158,12 @@ paths:
         requester has sufficient permissions to perform destructive actions on the project.
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifMatch"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
           description: |
             **Success** - The project was discarded successfully
           headers:
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -247,8 +181,6 @@ paths:
           $ref: "#/components/responses/resourceNotFoundResponse"
         "409":
           $ref: "#/components/responses/invalidOperationResponse"
-        "412":
-          $ref: "#/components/responses/preconditionFailedResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -256,7 +188,7 @@ paths:
   /projects/{assetId}/children:
     get:
       operationId: getProjectChildren
-      summary: Get Paginated List of Children inside a Project
+      summary: Get Paginated List of Children of a Project
       tags:
         - Projects
       description: |
@@ -285,31 +217,14 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/paginatedAssetsResponse"
-        "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                invalidLimitType:
-                  $ref: "#/components/examples/invalidLimitType"
-                invalidLimitRange:
-                  $ref: "#/components/examples/invalidLimitRange"
-                invalidPaginationParameterCombination:
-                  $ref: "#/components/examples/invalidPaginationParameterCombination"
-                multipleInvalidRequestViolations:
-                  $ref: "#/components/examples/multipleInvalidRequestViolations"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "422":
+          $ref: "#/components/responses/invalidRequestPagedResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -324,7 +239,7 @@ paths:
         The endpoint retrieves the **effective permission (role)** assigned to the user for a specific project,
         identified by its `assetId`. It evaluates the users access based on: 
           * **Direct permissions** assigned to the project.
-          * **Predefined principals**, such as `_everybody` or group-based access rules.
+          * **Predefined principals**, such as `orgEverybody` or group-based access rules.
       parameters:
         - $ref: "#/components/parameters/assetId"
         - $ref: "#/components/parameters/requestId"
@@ -412,20 +327,7 @@ paths:
         "200":
           $ref: "#/components/responses/200.patchAssetPermissions"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -436,7 +338,7 @@ paths:
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
           description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
           headers:
             x-request-id:
               $ref: "#/components/headers/requestId"
@@ -507,8 +409,6 @@ paths:
           headers:
             location:
               $ref: "#/components/headers/location"
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -519,20 +419,7 @@ paths:
                 createFolder:
                   $ref: "#/components/examples/singleFolder"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -540,20 +427,7 @@ paths:
         "415":
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
-          description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequiredField:
-                  $ref: "#/components/examples/missingRequiredField"
-                invalidName:
-                  $ref: "#/components/examples/invalidName"
+          $ref: "#/components/responses/unprocessableEntityResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -578,15 +452,12 @@ paths:
         - Folders
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifNoneMatch"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
           description: |
             **Success** - Retrieved information about the folder
           headers:
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -596,8 +467,6 @@ paths:
               examples:
                 folderById:
                   $ref: "#/components/examples/singleFolder"
-        "304":
-          $ref: "#/components/responses/matchedEtagResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -611,7 +480,7 @@ paths:
   /folders/{assetId}/children:
     get:
       operationId: getFolderChildren
-      summary: Get Paginated List of Children inside a Folder
+      summary: Get Paginated List of Children of a Folder
       tags:
         - Folders
       description: |
@@ -640,31 +509,14 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/paginatedAssetsResponse"
-        "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                invalidLimitType:
-                  $ref: "#/components/examples/invalidLimitType"
-                invalidLimitRange:
-                  $ref: "#/components/examples/invalidLimitRange"
-                invalidPaginationParameterCombination:
-                  $ref: "#/components/examples/invalidPaginationParameterCombination"
-                multipleInvalidRequestViolations:
-                  $ref: "#/components/examples/multipleInvalidRequestViolations"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "422":
+          $ref: "#/components/responses/invalidRequestPagedResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -680,7 +532,7 @@ paths:
         identified by its `assetId`. It evaluates the users access based on: 
           * **Direct permissions** assigned to the folder.
           * **Inherited permissions** from ancestor folders or the containing project.
-          * **Predefined principals**, such as `_everybody` or group-based access rules.
+          * **Predefined principals**, such as `orgEverybody` or group-based access rules.
       parameters:
         - $ref: "#/components/parameters/assetId"
         - $ref: "#/components/parameters/requestId"
@@ -724,8 +576,6 @@ paths:
           description: |
             **Success** - Retrieved information about the file
           headers:
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -735,8 +585,6 @@ paths:
               examples:
                 fileById:
                   $ref: "#/components/examples/singleFile"
-        "304":
-          $ref: "#/components/responses/matchedEtagResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -758,7 +606,7 @@ paths:
         identified by its `assetId`. It evaluates the users access based on: 
           * **Direct permissions** assigned to the file.
           * **Inherited permissions** from ancestor folders or the containing project.
-          * **Predefined principals**, such as `_everybody` or group-based access rules.
+          * **Predefined principals**, such as `orgEverybody` or group-based access rules.
       parameters:
         - $ref: "#/components/parameters/assetId"
         - $ref: "#/components/parameters/requestId"
@@ -802,6 +650,8 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/fileDownloadUrlResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -832,8 +682,6 @@ paths:
         - Files
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifMatch"
-        - $ref: "#/components/parameters/ifNoneMatch"
         - $ref: "#/components/parameters/requestId"
         - $ref: "#/components/parameters/size"
         - $ref: "#/components/parameters/mediaType"
@@ -849,16 +697,12 @@ paths:
               schema:
                 type: string
                 format: binary
-        "304":
-          $ref: "#/components/responses/matchedEtagResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
-        "412":
-          $ref: "#/components/responses/preconditionFailedResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -872,6 +716,12 @@ paths:
         transferred over separate requests. This method is ideal for files larger than 10 MB, offering parallelism, resumability,
         and efficient error recovery.
 
+        ---
+        > NOTE:
+        > For files 10 MB or larger, direct upload is not supported. Clients must use this block-based upload workflow.
+        > block-based transfer is allowed for any size
+        ---  
+
         ## Upload Flow Overview
         ### 1. Initiate Upload:
         Client sends a POST request to initiate the block upload and receives a response with URLs for uploading individual blocks
@@ -882,7 +732,7 @@ paths:
 
         ---
         > NOTE:
-        > #### Uploading File Blocks 
+        > ####Uploading File Blocks 
         > After receiving `transferLinks`, clients can use them to upload individual blocks:
         > **PUT <transferURL>**
         > **<binary data>**  
@@ -917,20 +767,7 @@ paths:
         "200":
           $ref: "#/components/responses/fileUploadInitResponse"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -939,7 +776,7 @@ paths:
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
           description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
           headers:
             x-request-id:
               $ref: "#/components/headers/requestId"
@@ -950,8 +787,10 @@ paths:
               examples:
                 missingRequiredField:
                   $ref: "#/components/examples/missingRequiredField"
-                invalidName:
-                  $ref: "#/components/examples/invalidName"
+                invalidNameType:
+                  $ref: "#/components/examples/invalidNameType"
+                invalidNameValue:
+                  $ref: "#/components/examples/invalidNameValue"
                 ancestorNotFound:
                   $ref: "#/components/examples/ancestorNotFound"
                 invalidDestination:
@@ -984,7 +823,8 @@ paths:
         > * In future, clients will be able to extend block sets if their initial estimate is too low (see Future Enhancements).
 
         > #### Skipped Blocks
-        > * Clients are allowed to skip any block from the original transferLinks list, as long as part numbers remain ordered and are accurately reported in the `usedTransferLinks` array during finalize.
+        > * Clients are allowed to skip any block from the original transferLinks list, as long as part numbers remain ordered and
+        > are accurately reported in the `usedTransferLinks` array during finalize.
         > * Skipped parts should simply be omitted from `usedTransferLinks`.
 
         > #### Finalization is based on:
@@ -1002,20 +842,7 @@ paths:
         "202":
           $ref: "#/components/responses/fileUploadFinalizeResponse"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -1024,7 +851,7 @@ paths:
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
           description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
           headers:
             x-request-id:
               $ref: "#/components/headers/requestId"
@@ -1035,16 +862,10 @@ paths:
               examples:
                 missingRequiredField:
                   $ref: "#/components/examples/missingRequiredField"
-                invalidName:
-                  $ref: "#/components/examples/invalidName"
-                ancestorNotFound:
-                  $ref: "#/components/examples/ancestorNotFound"
-                invalidDestination:
-                  $ref: "#/components/examples/invalidDestination"
-                invalidSize:
-                  $ref: "#/components/examples/invalidSize"
-                unsupportedMediaType:
-                  $ref: "#/components/examples/unsupportedMediaType"
+                invalidFieldType:
+                  $ref: "#/components/examples/invalidUploadIdType"
+                invalidFieldValue:
+                  $ref: "#/components/examples/invalidUsedTransferLinksValue"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -1092,6 +913,58 @@ paths:
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
+  /policies/{policyType}:
+    get:
+      operationId: getPolicy
+      summary: Get a policy by policyType
+      description: |
+        This endpoint retrieves a specific policy identified by its policyType, provided the user has the necessary permissions.
+      tags:
+        - Policies
+      parameters:
+        - $ref: "#/components/parameters/policyType"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          $ref: "#/components/responses/policyResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+    patch:
+      operationId: patchPolicy
+      summary: Update a policy by policyType
+      description: |
+        This endpoint updates a specific policy identified by its policyType, provided the user has the necessary permissions.
+      tags:
+        - Policies
+      parameters:
+        - $ref: "#/components/parameters/policyType"
+        - $ref: "#/components/parameters/ifMatch"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/policyPatchRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/policyResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityPolicyResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
 components:
   securitySchemes:
     Authorization:
@@ -1099,21 +972,19 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: IMS User Token or Service 2 Service (Technical Account). Required for all API endpoints. Must be a valid JWT token.
-    AccessToken: 
-      type: http
-      scheme: bearer
-    X-Api-Key:
-      type: apiKey
-      name: x-api-key
-      in: header
   schemas:
     errorCodeEnums:
       type: string
       title: ErrorCodeEnums
       description: |
-        It describes the type of error through a human readable code.
+        It describes the type of error through a human readable code.  
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as new error codes are added. Clients should expect new error codes to be added in the future.
+        ---
       enum:
-        - invalid_request
+        - bad_request
         - unauthorized
         - access_error
         - resource_not_found
@@ -1131,7 +1002,12 @@ components:
       type: string
       title: AssetType
       description: |
-        Describes the type of asset.
+        Describes the type of asset.  
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as new asset types are added. Clients should expect new asset types to be added in the future.
+        ---
       enum:
         - folder
         - file
@@ -1142,7 +1018,12 @@ components:
       type: string
       title: PatchPermissionResultEnums
       description: |
-        Describes the result of the permission patch for each principal.
+        Describes the result of the permission patch for each principal.  
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as new permission patch results are added. Clients should expect new permission patch results to be added in the future.
+        ---
       enum:
         - successful
         - failed
@@ -1151,7 +1032,12 @@ components:
       type: string
       title: JobTypeEnums
       description: |
-        It describes the type of asynchronous job, depends on the original API invocation that created the job.
+        It describes the type of asynchronous job, depends on the original API invocation that created the job.  
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as new job types are added. Clients should expect new job types to be added in the future.
+        ---
       enum:
         - file_upload
         - copy_asset
@@ -1161,7 +1047,12 @@ components:
       type: string
       title: JobStatusEnums
       description: |
-        It describes the status of an asynchronous job.
+        It describes the status of an asynchronous job.  
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as new job types are added. Clients should expect new job types to be added in the future.
+        ---
       enum:
         - running
         - succeeded
@@ -1328,10 +1219,6 @@ components:
           type: string
           description: A human-readable explanation specific to this occurrence of the problem.
           readOnly: true
-        requestId:
-          type: string
-          description: A unique identifier for the request that caused the error.
-          readOnly: true
       additionalProperties: true
     assetName:
       type: string
@@ -1407,6 +1294,11 @@ components:
            as well as the ability to share the asset with other users.
         - `comment` - The subject has comment access to the asset. It includes the ability to view the asset
            and add comments to it.
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as roles are added. Clients should expect new roles to be added in the future.
+        ---
       enum:
         - edit
         - comment
@@ -1534,6 +1426,10 @@ components:
     principalTypeEnums:
       description: |
         Represents all the types of principals
+        ---
+          > Note:
+            The list is not exhaustive and will be updated as new types of principals are added.
+        ---
       type: string
       enum:
         - user
@@ -1566,6 +1462,11 @@ components:
                       | User              | mailto:<email of the user | Email address of the recipient | mailto:john.doe@example.com |
                       | Group             | name:<group name> | Group name defined in the organization | name:Example Group |
                       | Predefined        | name:<predefined principal name> | Predefined principal name | name:_everybody |
+
+                      **Note for Predefined Principals:**
+                      - `_everybody`: Limited to `comment` (grants access to all org users)
+                      - `authenticated`: Can have `comment` or `edit` roles (requires authentication)
+                      - `all`: Read-only principal, cannot be added to new permissions
                   type:
                     $ref: "#/components/schemas/principalTypeEnums"
                   role:
@@ -1785,6 +1686,11 @@ components:
             - copy_asset
             - move_asset
             - package_asset
+
+            ---
+            > NOTE:  
+            > This list is not exhaustive and will be updated as new job types are added. Clients should expect new job types to be added in the future.
+            ---
     runningJobStatus:
       type: object
       title: RunningJobStatus
@@ -1879,6 +1785,76 @@ components:
           running: "#/components/schemas/runningJobStatus"
           succeeded: "#/components/schemas/succeededJobStatus"
           failed: "#/components/schemas/failedJobStatus"
+    policyType:
+      type: string
+      title: PolicyType
+      description: |
+        Describes the type of policy.
+      example: inactive_user_content_purge
+    policyAttributes:
+      type: object
+      description: Policy-specific attributes.
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Describes whether the policy is enabled or disabled.
+          example: true
+        retention:
+          type: string
+          description: |
+            Retention period in ISO 8601 duration format (e.g., P2Y for 2 years, P1M for 1 month).
+            This field may be optional depending on the policy type.
+          example: P2Y
+          nullable: true
+          pattern: ^P(?:\d+Y)?(?:\d+M)?$
+    policy:
+      type: object
+      title: Policy
+      description: Represents a policy in the system.
+      required:
+        - policyType
+        - attributes
+      properties:
+        policyType:
+          $ref: "#/components/schemas/policyType"
+        attributes:
+          $ref: "#/components/schemas/policyAttributes"
+    patchOperation:
+      type: object
+      title: PatchOperation
+      description: Represents a JSON patch operation
+      required:
+        - op
+        - path
+      properties:
+        op:
+          type: string
+          description: The operation to perform
+          enum:
+            - add
+            - remove
+            - replace
+            - move
+            - copy
+            - test
+        path:
+          type: string
+          description: |
+            A JSON Pointer path specifying the location in the policy to apply the operation.
+          pattern: ^(/[^/~]*|/[^/~]*(/[^/~]*)*|)$
+          example: /attributes/enabled
+        value:
+          description: |
+            The value to apply at the specified path.
+            Only used for the `add` and `replace` operations.
+            schema: {}
+        from:
+          description: |
+            A JSON Pointer path specifying the location in the policy to copy from.
+            Only used for the `move` and `copy` operations.
+          type: string
   parameters:
     limit:
       name: limit
@@ -1936,17 +1912,22 @@ components:
         [FIQL-based](https://datatracker.ietf.org/doc/html/draft-nottingham-atompub-fiql-00) filter string  
 
         Following fields are supported for filtering:
-          - `view`: Filters the results to only a specific view. The possible values are `yours`, `all`, `shared_with_you`, `discoverable`.
+          - `view`: Filters the results to only a specific view. The possible values are `yours`, `all`, `shared_with_you`,
+           `discoverable`.
              Here is how each view works:
              - `Yours`:
                 - Projects in the calling user's User Home storage
-                - Projects in the calling user's Org's ESM shared storage for which the user has access, excluding those which they only
-                have read permissions through membership in the org_everybody group.
+                - Projects in the calling user's Org's ESM shared storage for which the user has **write access** through
+                 membership in the _everybody group.
              - `Shared with you`:
                 - Projects in other user's User Home storage for which the calling user has permissions
                 - Projects in other Org's ESM shared storage for which the calling user has permissions
              - `All`:
                 - Combination of Projects returned from `Yours` and `Shared with you`
+            - `Discoverable`:
+               - Projects returned from `All` view
+               - Projects in the calling user's Org's ESM shared storage for which the user has **read access** through
+                membership in the _everybody group.
 
         ---
         > NOTE:  
@@ -1974,28 +1955,6 @@ components:
         The ID of the asset to get.
       schema:
         $ref: "#/components/schemas/assetId"
-    ifNoneMatch:
-      name: If-None-Match
-      in: header
-      schema:
-        type: string
-        example: \"33a64df551425fcc55e4d42a148795d9f25f89d4\", W/\"0815\"
-      required: false
-      description: |
-        One or more ETag values to compare, separated by commas.  
-        The request will succeed only if the resource's current ETag does **not** match any of the provided values.
-        This allows clients to avoid unnecessary data transfer if the resource has not changed since their last fetch.
-    ifMatch:
-      name: If-Match
-      in: header
-      schema:
-        type: string
-        example: \"33a64df551425fcc55e4d42a148795d9f25f89d4\", W/\"0815\"
-      required: false
-      description: |
-        One or more ETag values to compare, separated by commas.
-        The request will succeed only if the resource's current ETag matches any of the provided values.
-        This allows clients to prevent resource conflicts when multiple clients try to update the same resource simultaneously.
     assetsSortBy:
       name: sortBy
       in: query
@@ -2025,8 +1984,8 @@ components:
         [FIQL-based](https://datatracker.ietf.org/doc/html/draft-nottingham-atompub-fiql-00) filter string
 
         Following fields are supported for filtering:
-          - `mediaType`: Filter by media type (operators allowed are ==). Multiple values can be provided by following the FIQL syntax.
-          - `assetType`: Filter by asset type (operators allowed are ==). Multiple values can be provided by following the FIQL syntax.
+          - `mediaType`: Filter by media type (operators allowed are ==). Single value is only supported.
+          - `assetType`: Filter by asset type (operators allowed are ==). Single value is only supported.
 
         ---
         > NOTE:  
@@ -2034,7 +1993,18 @@ components:
         ---
       schema:
         type: string
-      example: assetType==file;mediaType==application/vnd.adobe.library+dcx;modified=gt=2025-01-01
+      example: assetType==file;mediaType==application/vnd.adobe.library+dcx
+    ifNoneMatch:
+      name: If-None-Match
+      in: header
+      schema:
+        type: string
+        example: \"33a64df551425fcc55e4d42a148795d9f25f89d4\", W/\"0815\"
+      required: false
+      description: |
+        One or more ETag values to compare, separated by commas.  
+        The request will succeed only if the resource's current ETag does **not** match any of the provided values.
+        This allows clients to avoid unnecessary data transfer if the resource has not changed since their last fetch.
     urlTTL:
       name: urlTTL
       in: query
@@ -2042,8 +2012,9 @@ components:
       description: |
         * Provides a **client provided hint** for Time-To-Live(TTL) in seconds for the pre-signed download URL.
         ---
-          > NOTE:
-          > * Clients must rely on the `urlExpirationDate` field in the response for the actual expiration time.
+          > NOTE:  
+            * The server may adjust it to enforce internal limits.
+            * Clients must rely on the `urlExpirationDate` field in the response for the actual expiration time.
         ---
       schema:
         type: integer
@@ -2068,6 +2039,25 @@ components:
         type: string
         default: image/png
       example: image/jpeg
+    policyType:
+      name: policyType
+      in: path
+      required: true
+      description: |
+        The type of policy.
+      schema:
+        $ref: "#/components/schemas/policyType"
+    ifMatch:
+      name: If-Match
+      in: header
+      schema:
+        type: string
+        example: \"33a64df551425fcc55e4d42a148795d9f25f89d4\", W/\"0815\"
+      required: false
+      description: |
+        One or more ETag values to compare, separated by commas.
+        The request will succeed only if the resource's current ETag matches any of the provided values.
+        This allows clients to prevent resource conflicts when multiple clients try to update the same resource simultaneously.
   headers:
     requestId:
       schema:
@@ -2145,32 +2135,35 @@ components:
             path: /Holiday Campaign
             ancestors: []
             state: active
+    unauthorized:
+      description: |
+        **Unauthorized** - The request is unauthorized.
+      value:
+        error_code: unauthorized
+        message: You are not authorized to access this resource.
     invalidLimitType:
       description: |
         **Mismatch Parameter Type** - Provided value of limit parameter is not compatible with the expected type
       value:
-        error_code: invalid_request
+        error_code: validation_error
         message: "Provided value: (abc) for query parameter: limit is of invalid type. Allowed Type is Integer"
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     invalidLimitRange:
       description: |
         **Invalid Range** - Provided value of limit parameter is out of the allowed range
       value:
-        error_code: invalid_request
+        error_code: validation_error
         message: "Provided value: (1000) for query parameter: limit is out of the allowed range. Allowed Range is 1-100"
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     invalidPaginationParameterCombination:
       description: |
         **Invalid Combination** - Combination of pagination parameters is invalid
       value:
-        error_code: invalid_request
+        error_code: validation_error
         message: "Following query parameters: [cursor and sortBy] are not allowed together"
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     multipleInvalidRequestViolations:
       description: |
         **Multiple Violations** - Multiple problems with the request
       value:
-        error_code: invalid_request
+        error_code: validation_error
         message: Multiple issues with request, refer details array for more information
         details:
           - field: limit
@@ -2202,27 +2195,18 @@ components:
             message: Invalid type
             allowedType: Integer
             location: query
-    unauthorized:
-      description: |
-        **Unauthorized** - The request is unauthorized.
-      value:
-        error_code: unauthorized
-        message: You are not authorized to access this resource.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     rateLimited:
       description: |
         **Rate Limited** - The server has rate limited the request
       value:
         error_code: rate_limited
         message: Too many requests have been made. Please try after specified time.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     runtimeError:
       description: |
         **Runtime Error** - An unexpected error occurred while processing the request
       value:
         error_code: runtime_error
         message: An unexpected error occurred while processing your request.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     singleProject:
       value:
         assetId: urn:aaid:sc:US:4f2fc15c-c062-4951-b37b-1f65ed62a174
@@ -2235,62 +2219,60 @@ components:
         ancestors: []
         assetType: project
         state: active
+    invalidRequestBody:
+      description: |
+        **Bad Request Body** - The server cannot proceed because the request body is not valid JSON
+      value:
+        error_code: bad_request
+        message: The provided request body is not a valid JSON
     missingRequestBody:
       description: |
         **Missing Request Body** - The server cannot proceed because the request body is missing
       value:
-        error_code: invalid_request
+        error_code: bad_request
         message: The request is missing the required body
-        requestId: 123e4567-e89b-12d3-a456-426614174000
-    invalidRequestBody:
-      description: |
-        **Invalid Request Body** - The server cannot proceed because the request body is not valid JSON
-      value:
-        error_code: invalid_request
-        message: The provided request body is not a valid JSON
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     accessErrorProjectCreate:
       description: |
         **Project Create Error** - Access to create a project is denied
       value:
         error_code: access_error
         message: You do not have permission to create projects.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     invalidContentType:
       description: |
         **Invalid Content Type** - The server does not support the provided content type
       value:
         error_code: invalid_content_type
         message: The request content type is not supported.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     missingRequiredField:
       description: |
         **Missing Required Field** - The server cannot proceed because the request body is missing a required field
       value:
         error_code: validation_error
         message: The request body is missing the required field (#name)
-        requestId: 123e4567-e89b-12d3-a456-426614174000
-    invalidName:
+    invalidNameType:
       description: |
-        **Invalid Name** - The server cannot proceed because the name is invalid
+        **Invalid Name Type** - The server cannot proceed because the name is of invalid type
+      value:
+        error_code: validation_error
+        message: The provided name has an invalid type.
+    invalidNameValue:
+      description: |
+        **Invalid Name Value** - The server cannot proceed because the name is invalid
       value:
         error_code: validation_error
         message: The provided name has an invalid value.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     accessError:
       description: |
         **Access Error** - Access to a resource is denied
       value:
         error_code: access_error
         message: "You do not have following permission(s) to perform this action on the resource: [write, delete]."
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     resourceNotFound:
       description: |
         **Resource Not Found** - The requested resource was not found
       value:
         error_code: resource_not_found
         message: The requested resource (urn:uuid:123e4567-e89b-12d3-a456-426614174000) was not found.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     200.projectDiscard:
       value:
         assetId: urn:aaid:sc:US:4f2fc15c-c062-4951-b37b-1f65ed62a174
@@ -2309,14 +2291,6 @@ components:
       value:
         error_code: invalid_operation
         message: The requested operation (discard) is invalid based on the current state of the resource.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
-    etagMismatch:
-      description: |
-        **Precondition Failed** - The request failed due to a precondition
-      value:
-        error_code: etag_mismatch
-        message: Expected etag is different for the current.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     paginatedAssets:
       description: |
         **Paginated Assets** - The server successfully retrieved the assets
@@ -2335,7 +2309,6 @@ components:
             path: /Marketing Launch Plan/Design Assets
             ancestors:
               - urn:aaid:sc:US:f860f2fc-7942-4e49-ab37-5e2b32afe97a
-            etag: "1683839000001"
             state: active
           - assetType: file
             assetId: urn:aaid:sc:US:22222222-aaaa-bbbb-cccc-333333333333
@@ -2418,7 +2391,6 @@ components:
       value:
         error_code: access_error
         message: You do not have permission to create folders.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     singleFile:
       value:
         assetType: file
@@ -2459,6 +2431,41 @@ components:
       value:
         error_code: validation_error
         message: The requested media type is not supported.
+    invalidUploadIdType:
+      description: |
+        **Invalid UploadId Type** - The server cannot proceed because the uploadId is of invalid type
+      value:
+        error_code: validation_error
+        message: The provided uploadId has an invalid type.
+    invalidUsedTransferLinksValue:
+      description: |
+        **Invalid UsedTransferLinks Value** - The server cannot proceed because the usedTransferLinks value is invalid
+      value:
+        error_code: validation_error
+        message: The provided usedTransferLinks value is invalid.
+    singlePolicy:
+      value:
+        policyType: inactive_user_content_purge
+        attributes:
+          enabled: true
+          retention: P2Y
+    patchPolicy:
+      value:
+        - op: replace
+          path: /attributes/enabled
+          value: false
+        - op: remove
+          path: /attributes/retention
+        - op: add
+          path: /attributes/retention
+          value: P2Y
+    invalidAttribute:
+      description: |
+        **Invalid Attribute** - The server cannot proceed because one or more of the attributes is invalid
+      value:
+        error_code: validation_error
+        message: One or more of the attributes is invalid.
+        requestId: 123e4567-e89b-12d3-a456-426614174000
   responses:
     paginatedProjectsResponse:
       description: |
@@ -2487,6 +2494,25 @@ components:
           examples:
             unauthorized:
               $ref: "#/components/examples/unauthorized"
+    invalidRequestPagedResponse:
+      description: |
+        **Unprocessable Request** - The server cannot process the request due to a semantic error
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            invalidLimitType:
+              $ref: "#/components/examples/invalidLimitType"
+            invalidLimitRange:
+              $ref: "#/components/examples/invalidLimitRange"
+            invalidPaginationParameterCombination:
+              $ref: "#/components/examples/invalidPaginationParameterCombination"
+            multipleInvalidRequestViolations:
+              $ref: "#/components/examples/multipleInvalidRequestViolations"
     rateLimitResponse:
       description: |
         **Too Many Requests** - The request was rejected due to rate limiting
@@ -2515,6 +2541,21 @@ components:
           examples:
             runtimeError:
               $ref: "#/components/examples/runtimeError"
+    invalidRequestResponse:
+      description: |
+        **Invalid Request** - The server cannot process the request due to a client error
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            invalidRequestBody:
+              $ref: "#/components/examples/invalidRequestBody"
+            missingRequestBody:
+              $ref: "#/components/examples/missingRequestBody"
     accessErrorProjectCreateResponse:
       description: |
         **Forbidden** - The user does not have permission to create projects
@@ -2541,15 +2582,23 @@ components:
           examples:
             invalidContentType:
               $ref: "#/components/examples/invalidContentType"
-    matchedEtagResponse:
+    unprocessableEntityResponse:
       description: |
-        **Success** - The ETag of the asset matches the etag provided in the headers.
-        The client can safely use the cached version of the asset.
+        **Unprocessable Request** - The request cannot be processed due to semantic errors
       headers:
         x-request-id:
           $ref: "#/components/headers/requestId"
-        etag:
-          $ref: "#/components/headers/etag"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            missingRequiredField:
+              $ref: "#/components/examples/missingRequiredField"
+            invalidNameType:
+              $ref: "#/components/examples/invalidNameType"
+            invalidNameValue:
+              $ref: "#/components/examples/invalidNameValue"
     accessErrorResponse:
       description: |
         **Forbidden** - The user does not have permission to access the resource
@@ -2589,19 +2638,6 @@ components:
           examples:
             invalidOperation:
               $ref: "#/components/examples/invalidOperation"
-    preconditionFailedResponse:
-      description: |
-        **Precondition Failed** - The request failed due to a precondition
-      headers:
-        x-request-id:
-          $ref: "#/components/headers/requestId"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/errorResponse"
-          examples:
-            etag Mismatch:
-              $ref: "#/components/examples/etagMismatch"
     paginatedAssetsResponse:
       description: |
         **Success** - Paginated response containing an array of object with each element containing basic information about the project,
@@ -2609,8 +2645,6 @@ components:
       headers:
         x-request-id:
           $ref: "#/components/headers/requestId"
-        etag:
-          $ref: "#/components/headers/etag"
       content:
         application/json:
           schema:
@@ -2842,6 +2876,34 @@ components:
             uploadFinalizeResponse:
               value:
                 jobId: 85f7c90a-a252-4e82-8cf3-3c989829cdf9
+    policyResponse:
+      description: |
+        **Success** - Retrieved information about the policy
+      headers:
+        etag:
+          $ref: "#/components/headers/etag"
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/policy"
+          examples:
+            policyByType:
+              $ref: "#/components/examples/singlePolicy"
+    unprocessableEntityPolicyResponse:
+      description: |
+        **Unprocessable Entity** - The request cannot be processed due to semantic errors
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            invalidAttribute:
+              $ref: "#/components/examples/invalidAttribute"
   requestBodies:
     projectCreateRequest:
       required: true
@@ -2964,10 +3026,18 @@ components:
               - 1
               - 3
               - 5
-x-tagGroups:
-  - name: Asset Operations
-    tags:
-      - Projects
-      - Folders
-      - Files
-      - Jobs
+    policyPatchRequest:
+      required: true
+      content:
+        application/json-patch+json:
+          schema:
+            type: array
+            title: PolicyPatchRequest
+            description: |
+              Represents the request body for updating a policy using JSON Patch syntax (RFC 6902).
+              An array of patch operations to be applied to the policy.
+            items:
+              $ref: "#/components/schemas/patchOperation"
+          examples:
+            patchPolicy:
+              $ref: "#/components/examples/patchPolicy"
