@@ -1,1 +1,1 @@
-<RedoclyAPIBlock src="/cloud-storage/index.yml" width="600px" scrollYOffset={64} generateCodeSamples="languages: [{lang: 'curl'}]" />
+<RedoclyAPIBlock src="/cloud-storage/index.yml" width="600px" scrollYOffset={64} hideTryItPanel generateCodeSamples="languages: [{lang: 'curl'}]" />
