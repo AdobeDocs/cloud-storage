@@ -27,7 +27,7 @@ Before using the Cloud Storage and Collaboration API, you must create a developm
 
 ## Cloud Storage API Calls
 
-AApplications can use the API to access and manage projects, folders, and files in Adobe enterprise cloud storage. You can create and list projects, assign user roles, manage folders, upload and download files, and more.
+Applications can use the API to access and manage projects, folders, and files in Adobe enterprise cloud storage. You can create and list projects, assign user roles, manage folders, upload and download files, and more.
 
 For more information on content structures, see [Cloud Storage and Collaboration Concepts](../overview/constructs.md).
 
@@ -43,35 +43,35 @@ https://cloudstorage.adobe.io/v1
 
 Projects are durable spaces used by teams to organize and collaborate on cloud documents and related cloud content.
 
-| Task                                                                                                    | Operation | Endpoint                                 | Description                                                                                                              |
-|---------------------------------------------------------------------------------------------------------|-----------|------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| [Get list of projects](./specification.md#operation/getProjects)                                               | GET       | /projects                                | Returns a paginated list of all projects within the organization's enterprise shared storage                             |
-| [Create a new project](./specification.md#operation/createProject)                                             | POST      | /projects                                | Creates a new project within the organization's enterprise shared storage                                                |
-| [Get a project's metadata](./specification.md#operation/getProject)                                            | GET       | /projects/{assetId}                      | Retrieves full metadata for a specific project                                                                           |
-| [Discard a project](./specification.md#operation/discardProject)                                               | POST      | /projects/{assetId}/discard              | Marks a project for discard (soft deletion) along with all its descendant assets                                         |
-| [List the contents of a project](./specification.md#operation/getProjectAssets)                                | GET       | /projects/{assetId}/list                 | Retrieves a paginated list of top-level assets (folders, files, or other resources) contained within a specified project |
-| [Get the current user's permissions for a project](./specification.md#operation/getProjectEffectivePermission) | GET       | /projects/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific project                                    |
-| [Get all the permissions for a project](./specification.md#operation/getProjectPermissions)                    | GET       | /projects/{assetId}/permissions          | Retrieves the explicit roles and permissions assigned to all users and groups for a specific project                     |
-| [Set the permissions for a project](./specification.md#operation/patchProjectPermissions)                      | PATCH     | /projects/{assetId}/permissions          | Adds, updates, or removes direct permissions of a specific project                                                       |
-| [Package a project and its files](./specification.md#operation/packageProject)                                 | POST      | /projects/{assetId}/package              | Packages a project, and all its contents, into a downloadable format                                                     |
+| Task                                                                                                           | Operation | Endpoint                                 | Description                                                                                                                |
+| -------------------------------------------------------------------------------------------------------------- | --------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [Get list of projects](./specification.md#operation/getProjects)                                               | GET       | /projects                                | Returns a paginated list of all projects within the organization's enterprise shared storage                               |
+| [Create a new project](./specification.md#operation/createProject)                                             | POST      | /projects                                | Creates a new project within the organization's enterprise shared storage                                                  |
+| [Get a project's metadata](./specification.md#operation/getProject)                                            | GET       | /projects/{assetId}                      | Retrieves full metadata for a specific project                                                                             |
+| [Discard a project](./specification.md#operation/discardProject)                                               | POST      | /projects/{assetId}/discard              | Marks a project for discard (soft deletion) along with all its descendant assets                                           |
+| [List the contents of a project](./specification.md#operation/getProjectAssets)                                | GET       | /projects/{assetId}/children             | Retrieves a paginated list of top-level children (folders, files, or other resources) contained within a specified project |
+| [Get the current user's permissions for a project](./specification.md#operation/getProjectEffectivePermission) | GET       | /projects/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific project                                      |
+| [Get all the permissions for a project](./specification.md#operation/getProjectPermissions)                    | GET       | /projects/{assetId}/permissions          | Retrieves the explicit roles and permissions assigned to all users and groups for a specific project                       |
+| [Set the permissions for a project](./specification.md#operation/patchProjectPermissions)                      | PATCH     | /projects/{assetId}/permissions          | Adds, updates, or removes direct permissions of a specific project                                                         |
+| [Package a project and its files](./specification.md#operation/packageProject)                                 | POST      | /projects/{assetId}/package              | Packages a project, and all its contents, into a downloadable format                                                       |
 
 ### Folders
 
 Folders are a construct that can contain files and other folders, enabling logical organization of assets.
 
-| Task                                                                                                   | Operation | Endpoint                                | Description                                                                                                             |
-| ------------------------------------------------------------------------------------------------------ | --------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| [Create a folder](./specification.md#operation/createFolder)                                                  | POST      | /folders                                | Creates a folder under a specified parent container (project or another folder)                                         |
-| [Get a folder's metadata](./specification.md#operation//getFolder)                                            | GET       | /folders/{assetId}                      | Retrieves full metadata for a specific Folder                                                                           |
-| [List the contents of a folder](./specification.md#operation/getFolderAssets)                                 | GET       | /folders/{assetId}/list                 | Retrieves a paginated list of top-level assets (folders, files, or other resources) contained within a specified folder |
-| [Get the current user's permissions for a project](./specification.md#operation/getFolderEffectivePermission) | GET       | /folders/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific folder                                    |
+| Task                                                                                                          | Operation | Endpoint                                | Description                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------- | --------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| [Create a folder](./specification.md#operation/createFolder)                                                  | POST      | /folders                                | Creates a folder under a specified parent container (project or another folder)                                           |
+| [Get a folder's metadata](./specification.md#operation//getFolder)                                            | GET       | /folders/{assetId}                      | Retrieves full metadata for a specific Folder                                                                             |
+| [List the contents of a folder](./specification.md#operation/getFolderAssets)                                 | GET       | /folders/{assetId}/children             | Retrieves a paginated list of top-level children (folders, files, or other resources) contained within a specified folder |
+| [Get the current user's permissions for a project](./specification.md#operation/getFolderEffectivePermission) | GET       | /folders/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific folder                                      |
 
 ### Files
 
 Files are used to store content in Adobe cloud storage. See [Cloud Storage and Collaboration Concepts](../overview/constructs.md#file) for more information about files and file types.
 
-| Task                                                                                              | Operation | Endpoint                              | Description                                                                                                                               |
-| ------------------------------------------------------------------------------------------------- | --------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Task                                                                                                     | Operation | Endpoint                              | Description                                                                                                                               |
+| -------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | [Get file metadata](./specification.md#operation/getFile)                                                | GET       | /files/{assetId}                      | Retrieves full metadata for a specific file                                                                                               |
 | [Get the current user's permissions for a file](./specification.md#operation/getFileEffectivePermission) | GET       | /files/{assetId}/effective-permission | Retrieves the effective permission (role) assigned to the user for a specific file                                                        |
 | [Download a file](./specification.md#operation/downloadFile)                                             | GET       | /files/{assetId}/download             | Creates pre-signed URLs for downloading a file                                                                                            |
@@ -83,8 +83,8 @@ Files are used to store content in Adobe cloud storage. See [Cloud Storage and C
 
 Manages asynchronous jobs in the system.
 
-| Task                                                                        | Operation | Endpoint        | Description                                         |
-| --------------------------------------------------------------------------- | --------- | --------------- | --------------------------------------------------- |
+| Task                                                                               | Operation | Endpoint        | Description                                         |
+| ---------------------------------------------------------------------------------- | --------- | --------------- | --------------------------------------------------- |
 | [Get the status of an asynchronous job](./specification.md#operation/getJobStatus) | GET       | /status/{jobId} | Retrieves the current status of an asynchronous job |
 
 ## What's next?
