@@ -70,7 +70,7 @@ Perform the following steps:
      --data-urlencode 'grant_type=client_credentials' \
      --data-urlencode "client_id=$CLOUD_STORAGE_CLIENT_ID" \
      --data-urlencode "client_secret=$CLOUD_STORAGE_CLIENT_SECRET" \
-     --data-urlencode 'scope=openid, AdobeID, offline_access, creative_sdk'
+     --data-urlencode 'scope=openid, AdobeID, creative_sdk, cloud_storage_collab_api'
    ```
 
    A sample response is as follows:
