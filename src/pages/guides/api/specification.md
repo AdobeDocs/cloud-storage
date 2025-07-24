@@ -8,8 +8,7 @@ keywords:
 layout: none
 --- 
 
-
-<RedoclyAPIBlock src="/cloud-storage/index.yml" scrollYOffset={64}
+<RedoclyAPIBlock src="/cloud-storage/index.yml" scrollYOffset={64} align="left"
   generateCodeSamples="languages: [
                                    {lang: 'curl'},
                                    {lang: 'JavaScript'}
