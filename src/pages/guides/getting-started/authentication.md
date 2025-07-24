@@ -12,10 +12,10 @@ keywords:
 - Cloud Storage authentication and autorization
 - API Key
 - Client ID
-  contributors:
-- https://github.com/michael-hodgson
-- https://github.com/lijumjose
-  layout: none
+contributors:
+  - https://github.com/michael-hodgson
+  - https://github.com/lijumjose
+layout: none
 ---
 
 # Authentication setup
