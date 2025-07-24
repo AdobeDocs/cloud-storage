@@ -11,10 +11,10 @@ keywords:
 - Adobe Developer Console
 - API Key
 - Client ID
-  contributors:
-- https://github.com/michael-hodgson
-- https://github.com/lijumjose
-  layout: none
+contributors:
+  - https://github.com/michael-hodgson
+  - https://github.com/lijumjose
+layout: none
 ---
 
 # Generate API key and access token through Adobe Developer Console
