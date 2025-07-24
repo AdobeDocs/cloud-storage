@@ -122,7 +122,6 @@ async function getProjects(accessToken) {
     console.log("Getting project list.");
     const headers = {
       "Content-Type": "application/json",
-      "x-api-key": CLIENT_ID,
       Authorization: `Bearer ${accessToken}`,
     };
 
@@ -178,7 +177,6 @@ async function createProject(accessToken, projectName) {
   console.log("Creating new project");
   const headers = {
     "Content-Type": "application/json",
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
   const data = {
@@ -263,7 +261,6 @@ async function getProjectInfo(accessToken, projectId) {
   console.log("Getting project metadata for project: " + projectId);
 
   const headers = {
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -312,7 +309,6 @@ async function inviteUser(accessToken, projectId, userEmail, userRole) {
     console.log("Adding user to the project");
     const headers = {
         "Content-Type": "application/json",
-        "x-api-key": CLIENT_ID,
         Authorization: `Bearer ${accessToken}`,
     };
 
@@ -374,7 +370,6 @@ async function getSharing(accessToken, projectId) {
   console.log("Getting project sharing data");
 
   const headers = {
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -442,7 +437,6 @@ async function uploadFile(accessToken, projectId, fileName) {
     //Init the file upload
     console.log("Initializing the upload");
     var headers = {
-        "x-api-key": CLIENT_ID,
         "Content-Type": 'application/json',
         accept: ' application/json',
         Authorization: `Bearer ${accessToken}`,
@@ -535,7 +529,6 @@ After all file blocks have been uploaded, the next step is to finalize the uploa
 //finalize the file upload
 console.log("Finalizing the upload");
 headers = {
-  "x-api-key": CLIENT_ID,
   "Content-Type": "application/json",
   accept: " application/json",
   Authorization: `Bearer ${accessToken}`,
@@ -578,7 +571,6 @@ You can check on the status of the upload by using the GET status function with 
     //Get the status and the asset id
     console.log("Get the status of the upload");
     headers = {
-        "x-api-key": CLIENT_ID,
         "Content-Type": 'application/json',
         accept: ' application/json',
         Authorization: `Bearer ${accessToken}`,
@@ -656,7 +648,6 @@ async function getProjectContents(accessToken, projectId) {
 
   const headers = {
     "Content-Type": "application/json",
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -714,7 +705,6 @@ async function getFileRendition(accessToken, fileId, renditionSize, renditionFil
 
   const headers = {
     "Content-Type": "image/jpg",
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -761,7 +751,6 @@ async function downloadFile(accessToken, fileId, downloadFileName) {
 
   const headers = {
     "Content-Type": "image/jpg",
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -951,7 +940,6 @@ async function getProjects(accessToken) {
     console.log("Getting project list.");
     const headers = {
       "Content-Type": "application/json",
-      "x-api-key": CLIENT_ID,
       Authorization: `Bearer ${accessToken}`,
     };
 
@@ -978,7 +966,6 @@ async function createProject(accessToken, projectName) {
   console.log("Creating new project");
   const headers = {
     "Content-Type": "application/json",
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
   const data = {
@@ -1032,7 +1019,6 @@ async function getProjectInfo(accessToken, projectId) {
   console.log("Getting project metadata for project: " + projectId);
 
   const headers = {
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -1058,7 +1044,6 @@ async function inviteUser(accessToken, projectId, userEmail, userRole) {
   console.log("Adding user to the project");
   const headers = {
     "Content-Type": "application/json",
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -1097,7 +1082,6 @@ async function getSharing(accessToken, projectId) {
   console.log("Getting project sharing data");
 
   const headers = {
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -1136,7 +1120,6 @@ async function uploadFile(accessToken, projectId, fileName) {
   //Init the file upload
   console.log("Initializing the upload");
   var headers = {
-    "x-api-key": CLIENT_ID,
     "Content-Type": "application/json",
     accept: " application/json",
     Authorization: `Bearer ${accessToken}`,
@@ -1198,7 +1181,6 @@ async function uploadFile(accessToken, projectId, fileName) {
   //finalize the file upload
   console.log("Finalizing the upload");
   headers = {
-    "x-api-key": CLIENT_ID,
     "Content-Type": "application/json",
     accept: " application/json",
     Authorization: `Bearer ${accessToken}`,
@@ -1229,7 +1211,6 @@ async function uploadFile(accessToken, projectId, fileName) {
   //Get the status and the asset id
   console.log("Get the status of the upload");
   headers = {
-    "x-api-key": CLIENT_ID,
     "Content-Type": "application/json",
     accept: " application/json",
     Authorization: `Bearer ${accessToken}`,
@@ -1271,7 +1252,6 @@ async function getProjectContents(accessToken, projectId) {
 
   const headers = {
     "Content-Type": "application/json",
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -1298,7 +1278,6 @@ async function getFileRendition(accessToken, fileId, renditionSize, renditionFil
 
   const headers = {
     "Content-Type": "image/jpg",
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
@@ -1335,7 +1314,6 @@ async function downloadFile(accessToken, fileId, downloadFileName) {
 
   const headers = {
     "Content-Type": "image/jpg",
-    "x-api-key": CLIENT_ID,
     Authorization: `Bearer ${accessToken}`,
   };
 
