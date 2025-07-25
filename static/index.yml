@@ -22,9 +22,6 @@ tags:
   - name: Jobs
     description: |
       Represents long running tasks in the system that are created by invoking specific operations.
-  - name: Policies
-    description: |
-      Represents a set of rules that govern how assets and operations are managed and accessed within the system.
 paths:
   /projects:
     get:
@@ -569,7 +566,6 @@ paths:
         - Files
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifNoneMatch"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
@@ -909,58 +905,6 @@ paths:
           $ref: "#/components/responses/unauthorizedResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
-        "429":
-          $ref: "#/components/responses/rateLimitResponse"
-        "500":
-          $ref: "#/components/responses/runtimeErrorResponse"
-  /policies/{policyType}:
-    get:
-      operationId: getPolicy
-      summary: Get a policy by policyType
-      description: |
-        This endpoint retrieves a specific policy identified by its policyType, provided the user has the necessary permissions.
-      tags:
-        - Policies
-      parameters:
-        - $ref: "#/components/parameters/policyType"
-        - $ref: "#/components/parameters/requestId"
-      responses:
-        "200":
-          $ref: "#/components/responses/policyResponse"
-        "400":
-          $ref: "#/components/responses/invalidRequestResponse"
-        "401":
-          $ref: "#/components/responses/unauthorizedResponse"
-        "403":
-          $ref: "#/components/responses/accessErrorResponse"
-        "429":
-          $ref: "#/components/responses/rateLimitResponse"
-        "500":
-          $ref: "#/components/responses/runtimeErrorResponse"
-    patch:
-      operationId: patchPolicy
-      summary: Update a policy by policyType
-      description: |
-        This endpoint updates a specific policy identified by its policyType, provided the user has the necessary permissions.
-      tags:
-        - Policies
-      parameters:
-        - $ref: "#/components/parameters/policyType"
-        - $ref: "#/components/parameters/ifMatch"
-        - $ref: "#/components/parameters/requestId"
-      requestBody:
-        $ref: "#/components/requestBodies/policyPatchRequest"
-      responses:
-        "200":
-          $ref: "#/components/responses/policyResponse"
-        "400":
-          $ref: "#/components/responses/invalidRequestResponse"
-        "401":
-          $ref: "#/components/responses/unauthorizedResponse"
-        "403":
-          $ref: "#/components/responses/accessErrorResponse"
-        "422":
-          $ref: "#/components/responses/unprocessableEntityPolicyResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -1785,76 +1729,6 @@ components:
           running: "#/components/schemas/runningJobStatus"
           succeeded: "#/components/schemas/succeededJobStatus"
           failed: "#/components/schemas/failedJobStatus"
-    policyType:
-      type: string
-      title: PolicyType
-      description: |
-        Describes the type of policy.
-      example: inactive_user_content_purge
-    policyAttributes:
-      type: object
-      description: Policy-specific attributes.
-      required:
-        - enabled
-      properties:
-        enabled:
-          type: boolean
-          description: Describes whether the policy is enabled or disabled.
-          example: true
-        retention:
-          type: string
-          description: |
-            Retention period in ISO 8601 duration format (e.g., P2Y for 2 years, P1M for 1 month).
-            This field may be optional depending on the policy type.
-          example: P2Y
-          nullable: true
-          pattern: ^P(?:\d+Y)?(?:\d+M)?$
-    policy:
-      type: object
-      title: Policy
-      description: Represents a policy in the system.
-      required:
-        - policyType
-        - attributes
-      properties:
-        policyType:
-          $ref: "#/components/schemas/policyType"
-        attributes:
-          $ref: "#/components/schemas/policyAttributes"
-    patchOperation:
-      type: object
-      title: PatchOperation
-      description: Represents a JSON patch operation
-      required:
-        - op
-        - path
-      properties:
-        op:
-          type: string
-          description: The operation to perform
-          enum:
-            - add
-            - remove
-            - replace
-            - move
-            - copy
-            - test
-        path:
-          type: string
-          description: |
-            A JSON Pointer path specifying the location in the policy to apply the operation.
-          pattern: ^(/[^/~]*|/[^/~]*(/[^/~]*)*|)$
-          example: /attributes/enabled
-        value:
-          description: |
-            The value to apply at the specified path.
-            Only used for the `add` and `replace` operations.
-            schema: {}
-        from:
-          description: |
-            A JSON Pointer path specifying the location in the policy to copy from.
-            Only used for the `move` and `copy` operations.
-          type: string
   parameters:
     limit:
       name: limit
@@ -1883,6 +1757,7 @@ components:
         ---
       schema:
         type: string
+      allowReserved: true
       example: 123e4567e89b12d3a456426614174000
     projectsSortBy:
       name: sortBy
@@ -1994,17 +1869,6 @@ components:
       schema:
         type: string
       example: assetType==file;mediaType==application/vnd.adobe.library+dcx
-    ifNoneMatch:
-      name: If-None-Match
-      in: header
-      schema:
-        type: string
-        example: \"33a64df551425fcc55e4d42a148795d9f25f89d4\", W/\"0815\"
-      required: false
-      description: |
-        One or more ETag values to compare, separated by commas.  
-        The request will succeed only if the resource's current ETag does **not** match any of the provided values.
-        This allows clients to avoid unnecessary data transfer if the resource has not changed since their last fetch.
     urlTTL:
       name: urlTTL
       in: query
@@ -2039,25 +1903,6 @@ components:
         type: string
         default: image/png
       example: image/jpeg
-    policyType:
-      name: policyType
-      in: path
-      required: true
-      description: |
-        The type of policy.
-      schema:
-        $ref: "#/components/schemas/policyType"
-    ifMatch:
-      name: If-Match
-      in: header
-      schema:
-        type: string
-        example: \"33a64df551425fcc55e4d42a148795d9f25f89d4\", W/\"0815\"
-      required: false
-      description: |
-        One or more ETag values to compare, separated by commas.
-        The request will succeed only if the resource's current ETag matches any of the provided values.
-        This allows clients to prevent resource conflicts when multiple clients try to update the same resource simultaneously.
   headers:
     requestId:
       schema:
@@ -2088,14 +1933,6 @@ components:
         example: https://cloudstorage.adobe.io/v1/projects/1234567890
       description: |
         The `Location` header indicates the URL to access the newly created asset.
-    etag:
-      required: true
-      schema:
-        type: string
-        example: "1234567890"
-      description: |
-        The `ETag` header is used to identify a specific version of a resource.  
-        The ETag value can be used to make conditional requests to the server.
   examples:
     paginatedProjects:
       description: |
@@ -2443,29 +2280,6 @@ components:
       value:
         error_code: validation_error
         message: The provided usedTransferLinks value is invalid.
-    singlePolicy:
-      value:
-        policyType: inactive_user_content_purge
-        attributes:
-          enabled: true
-          retention: P2Y
-    patchPolicy:
-      value:
-        - op: replace
-          path: /attributes/enabled
-          value: false
-        - op: remove
-          path: /attributes/retention
-        - op: add
-          path: /attributes/retention
-          value: P2Y
-    invalidAttribute:
-      description: |
-        **Invalid Attribute** - The server cannot proceed because one or more of the attributes is invalid
-      value:
-        error_code: validation_error
-        message: One or more of the attributes is invalid.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
   responses:
     paginatedProjectsResponse:
       description: |
@@ -2876,34 +2690,6 @@ components:
             uploadFinalizeResponse:
               value:
                 jobId: 85f7c90a-a252-4e82-8cf3-3c989829cdf9
-    policyResponse:
-      description: |
-        **Success** - Retrieved information about the policy
-      headers:
-        etag:
-          $ref: "#/components/headers/etag"
-        x-request-id:
-          $ref: "#/components/headers/requestId"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/policy"
-          examples:
-            policyByType:
-              $ref: "#/components/examples/singlePolicy"
-    unprocessableEntityPolicyResponse:
-      description: |
-        **Unprocessable Entity** - The request cannot be processed due to semantic errors
-      headers:
-        x-request-id:
-          $ref: "#/components/headers/requestId"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/errorResponse"
-          examples:
-            invalidAttribute:
-              $ref: "#/components/examples/invalidAttribute"
   requestBodies:
     projectCreateRequest:
       required: true
@@ -3026,18 +2812,3 @@ components:
               - 1
               - 3
               - 5
-    policyPatchRequest:
-      required: true
-      content:
-        application/json-patch+json:
-          schema:
-            type: array
-            title: PolicyPatchRequest
-            description: |
-              Represents the request body for updating a policy using JSON Patch syntax (RFC 6902).
-              An array of patch operations to be applied to the policy.
-            items:
-              $ref: "#/components/schemas/patchOperation"
-          examples:
-            patchPolicy:
-              $ref: "#/components/examples/patchPolicy"
