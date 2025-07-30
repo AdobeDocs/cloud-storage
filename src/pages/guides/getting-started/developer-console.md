@@ -15,6 +15,7 @@ contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
 layout: none
+  layout: none
 ---
 
 # Generate API key and access token through Adobe Developer Console
@@ -101,44 +102,9 @@ Click **View scopes per service** to see the available services and their scopes
 
 Congratulations! You have successfully generated an access token.
 
-## Technical Account permissions
+### Account Configuration
 
 Access to content in Adobe cloud storage is limited to authorized users.
 
 - API calls made with an **OAuth user credential** use a user token to make the request on behalf of a specific user. Access to the content is based on user's [roles and permissions](../overview/permissions.md).
-- API calls made using **OAuth Server-to-Server** are made using a Technical Account. This account is created automatically when you added Server-to-Server authentication to your Developer Console Project. However, you must grant the Technical Account permissions to allow it to access the Adobe cloud storage conent.
-
-**Note:** You must be an Administrator for your organization to grant permissions to the Technical Account.
-
-To grant permissions to the Technical Account:
-
-1. Sign in to the [Adobe Admin Console](https://adminconsole.adobe.com) using your user account profile for your organization.
-2. Go to the **Users** tab
-
-   ![Adobe Admins Console](../images/admin_console_start.png)
-
-3. Choose **API Credentials** from the menu on the left.
-4. Locate the credential you created earlier in the list. Click **View details** icon to see information about the credential.
-
-   ![API credential list](../images/api_credential_list.jpg)
-
-5. Copy the Technical Account's username data.
-
-   ![User name](../images/ta_username.jpg)
-
-6. Choose **Administrators** from the menu on the left.
-7. Select **Add admin** button.
-
-   ![Add Admin option](../images/add_admin.jpg)
-
-8. Paste the Technical Account's user name in the **Email or username** field and click the drop down button next to the field.
-
-   ![Admin list](../images/ta_admin_list.jpg)
-
-9. Select the user name from the list and click **Next**.
-
-   ![Admin next](../images/ta_admin_next.jpg)
-
-10. Select **Storage administrator** and click **Save**. This will make the Technical Account a Storage Administrator, which gives the account access to all of the content in your organization's Adobe cloud storage.
-
-![Storage Admin](../images/ta_storage_admin.jpg)
+- API calls made using **OAuth Server-to-Server** are made using a Technical Account. This account is created automatically when you added Server-to-Server authentication to your Developer Console Project. However, you must ensure the Technical Account is properly configured. For step-by-step instructions, refer to the [Technical Account setup guide](./technical-account-setup.md).
