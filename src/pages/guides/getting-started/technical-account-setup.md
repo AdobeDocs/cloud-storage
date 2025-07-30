@@ -75,7 +75,7 @@ To grant a Technical Account a product license the includes Enterprise Storage:
 
 5. Add a product license by clicking on the "..." next to Products. Then choose Edit Products
 6. Click the + button and choose a product that includes Enterprise Storage.
-   ![Product List](../images/choose-product.png)
+   ![Product List](../images/choose-product.jpg)
 
 7. Choose the product profile and click apply, then Save
-   ![Product Profile](../images/Choose-product-profile.png)
+   ![Product Profile](../images/Choose-product-profile.jpg)
