@@ -2,16 +2,15 @@
 title: Authentication - Adobe Cloud Storage and Collaboration API
 description: Adobe Cloud Storage and Collaboration API authentication guide
 keywords:
-
-- Adobe Cloud Storage and Collaboration
-- Adobe Cloud Storage and Collaboration API
-- Adobe Cloud Storage
-- Creative production workflows
-- Adobe workflows
-- Cloud Storage endpoints
-- Cloud Storage authentication and autorization
-- API Key
-- Client ID
+  - Adobe Cloud Storage and Collaboration
+  - Adobe Cloud Storage and Collaboration API
+  - Adobe Cloud Storage
+  - Creative production workflows
+  - Adobe workflows
+  - Cloud Storage endpoints
+  - Cloud Storage authentication and autorization
+  - API Key
+  - Client ID
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
@@ -101,7 +100,7 @@ Granting permissions to the Technical Account is done through the [Adobe Admin C
 
 **Note:** You must be an Administrator for your organization to grant permissions to the Technical Account.
 
-For step-by-step instructions, refer to the [Developer Console](./developer-console.md).
+For step-by-step instructions, refer to the [Technical Account setup guide](./technical-account-setup.md).
 
 ## User Authentication
 
