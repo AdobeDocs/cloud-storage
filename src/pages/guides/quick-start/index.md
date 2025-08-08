@@ -17,7 +17,7 @@ contributors:
 layout: none
 ---
 
-# Work with Cloud Storage and Collaboration APIs
+# Working with Cloud Storage and Collaboration APIs
 
 Automating content workflows with Cloud Storage and Collaboration APIs
 
