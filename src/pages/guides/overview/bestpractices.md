@@ -43,5 +43,5 @@ The Adobe Cloud Storage and Collaboration API provides powerful functionality fo
 
 ## Monitoring and logging
 
-- Implement logging to track API usage, errors, and performance metrics. 
+- Implement logging to track API usage, errors, and performance metrics.
 - Continuously monitor API usage and performance to identify and address issues proactively.

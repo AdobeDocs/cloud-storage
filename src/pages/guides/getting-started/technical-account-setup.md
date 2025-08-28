@@ -34,18 +34,20 @@ To grant permissions to the Technical Account:
 
    ![API credential list](../images/api_credential_list.jpg)
 
-5. Copy the Technical Account's username data.
+5. Copy the Technical Account's username email address.
 
-   ![User name](../images/ta_username.jpg)
+   ![User Email](../images/ta_username.jpg)
 
 6. Choose **Administrators** from the menu on the left.
 7. Select **Add admin** button.
 
    ![Add Admin option](../images/add_admin.jpg)
 
-8. Paste the Technical Account's user name in the **Email or username** field and click the drop down button next to the field.
+8. Paste the Technical Account's user email address in the **Email or username** field and click the drop down button next to the field.
 
    ![Admin list](../images/ta_admin_list.jpg)
+
+   > **Note:** Please make sure that from the drop down list, you select the user name which maps to an Enterprise ID. Don't select the user mapping to an Adobe ID.
 
 9. Select the user name from the list and click **Next**.
 

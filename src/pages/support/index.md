@@ -1,6 +1,6 @@
 ---
 title: Support - Cat Analytics
-description: This is the support page of Cat Analytics 
+description: This is the support page of Cat Analytics
 ---
 
 <HeroSimple slots="heading, text" background="rgb(19, 93, 183)"/>
@@ -48,4 +48,3 @@ You've got a place to join the conversation.
 [Explore](https://adobe.io)
 
 Developer Q&A using a specific tag.
- 
