@@ -8,7 +8,7 @@ keywords:
   - Creative production workflows
   - Adobe workflows
   - Cloud Storage endpoints
-  - Cloud Storage authentication and autorization
+  - Cloud Storage authentication and authorization
   - Technical Account
 contributors:
   - https://github.com/michael-hodgson
@@ -16,7 +16,7 @@ contributors:
 layout: none
 ---
 
-API calls made using **OAuth Server-to-Server** are made using a Technical Account. This account is created automatically when you added Server-to-Server authentication to your Developer Console Project (refer to [Generate API key and access token](./developer-console.md) for instructions). However, you must configure the the Technical Account permissions and product assignments to allow it to access the Adobe cloud storage conent.
+API calls made using **OAuth Server-to-Server** are made using a Technical Account. This account is created automatically when you added Server-to-Server authentication to your Developer Console Project (refer to [Generate API key and access token](./developer-console.md) for instructions). However, you must configure the Technical Account permissions and product assignments to allow it to access the Adobe cloud storage content.
 
 **Note:** You must be an Administrator for your organization to configure the Technical Account.
 

@@ -8,7 +8,7 @@ keywords:
   - Creative production workflows   
   - Adobe workflows
   - Cloud Storage endpoints
-  - Cloud Storage authentication and autorization
+  - Cloud Storage authentication and authorization
   - Rate Limits
   - Throttling
 contributors:
