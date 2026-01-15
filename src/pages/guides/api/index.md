@@ -20,7 +20,7 @@ The Adobe Cloud Storage and Collaboration API provides programmatic access to co
 
 ## Connecting to the Cloud Storage and Collaboration API
 
-Before using the Cloud Storage and Collaboration API, you must create a development project in the [Adobe Developer Console](https://developer.adobe.com/). This integration registers your application as a client of the Cloud Storage and Collaboration API, and gprovides the credentials required to authorize API calls.
+Before using the Cloud Storage and Collaboration API, you must create a development project in the [Adobe Developer Console](https://developer.adobe.com/). This integration registers your application as a client of the Cloud Storage and Collaboration API, and provides the credentials required to authorize API calls.
 
 - For setup instructions, see [Developer Console](../getting-started/developer-console.md)
 - For information about client credential authentication and retrieving Client ID, Client Secret, Scopes, or access tokens, see [Authentication Setup](../getting-started/authentication.md).

@@ -13,6 +13,7 @@ keywords:
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
+  - https://github.com/adchawla
 layout: none
 ---
 
@@ -34,7 +35,7 @@ To grant permissions to the Technical Account:
 
    ![API credential list](../images/api_credential_list.jpg)
 
-5. Copy the Technical Account's username email address.
+5. Copy the Technical Account's email address.
 
    ![User Email](../images/ta_username.jpg)
 
@@ -55,7 +56,14 @@ To grant permissions to the Technical Account:
 
 10. Select **Storage administrator** and click **Save**. This will make the Technical Account a Storage Administrator, which gives the account access to all of the content in your organization's Adobe cloud storage.
 
-![Storage Admin](../images/ta_storage_admin.jpg)
+   ![Storage Admin](../images/ta_storage_admin.jpg)
+
+11. Please make sure that the ID type mentioned for the newly added credentials is **Technical Account** and not **Adobe ID**.
+
+   ![Enterprise ID](../images/ta_admin_enterprise_id.jpg)
+
+In case you see an Adobe ID, please remove the credential and add it again, by restarting the process from step 2. Most likely you copied the Technical Account's username instead of email address in step 5.
+
 
 ## Technical Account product assignment
 
@@ -63,7 +71,7 @@ In order to access Adobe cloud storage, the Technical Account must be assigned a
 
 However, if the Server-to-Server credential was created using an API that does not include Enterprise Storage, then you will need to assign a product license using the Admin Console. This is true even if an API with Enterprise Storage was added to the credential later on.
 
-To grant a Technical Account a product license the includes Enterprise Storage:
+To grant a Technical Account a product license that includes Enterprise Storage:
 
 1. Sign in to the [Adobe Admin Console](https://adminconsole.adobe.com) using your user account profile for your organization.
 2. Go to the **Users** tab
@@ -75,9 +83,9 @@ To grant a Technical Account a product license the includes Enterprise Storage:
 
    ![API credential list](../images/api_credential_list.jpg)
 
-5. Add a product license by clicking on the "..." next to Products. Then choose Edit Products
+5. Add a product license by clicking on the "..." next to Products. Then choose Edit Products.
 6. Click the + button and choose a product that includes Enterprise Storage.
    ![Product List](../images/choose-product.jpg)
 
-7. Choose the product profile and click apply, then Save
+7. Choose the product profile and click Apply, then Save.
    ![Product Profile](../images/Choose-product-profile.jpg)
