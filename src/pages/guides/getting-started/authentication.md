@@ -30,7 +30,7 @@ Every request made to Adobe Cloud Storage and Collaboration APIs must include an
 This document assumes you have worked with your organization's Administrator and have the following:
 
 - A user account with a Developer role authorized for an Adobe product that uses Enterprise Storage. This grants access to the [Adobe Developer Console](https://developer.adobe.com/).
-- An [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/projects/projects-empty/) configured with either OAuth server-to-server or OAuth user authentication credentials for the Adobe Cloud Storage and Collaboration APIs.
+- An [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/projects/projects-empty) configured with either OAuth server-to-server or OAuth user authentication credentials for the Adobe Cloud Storage and Collaboration APIs.
 - Access to your Client ID and Client Secret from the Adobe Developer Console project. Securely store these credentials and never expose them in client-side or public code.
 
 For more information about setting up an Adobe Developer Console project, see [Adobe Developer Console](./developer-console.md)
@@ -115,4 +115,4 @@ The following Adobe Developer documents provide details on User Authentication:
 
 ### User permissions
 
-API calls made with User authentication use a user token to make the request on behalf of a specific user. The user's [roles and permissions](https://file+.vscode-resource.vscode-cdn.net/Users/mhodgson/Library/CloudStorage/OneDrive-Adobe/Adobe_Projects/Development/torii/docs/public/src/pages/concepts/permissions/index.md) determine what projects, folders, and files can be accessed using the Adobe Cloud Storage and Collaboration API.
+API calls made with User authentication use a user token to make the request on behalf of a specific user. The user's [roles and permissions](../overview/permissions.md) determine what projects, folders, and files can be accessed using the Adobe Cloud Storage and Collaboration API.

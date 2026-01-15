@@ -27,7 +27,7 @@ Automating content workflows with Cloud Storage and Collaboration APIs
 
 ### Credentials
 
-If you don't already have a Cloud Storage and Collaboration **Client ID**, **Client Secret**, and **Scopes** retrieve them from your [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/#api-overview) before reading further. **Securely store these credentials and never expose them in client-side or public code**. This tutorial uses a Server-To-Server credential, but Cloud Storage and Collaboration API also supports User credentials.
+If you don't already have a Cloud Storage and Collaboration **Client ID**, **Client Secret**, and **Scopes** retrieve them from your [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s#api-overview) before reading further. **Securely store these credentials and never expose them in client-side or public code**. This tutorial uses a Server-To-Server credential, but Cloud Storage and Collaboration API also supports User credentials.
 
 ### Setting up your environment
 
@@ -111,7 +111,7 @@ Depending on your learning style, you may prefer to walk through this tutorial s
 
 ## List projects
 
-Now that you have an access token you can begin to work with Adobe Creative Cloud projects. A project is a durable, shared space within your organization. For more information, see: [Creative Cloud projects overview](https://helpx.adobe.com/creative-cloud/help/projects-overview.html).
+Now that you have an access token you can begin to work with Adobe Creative Cloud projects. A project is a durable, shared space within your organization. For more information, see: [Creative Cloud projects overview](https://helpx.adobe.com/creative-cloud/apps/access-collaboration-tools/manage-projects/projects-overview.html).
 
 You can start by getting a list of the existing projects. It is important to note that only projects that the requesting user or Technical Account has access to will be included in the response.
 
