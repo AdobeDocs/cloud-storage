@@ -8,7 +8,7 @@ keywords:
   - Creative production workflows
   - Adobe workflows
   - Cloud Storage endpoints
-  - Cloud Storage authentication and autorization
+  - Cloud Storage authentication and authorization
   - Cloud Storage quickstart
   - Code Samples
 contributors:
@@ -27,7 +27,7 @@ Automating content workflows with Cloud Storage and Collaboration APIs
 
 ### Credentials
 
-If you don't already have a Cloud Storage and Collaboration **Client ID**, **Client Secret**, and **Scopes** retrieve them from your [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/#api-overview) before reading further. **Securely store these credentials and never expose them in client-side or public code**. This tutorial uses a Server-To-Server credential, but Cloud Storage and Collaboration API also supports User credentials.
+If you don't already have a Cloud Storage and Collaboration **Client ID**, **Client Secret**, and **Scopes** retrieve them from your [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s#api-overview) before reading further. **Securely store these credentials and never expose them in client-side or public code**. This tutorial uses a Server-To-Server credential, but Cloud Storage and Collaboration API also supports User credentials.
 
 ### Setting up your environment
 
@@ -111,7 +111,7 @@ Depending on your learning style, you may prefer to walk through this tutorial s
 
 ## List projects
 
-Now that you have an access token you can begin to work with Adobe Creative Cloud projects. A project is a durable, shared space within your organization. For more information, see: [Creative Cloud projects overview](https://helpx.adobe.com/creative-cloud/help/projects-overview.html).
+Now that you have an access token you can begin to work with Adobe Creative Cloud projects. A project is a durable, shared space within your organization. For more information, see: [Creative Cloud projects overview](https://helpx.adobe.com/creative-cloud/apps/access-collaboration-tools/manage-projects/projects-overview.html).
 
 You can start by getting a list of the existing projects. It is important to note that only projects that the requesting user or Technical Account has access to will be included in the response.
 
@@ -465,7 +465,7 @@ async function uploadFile(accessToken, projectId, fileName) {
         console.log("Init file upload: ");
         console.log(JSON.stringify(response.data));
     } catch (error) {
-        console.error("Error initilizing file upload: ", error.response?.data || error.message);
+        console.error("Error initializing file upload: ", error.response?.data || error.message);
     }
 
 ```
@@ -589,7 +589,7 @@ You can check on the status of the upload by using the GET status function with 
     };
 
     var jobStatus = "";
-    //loop unitl the status indicates the file is ready
+    //loop until the status indicates the file is ready
     while (jobStatus != "succeeded") {
         const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
         await delay(500) /// wait 500ms before checking
@@ -817,7 +817,7 @@ In this example, the resulting rendition is saved to the same location as our ap
 
 ## View project in UI
 
-To view the project and its contents in the [Adobe Creative Clound Home](https://www.adobe.com/home):
+To view the project and its contents in the [Adobe Creative Cloud Home](https://www.adobe.com/home):
 
 1. Open a browser and navigate to the [Adobe Creative Cloud Home](https://www.adobe.com/home).
 2. Sign in as the user that you invited to the project in the **[Invite a user to a project](#invite-a-user-to-a-project)** step.
@@ -832,7 +832,7 @@ Alternatively, you can navigate manually:
 
 The content of the project will be shown, including the file you uploaded through the API.
 
-![Resutl](../images/work-with-api_result.png)
+![Result](../images/work-with-api_result.png)
 
 ## Full example
 
@@ -1148,7 +1148,7 @@ async function uploadFile(accessToken, projectId, fileName) {
     console.log("Init file upload: ");
     console.log(JSON.stringify(response.data));
   } catch (error) {
-    console.error("Error initilizing file upload: ", error.response?.data || error.message);
+    console.error("Error initializing file upload: ", error.response?.data || error.message);
   }
 
   //upload block to presigned URL
@@ -1274,7 +1274,7 @@ async function getProjectContents(accessToken, projectId) {
 
 //get a file rendition
 async function getFileRendition(accessToken, fileId, renditionSize, renditionFileName) {
-  console.log("Gettting a rendition of the file");
+  console.log("Getting a rendition of the file");
 
   const headers = {
     "Content-Type": "image/jpg",
@@ -1363,4 +1363,4 @@ async function downloadFromPresignedURL(presignedURL, downloadFileName) {
 
 ## Deepen your understanding
 
-his quick start guide provides only a sample of what Cloud Storage and Collaboration APIs can do. To fully explore the available features, functions, and configuration options, refer to [API Reference](../../api/index.md).
+This quick start guide provides only a sample of what Cloud Storage and Collaboration APIs can do. To fully explore the available features, functions, and configuration options, refer to [API Reference](../../api/index.md).
