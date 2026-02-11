@@ -36,8 +36,8 @@ A folder is a container for organizing and storing content. You can use folders 
 
 Files are used to store content in Adobe cloud storage. Files come in three types:
 
-- [Cloud documents:](https://helpx.adobe.com/creative-cloud/help/about-cloud-documents.html) These are cloud-native files optimized for web applications. You can open and edit them in compatible apps such as Adobe Express, Adobe Photoshop, Adobe Illustrator, Adobe InDesign, Adobe Fresco, Adobe Aero, and Adobe XD.
-- [Brands and Libraries:](https://helpx.adobe.com/creative-cloud/help/libraries.html) These collections consist of reusable assets and guidelines for content reuse across documents.
+- [Cloud documents:](https://helpx.adobe.com/creative-cloud/apps/work-with-cloud-documents/manage-cloud-storage/cloud-documents-overview.html) These are cloud-native files optimized for web applications. You can open and edit them in compatible apps such as Adobe Express, Adobe Photoshop, Adobe Illustrator, Adobe InDesign, Adobe Fresco, Adobe Aero, and Adobe XD.
+- [Brands and Libraries:](https://helpx.adobe.com/creative-cloud/apps/create-and-manage-libraries/create-and-organize-libraries/libraries-overview.html) These collections consist of reusable assets and guidelines for content reuse across documents.
 - **Regular binary files:**  These include standard file types used with Adobe applications, such as JPEG, PNG, and MP4 files.
 
 Although most operations within the Cloud Storage and Collaboration API apply uniformly across all file types, certain differences exist:

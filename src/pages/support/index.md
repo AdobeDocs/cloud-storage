@@ -19,19 +19,19 @@ You've got a place to start discussions.
 
 ### Developer forum
 
-[Get started](https://adobe.io)
+[Get started](https://developer.adobe.com/)
 
 Open discussion and support with community experts and Adobe staff.
 
 <DiscoverBlock slots="link, text" width="25%"/>
 
-[Experience league](https://adobe.io)
+[Experience league](https://developer.adobe.com/)
 
 Tutorials and videos for the whole community.
 
 <DiscoverBlock slots="link, text" width="25%"/>
 
-[Experience forum](https://adobe.io)
+[Experience forum](https://developer.adobe.com/)
 
 Forum to get help and help others
 
@@ -45,6 +45,6 @@ You've got a place to join the conversation.
 
 ### Stack Overflow
 
-[Explore](https://adobe.io)
+[Explore](https://developer.adobe.com/)
 
 Developer Q&A using a specific tag.

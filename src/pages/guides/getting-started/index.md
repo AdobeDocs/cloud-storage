@@ -35,12 +35,12 @@ Once you have created your access token, you can follow the steps below to make 
 
 ```bash
 curl --request GET \
-  --url 'https://cloudstorage.adobe.io/v1//projects?limit=20' \
+  --url 'https://cloudstorage.adobe.io/v1/projects?limit=20' \
   --header 'Authorization: Bearer <YOUR_ACCESS_TOKEN>' \
   --header 'Content-Type: application/vnd.adobecloud.directory+json'
 ```
 
-Congratulations! You yave just made your first request to the Cloud Storage and Collaboration API.
+Congratulations! You have just made your first request to the Cloud Storage and Collaboration API.
 
 ## Deepen your understanding
 

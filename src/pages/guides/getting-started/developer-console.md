@@ -7,7 +7,7 @@ keywords:
 - Adobe Cloud Storage and Collaboration API
 - Adobe Cloud Storage
 - Adobe workflows
-- Cloud Storage authentication and autorization
+- Cloud Storage authentication and authorization
 - Adobe Developer Console
 - API Key
 - Client ID
@@ -15,7 +15,6 @@ contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
 layout: none
-  layout: none
 ---
 
 # Generate API key and access token through Adobe Developer Console
@@ -87,10 +86,8 @@ To add more APIs to your project, repeat [step 2](#step-2-add-the-api-to-your-pr
 
 Access tokens can be generated or refreshed in two ways:
 
-Access tokens can be generated or refreshed in two ways:
-
 - **Manual generation:** Click **Generate access token** in the Developer Console for quick testing and experimentation.
-- **Programmatic generation:** Click **View cURL command** to learn how to generate access tokens programmatically. [Learn more](https://developer.adobe.com/developer-console/docs/guides/authentication/ServerToServerAuthentication/implementation/) about how to do it.
+- **Programmatic generation:** Click **View cURL command** to learn how to generate access tokens programmatically. [Learn more](https://developer.adobe.com/developer-console/docs/guides/authentication/ServerToServerAuthentication/implementation) about how to do it.
 
 ### Scopes
 
