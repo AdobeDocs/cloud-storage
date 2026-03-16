@@ -1,10 +1,11 @@
 {
-  "name": "dev-docs-template",
+  "private": true,
+  "name": "cloud-storage",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AdobeDocs/dev-docs-template"
+    "url": "https://github.com/AdobeDocs/cloud-storage"
   },
   "author": {
     "name": "Tim Kim",
@@ -25,5 +26,8 @@
     "link:checkAllLinks": "npx --yes github:AdobeDocs/adp-devsite-utils runLint --internal-links-only --external-links-only -v",
     "redirectCheck:stage": "npx --yes github:AdobeDocs/adp-devsite-utils redirectChecker stage --verbose",
     "redirectCheck:prod": "npx --yes github:AdobeDocs/adp-devsite-utils redirectChecker prod --verbose"
+  },
+  "devDependencies": {
+    "express": "5.1.0"
   }
 }
