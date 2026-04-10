@@ -16,6 +16,7 @@ keywords:
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
+  - https://github.com/irwin-dolobowsky-adobe
 layout: none
 ---
 
@@ -28,7 +29,7 @@ The following table indicates the permissions available to each role:
 | Permission                           | Administrator | Creator | Edit | Comment |
 | :----------------------------------- | :-----------: | :-----: | :--: | :-----: |
 | Rename a project                     |      ✅       |   ✅    |      |         |
-| Discard a project                    |      ✅       |   ✅    |      |         |
+| Delete a project                     |      ✅       |   ✅    |      |         |
 | View files and folders               |      ✅       |   ✅    |  ✅  |   ✅    |
 | Edit files                           |      ✅       |   ✅    |  ✅  |         |
 | Create and add files, create folders |      ✅       |   ✅    |  ✅  |         |
@@ -54,7 +55,9 @@ The Edit and Comment roles can be assigned to a user or group in two ways:
 
 ## Setting roles with the API
 
-The [Project permissions API](../api/specification.md#operation/patchProjectPermissions) accepts a JSON document that defines changes to a project's permissions. This document includes up to three optional sections:
+The [Project roles API](../api/specification.md#operation/patchProjectRoles) accepts a JSON document that defines changes to a project's roles. This document includes up to three optional sections:
+
+**Note:** The `/permissions` endpoint (`PATCH /projects/{assetId}/permissions`) is deprecated. Use the `/roles` endpoint (`PATCH /projects/{assetId}/roles`) for all new integrations.
 
 1. additions: Grants a role to one or more principals.
 2. updates: Modifies existing roles for one or more principals.
@@ -111,7 +114,7 @@ Changing existing permissions is done using the *updates* section of the request
 - **id**: The unique identifier for a user, group, or predefined principal. The *id* is not the same as the additions *recipient* property. It is a unique identifier that the system assigns when permission is granted.
 - **role** - the role they will be assigned. Same as with [additions](#additions).
 
-  - You can find a user or group's *id* using the [GET permissions](../api/specification.md#operation/getProjectPermissions) call for the project.
+  - You can find a user or group's *id* using the [GET roles](../api/specification.md#operation/getProjectRoles) call for the project.
 
   For example, the following *GET permissions* response provides the *id* properties for the *_everybody* predefined principal, as well as two users. One who has accepted the invitation, and one whose invitation is pending.
 
@@ -204,3 +207,9 @@ There are two special principals:
 | user           | `mailto:{user's email address}`    | `{user id}`                 | Indicates a specific user                                                           |
 | group          | `name:{user group name}`           | `{group id}`                | Indicates a [user group](https://helpx.adobe.com/enterprise/using/user-groups.html) |
 | predefined     | `name:{predefined principal name}` | `{predefined principal id}` | Indicates a special [predefined principal](#predefined-principals)                  |
+
+## Roles on files
+
+Individual files also support role-based access control through the `GET /files/{assetId}/roles` and `PATCH /files/{assetId}/roles` endpoints. The request and response format is identical to the project roles API described above.
+
+File-level roles are useful when you need to grant access to a specific file without changing the permissions of the project or folder that contains it.

@@ -14,14 +14,13 @@ keywords:
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lmjose
+  - https://github.com/irwin-dolobowsky-adobe
 layout: none
 ---
 
 # Working with Cloud Storage and Collaboration APIs
 
 Automating content workflows with Cloud Storage and Collaboration APIs
-
-![BlueRaccoon](../images/BlueRaccoon.jpg)
 
 ## Prerequisites
 
@@ -148,6 +147,9 @@ Sample response (assuming you have at least one existing Creative Cloud project)
 
 ```js
 {
+  "paging": {
+    "limit": 20
+  },
   "items": [
     {
       "assetType": "project",
@@ -249,6 +251,63 @@ Sample response for creating a new project:
 }
 ```
 
+## Create a folder
+
+You can create folders within a project to organize your content. Folders can contain files and other folders, allowing you to build a hierarchy that reflects your workflow.
+
+```js
+//Create a folder inside a project
+async function createFolder(accessToken, projectId, folderName) {
+  console.log("Creating folder: " + folderName);
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  const data = {
+    name: folderName,
+    parentId: projectId,
+  };
+
+  const config = {
+    method: "post",
+    url: STORAGE_ENDPOINT + "/folders",
+    headers: headers,
+    data: data,
+  };
+
+  try {
+    const response = await axios(config);
+    const folderId = response.data.assetId;
+    console.log("Create folder:");
+    console.log(JSON.stringify(response.data));
+    return folderId;
+  } catch (error) {
+    console.error("Error creating folder: ", error.response?.data || error.message);
+  }
+}
+```
+
+Sample response:
+
+```js
+{
+  "assetType": "folder",
+  "assetId": "urn:aaid:sc:US:b12c45de-8f90-4b2a-9c3d-e4f567890abc",
+  "name": "Campaign Assets",
+  "createdDate": "2025-07-07T22:30:00.000Z",
+  "modifiedDate": "2025-07-07T22:30:00.000Z",
+  "createdBy": "478B1E01684B2D8A0A494234@techacct.adobe.com",
+  "modifiedBy": "478B1E01684B2D8A0A494234@techacct.adobe.com",
+  "path": "/Blue Raccoon/Campaign Assets",
+  "ancestors": [
+    "urn:aaid:sc:US:a93c94fe-71b6-3ac1-acac-0618bd98fe08"
+  ],
+  "state": "active"
+}
+```
+
 ## Get project information
 
 You can retrieve information about a project that is created using either the APIs, or through Adobe Creative Cloud applications such as Adobe Express, Photoshop Web, or Adobe.com.
@@ -326,7 +385,7 @@ async function inviteUser(accessToken, projectId, userEmail, userRole) {
 
     const config = {
         method: "patch",
-        url: STORAGE_ENDPOINT + "/projects/" + projectId + "/permissions",
+        url: STORAGE_ENDPOINT + "/projects/" + projectId + "/roles",
         headers: headers,
         data: data,
     };
@@ -351,6 +410,7 @@ Sample response:
       {
         "status": "successful",
         "id": "mailto:user-email@company.com",
+        "type": "user",
         "role": "edit"
       }
     ],
@@ -375,7 +435,7 @@ async function getSharing(accessToken, projectId) {
 
   const config = {
     method: "GET",
-    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/permissions",
+    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/roles",
     headers: headers,
   };
 
@@ -576,16 +636,10 @@ You can check on the status of the upload by using the GET status function with 
         Authorization: `Bearer ${accessToken}`,
     };
 
-    data = {
-        "uploadId": fileInitData.uploadId,
-        "usedTransferLinks": [1]
-    }
-
     config = {
         method: "get",
         url: STORAGE_ENDPOINT + "/status/" + jobId,
         headers: headers,
-        data: data,
     };
 
     var jobStatus = "";
@@ -673,6 +727,9 @@ Sample response:
 
 ```js
 {
+  "paging": {
+    "limit": 20
+  },
   "children": [
     {
       "assetType": "file",
@@ -815,6 +872,202 @@ async function downloadFromPresignedURL(presignedURL, downloadFileName) {
 
 In this example, the resulting rendition is saved to the same location as our application (_cloud-storage-api-getstarted-tutorial_) with the name _download.jpg_. You can open the file to verify that it matches the original upload.
 
+## Copy a file
+
+You can copy a file to another location within Adobe Cloud Storage. This is an asynchronous operation — the API returns a `jobId` immediately, and you poll `GET /status/{jobId}` to track completion, using the same pattern as the upload step.
+
+```js
+//Copy a file to a new location
+async function copyFile(accessToken, fileId, destinationId) {
+  console.log("Copying file: " + fileId);
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  const data = {
+    parentId: destinationId,
+  };
+
+  const config = {
+    method: "post",
+    url: STORAGE_ENDPOINT + "/files/" + fileId + "/copy",
+    headers: headers,
+    data: data,
+  };
+
+  try {
+    const response = await axios(config);
+    const jobId = response.data.jobId;
+    console.log("Copy file initiated:");
+    console.log(JSON.stringify(response.data));
+
+    //Poll for completion
+    let jobStatus = "";
+    while (jobStatus !== "succeeded") {
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      await delay(500);
+      const statusResponse = await axios({
+        method: "get",
+        url: STORAGE_ENDPOINT + "/status/" + jobId,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      jobStatus = statusResponse.data.status;
+      console.log("Copy status:");
+      console.log(JSON.stringify(statusResponse.data));
+    }
+
+    return jobId;
+  } catch (error) {
+    console.error("Error copying file: ", error.response?.data || error.message);
+  }
+}
+```
+
+The copy request returns `HTTP 202 Accepted` with a `jobId`:
+
+```js
+{"jobId":"VkE2OjA6ZjRhNTc2YWItMTIzNC00NTY3LTg5YWItY2RlZjAxMjM0NTY3"}
+```
+
+When the job completes, the status response includes the new file's asset ID:
+
+```js
+{
+  "jobType": "file_copy",
+  "jobId": "VkE2OjA6ZjRhNTc2YWItMTIzNC00NTY3LTg5YWItY2RlZjAxMjM0NTY3",
+  "requestId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "status": "succeeded",
+  "asset": {
+    "assetType": "file",
+    "assetId": "urn:aaid:sc:US:d4e5f6a7-b8c9-4d0e-a1f2-3456789abcde",
+    "name": "BlueRaccoon.jpg",
+    "createdDate": "2025-07-07T22:35:00.000Z",
+    "modifiedDate": "2025-07-07T22:35:00.000Z",
+    "createdBy": "478B1E01684B2D8A0A494234@techacct.adobe.com",
+    "modifiedBy": "478B1E01684B2D8A0A494234@techacct.adobe.com",
+    "path": "/Blue Raccoon/Campaign Assets/BlueRaccoon.jpg",
+    "ancestors": [
+      "urn:aaid:sc:US:13fbacea-747b-40f6-bc78-20236ae8befc",
+      "urn:aaid:sc:US:b12c45de-8f90-4b2a-9c3d-e4f567890abc",
+      "urn:aaid:sc:US:a93c94fe-71b6-3ac1-acac-0618bd98fe08"
+    ],
+    "state": "active",
+    "mediaType": "image/jpeg",
+    "size": 1631222
+  }
+}
+```
+
+## Replace a file
+
+To update the content of an existing file, use the file replacement upload. This follows the same block-based approach as the initial upload, but targets the existing file's asset ID. The file's name, location, and asset ID remain unchanged.
+
+The key differences from a new file upload are:
+
+- The init endpoint is `POST /files/{assetId}/upload/init` rather than `POST /files/upload/init`
+- `parentId` and `name` are not included in the request body — the file's existing location and name are preserved
+- The finalize endpoint is `POST /files/{assetId}/upload/finalize`
+
+```js
+//Replace an existing file's content with a new version
+async function replaceFile(accessToken, fileId, fileName) {
+  console.log("Replacing file: " + fileId);
+
+  //Read the replacement file from the local directory
+  const imgPath = __dirname + "/" + fileName;
+  let fileData;
+  await fs
+    .readFile(imgPath)
+    .then((data) => { fileData = Buffer.from(data); })
+    .catch((error) => { console.error("Error reading file:", error); });
+
+  //Initiate the replacement upload
+  const headers = {
+    "Content-Type": "application/json",
+    accept: " application/json",
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  const initData = {
+    size: fileData.length,
+    mediaType: "image/jpeg",
+    blockSize: fileData.length,
+  };
+
+  const initConfig = {
+    method: "post",
+    url: STORAGE_ENDPOINT + "/files/" + fileId + "/upload/init",
+    headers: headers,
+    data: initData,
+  };
+
+  let fileInitData;
+  try {
+    const response = await axios(initConfig);
+    fileInitData = response.data;
+    console.log("Init replacement upload:");
+    console.log(JSON.stringify(fileInitData));
+  } catch (error) {
+    console.error("Error initializing replacement upload: ", error.response?.data || error.message);
+    return;
+  }
+
+  //Upload the block to the pre-signed URL (no Authorization header)
+  const transferLink = fileInitData.transferLinks[0].url;
+  try {
+    await axios({
+      method: "put",
+      url: transferLink,
+      headers: { "Content-Type": "image/jpeg" },
+      data: fileData,
+      params: { partNumber: "1" },
+    });
+  } catch (error) {
+    console.error("Error uploading replacement block: ", error.response?.data || error.message);
+    return;
+  }
+
+  //Finalize the replacement upload
+  const finalizeConfig = {
+    method: "post",
+    url: STORAGE_ENDPOINT + "/files/" + fileId + "/upload/finalize",
+    headers: headers,
+    data: {
+      uploadId: fileInitData.uploadId,
+      usedTransferLinks: [1],
+    },
+  };
+
+  try {
+    const response = await axios(finalizeConfig);
+    const jobId = response.data.jobId;
+    console.log("Finalize replacement upload:");
+    console.log(JSON.stringify(response.data));
+
+    //Poll for completion
+    let jobStatus = "";
+    while (jobStatus !== "succeeded") {
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      await delay(500);
+      const statusResponse = await axios({
+        method: "get",
+        url: STORAGE_ENDPOINT + "/status/" + jobId,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      jobStatus = statusResponse.data.status;
+      console.log("Replacement status:");
+      console.log(JSON.stringify(statusResponse.data));
+    }
+  } catch (error) {
+    console.error("Error finalizing replacement upload: ", error.response?.data || error.message);
+  }
+}
+```
+
+The init and finalize responses are identical in structure to a new file upload. When the finalize job completes, the status response will confirm the file has been updated in place with the same asset ID.
+
 ## View project in UI
 
 To view the project and its contents in the [Adobe Creative Cloud Home](https://www.adobe.com/home):
@@ -874,6 +1127,10 @@ const STORAGE_ENDPOINT = "https://cloudstorage.adobe.io/v1";
     const projectId = await createProject(accessToken, projectName);
     console.log("Project id: " + projectId);
 
+    //Create a folder inside the project
+    const folderId = await createFolder(accessToken, projectId, "Campaign Assets");
+    console.log("Folder id: " + folderId);
+
     //Get info about a project
     var projectInfo = await getProjectInfo(accessToken, projectId);
 
@@ -902,6 +1159,12 @@ const STORAGE_ENDPOINT = "https://cloudstorage.adobe.io/v1";
     //Download a file
     const downloadFileName = "download.jpg";
     const fileDownloadData = await downloadFile(accessToken, fileId, downloadFileName);
+
+    //Copy the uploaded file into the new folder
+    await copyFile(accessToken, fileId, folderId);
+
+    //Replace the uploaded file with a new version
+    await replaceFile(accessToken, fileId, fileName);
   } catch {
     console.error("Error executing quickstart. ", error.response?.data || error.message);
   }
@@ -1061,7 +1324,7 @@ async function inviteUser(accessToken, projectId, userEmail, userRole) {
 
   const config = {
     method: "patch",
-    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/permissions",
+    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/roles",
     headers: headers,
     data: data,
   };
@@ -1087,7 +1350,7 @@ async function getSharing(accessToken, projectId) {
 
   const config = {
     method: "GET",
-    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/permissions",
+    url: STORAGE_ENDPOINT + "/projects/" + projectId + "/roles",
     headers: headers,
   };
 
@@ -1216,16 +1479,10 @@ async function uploadFile(accessToken, projectId, fileName) {
     Authorization: `Bearer ${accessToken}`,
   };
 
-  data = {
-    uploadId: fileInitData.uploadId,
-    usedTransferLinks: [1],
-  };
-
   config = {
     method: "get",
     url: STORAGE_ENDPOINT + "/status/" + jobId,
     headers: headers,
-    data: data,
   };
 
   var jobStatus = "";
@@ -1357,6 +1614,168 @@ async function downloadFromPresignedURL(presignedURL, downloadFileName) {
     console.log("File downloaded: " + downloadFilePath);
   } catch (error) {
     console.error("Error during download file ", error.response?.data || error.message);
+  }
+}
+
+//Create a folder inside a project
+async function createFolder(accessToken, projectId, folderName) {
+  console.log("Creating folder: " + folderName);
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  const data = {
+    name: folderName,
+    parentId: projectId,
+  };
+
+  const config = {
+    method: "post",
+    url: STORAGE_ENDPOINT + "/folders",
+    headers: headers,
+    data: data,
+  };
+
+  try {
+    const response = await axios(config);
+    const folderId = response.data.assetId;
+    console.log("Create folder:");
+    console.log(JSON.stringify(response.data));
+    return folderId;
+  } catch (error) {
+    console.error("Error creating folder: ", error.response?.data || error.message);
+  }
+}
+
+//Copy a file to a new location
+async function copyFile(accessToken, fileId, destinationId) {
+  console.log("Copying file: " + fileId);
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  const config = {
+    method: "post",
+    url: STORAGE_ENDPOINT + "/files/" + fileId + "/copy",
+    headers: headers,
+    data: { parentId: destinationId },
+  };
+
+  try {
+    const response = await axios(config);
+    const jobId = response.data.jobId;
+    console.log("Copy file initiated:");
+    console.log(JSON.stringify(response.data));
+
+    //Poll for completion
+    let jobStatus = "";
+    while (jobStatus !== "succeeded") {
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      await delay(500);
+      const statusResponse = await axios({
+        method: "get",
+        url: STORAGE_ENDPOINT + "/status/" + jobId,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      jobStatus = statusResponse.data.status;
+      console.log("Copy status:");
+      console.log(JSON.stringify(statusResponse.data));
+    }
+
+    return jobId;
+  } catch (error) {
+    console.error("Error copying file: ", error.response?.data || error.message);
+  }
+}
+
+//Replace an existing file's content with a new version
+async function replaceFile(accessToken, fileId, fileName) {
+  console.log("Replacing file: " + fileId);
+
+  //Read the replacement file from the local directory
+  const imgPath = __dirname + "/" + fileName;
+  let fileData;
+  await fs
+    .readFile(imgPath)
+    .then((data) => { fileData = Buffer.from(data); })
+    .catch((error) => { console.error("Error reading file:", error); });
+
+  //Initiate the replacement upload
+  const headers = {
+    "Content-Type": "application/json",
+    accept: " application/json",
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  let fileInitData;
+  try {
+    const response = await axios({
+      method: "post",
+      url: STORAGE_ENDPOINT + "/files/" + fileId + "/upload/init",
+      headers: headers,
+      data: {
+        size: fileData.length,
+        mediaType: "image/jpeg",
+        blockSize: fileData.length,
+      },
+    });
+    fileInitData = response.data;
+    console.log("Init replacement upload:");
+    console.log(JSON.stringify(fileInitData));
+  } catch (error) {
+    console.error("Error initializing replacement upload: ", error.response?.data || error.message);
+    return;
+  }
+
+  //Upload the block to the pre-signed URL (no Authorization header)
+  try {
+    await axios({
+      method: "put",
+      url: fileInitData.transferLinks[0].url,
+      headers: { "Content-Type": "image/jpeg" },
+      data: fileData,
+      params: { partNumber: "1" },
+    });
+  } catch (error) {
+    console.error("Error uploading replacement block: ", error.response?.data || error.message);
+    return;
+  }
+
+  //Finalize the replacement upload
+  try {
+    const response = await axios({
+      method: "post",
+      url: STORAGE_ENDPOINT + "/files/" + fileId + "/upload/finalize",
+      headers: headers,
+      data: {
+        uploadId: fileInitData.uploadId,
+        usedTransferLinks: [1],
+      },
+    });
+    const jobId = response.data.jobId;
+    console.log("Finalize replacement upload:");
+    console.log(JSON.stringify(response.data));
+
+    //Poll for completion
+    let jobStatus = "";
+    while (jobStatus !== "succeeded") {
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      await delay(500);
+      const statusResponse = await axios({
+        method: "get",
+        url: STORAGE_ENDPOINT + "/status/" + jobId,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      jobStatus = statusResponse.data.status;
+      console.log("Replacement status:");
+      console.log(JSON.stringify(statusResponse.data));
+    }
+  } catch (error) {
+    console.error("Error finalizing replacement upload: ", error.response?.data || error.message);
   }
 }
 ```
