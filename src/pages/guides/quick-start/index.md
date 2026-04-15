@@ -1387,4 +1387,4 @@ async function downloadFromPresignedURL(presignedURL, downloadFileName) {
 
 ## Deepen your understanding
 
-his quick start guide provides only a sample of what Cloud Storage and Collaboration APIs can do. To fully explore the available features, functions, and configuration options, refer to [API Reference](../../api/index.md).
+his quick start guide provides only a sample of what Cloud Storage and Collaboration APIs can do. To fully explore the available features, functions, and configuration options, refer to [API Reference](../api/index.md).
