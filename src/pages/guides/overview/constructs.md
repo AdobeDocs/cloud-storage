@@ -15,18 +15,19 @@ keywords:
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
+  - https://github.com/irwin-dolobowsky-adobe
 
 layout: none
 ---
 
 # Collaboration constructs
 
-The Adobe Cloud Storage and Collaboration API provides programmatic access to constructs designed to support asset management and team collaboration. Each construct serves a unique purpose, providing users with tailored environments for storing assets, organizing workflows, and achieving specific outcomes.
+The Adobe Cloud Storage and Collaboration API provides programmatic access to four types of constructs — projects, brands, Creative Cloud Libraries, and cloud documents — designed to support asset management and team collaboration. Each construct serves a unique purpose, providing users with tailored environments for storing assets, organizing workflows, and achieving specific outcomes. For a full overview of how these features work in Creative Cloud, see [Organize and manage Creative Cloud assets](https://helpx.adobe.com/creative-cloud/apps/create-and-manage-libraries/organize-manage-creative-cloud-assets.html).
 
 ## Project
 
 A project is a durable space that enables teams to organize and collaborate on cloud-based documents and related content. It is a structured location containing related assets, specifically organized to achieve well-defined objectives within a set timeframe, helping teams stay focused on deliverables.
-Projects can contain both files and folders.
+Projects can contain files, folders, libraries, and brands.
 
 ## Folder
 
@@ -36,11 +37,12 @@ A folder is a container for organizing and storing content. You can use folders 
 
 Files are used to store content in Adobe cloud storage. Files come in three types:
 
-- [Cloud documents:](https://helpx.adobe.com/creative-cloud/help/about-cloud-documents.html) These are cloud-native files optimized for web applications. You can open and edit them in compatible apps such as Adobe Express, Adobe Photoshop, Adobe Illustrator, Adobe InDesign, Adobe Fresco, Adobe Aero, and Adobe XD.
-- [Brands and Libraries:](https://helpx.adobe.com/creative-cloud/help/libraries.html) These collections consist of reusable assets and guidelines for content reuse across documents.
-- **Regular binary files:**  These include standard file types used with Adobe applications, such as JPEG, PNG, and MP4 files.
+- [Cloud documents:](https://helpx.adobe.com/creative-cloud/apps/work-with-cloud-documents/manage-cloud-storage/cloud-documents-overview.html) These are cloud-native files that sync automatically across devices and maintain version history. You can open and edit them in compatible apps such as Adobe Express, Adobe Photoshop, Adobe Illustrator, Adobe InDesign, Adobe Fresco, and Adobe XD.
+- [Brands:](https://helpx.adobe.com/creative-cloud/apps/create-and-manage-libraries/organize-manage-creative-cloud-assets.html) These store identity elements such as logos, colors, fonts, and templates to maintain visual consistency across creative work.
+- [Creative Cloud Libraries:](https://helpx.adobe.com/creative-cloud/apps/create-and-manage-libraries/create-and-organize-libraries/libraries-overview.html) These store reusable design elements such as graphics, colors, and text styles for use across multiple apps and projects.
+- **Regular binary files:** These include standard file types used with Adobe applications, such as JPEG, PNG, and MP4 files.
 
 Although most operations within the Cloud Storage and Collaboration API apply uniformly across all file types, certain differences exist:
 
 - Cloud documents cannot be downloaded as they are cloud constructs. Use the [image renditions](../api/specification.md#operation/getFileImageRendition) function to get a flat file representation of a cloud document asset.
-- Brands and Libraries cannot be downloaded or used to generate a rendition, as these are container objects.
+- Brands and Creative Cloud Libraries cannot be downloaded or used to generate a rendition, as these are container objects.

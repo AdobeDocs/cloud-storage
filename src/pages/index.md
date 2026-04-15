@@ -11,6 +11,7 @@ keywords:
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
+  - https://github.com/irwin-dolobowsky-adobe
 ---
 
 <HeroSimple slots="heading, text"/>

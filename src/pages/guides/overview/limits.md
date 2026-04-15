@@ -8,12 +8,13 @@ keywords:
   - Creative production workflows   
   - Adobe workflows
   - Cloud Storage endpoints
-  - Cloud Storage authentication and autorization
+  - Cloud Storage authentication and authorization
   - Rate Limits
   - Throttling
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lmjose
+  - https://github.com/irwin-dolobowsky-adobe
 layout: none
 ---
 
@@ -40,4 +41,4 @@ When the client-specific or global access limit is exceeded, the API responds wi
 To address this error, consider the following actions:
 
 - Review your usage and reduce unnecessary requests.
-- Implement retry logic using [retry-after](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Retry-After) [HTTP header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) or an [exponential backoff strategy](https://en.wikipedia.org/wiki/Exponential_backoff).
+- Implement retry logic using [retry-after](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Retry-After) or an [exponential backoff strategy](https://en.wikipedia.org/wiki/Exponential_backoff).

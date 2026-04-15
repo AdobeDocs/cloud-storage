@@ -11,12 +11,13 @@ keywords:
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
+  - https://github.com/irwin-dolobowsky-adobe
 layout: none
 ---
 
 # Overview
 
-Adobe storage for bsiness provides enterprise organizations with a centralized platform to store digital assets and collaborate seamlessly across various Adobe applications, from any device or location. The Adobe Cloud Storage and Collaboration API gives you programmatic access to content in Adobe storage for business.
+[Adobe storage for business](https://helpx.adobe.com/enterprise/using/cce-storage.html) provides enterprise organizations with a centralized platform to store digital assets and collaborate seamlessly across various Adobe applications, from any device or location. The Adobe Cloud Storage and Collaboration API gives you programmatic access to content in Adobe storage for business.
 
 With the Adobe Cloud Storage and Collaboration API, you can create and list projects, assign user roles, create project folders, and enable seamless uploading and downloading of files, making it easy to integrate Adobe cloud storage with your existing systems.
 

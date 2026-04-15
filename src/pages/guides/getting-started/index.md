@@ -11,12 +11,13 @@ keywords:
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
+  - https://github.com/irwin-dolobowsky-adobe
 layout: none
 ---
 
 # Getting started with Adobe Cloud Storage and Collaboration APIs
 
-The Adobe Cloud Storage and Collaboration API gives you programmatic access to content stored in Adobe cloud storage for enterprises. With the Adobe Cloud Storage and Collaboration API, you can create and list projects, set user roles, create project folders, upload/download project files, and more to automate creative production workflows and integrate Adobe cloud storage with your existing systems.
+The Adobe Cloud Storage and Collaboration API gives you programmatic access to content stored in Adobe storage for businesses. With the Adobe Cloud Storage and Collaboration API, you can create and list projects, set user roles, create project folders, upload/download project files, and more to automate creative production workflows and integrate Adobe cloud storage with your existing systems.
 
 ## Prerequisites
 
@@ -31,18 +32,16 @@ Once you have created your access token, you can follow the steps below to make 
 
 - Open your terminal and paste the code below.
 - Replace the variables `<YOUR_ACCESS_TOKEN>` with the token you generated on the Adobe Developer Console.
-- Replace `<YOUR_CLIENT_ID>`. You can find this on the same page you generated your token on.
 - Once all variables have been replaced you can run the command.
 
 ```bash
 curl --request GET \
-  --url 'https://cloudstorage.adobe.io/v1//projects?limit=20' \
+  --url 'https://cloudstorage.adobe.io/v1/projects?limit=20' \
   --header 'Authorization: Bearer <YOUR_ACCESS_TOKEN>' \
-  --header 'Content-Type: application/vnd.adobecloud.directory+json' \
-  --header 'x-api-key: <YOUR_CLIENT_ID>'
+  --header 'Content-Type: application/vnd.adobecloud.directory+json'
 ```
 
-Congratulations! You yave just made your first request to the Cloud Storage and Collaboration API.
+Congratulations! You have just made your first request to the Cloud Storage and Collaboration API.
 
 ## Deepen your understanding
 

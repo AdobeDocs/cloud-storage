@@ -1,40 +1,27 @@
 openapi: 3.0.3
 info:
-  title: Cloud Storage and Collaboration API
+  title: Adobe Cloud Storage and Collaboration
   version: v1
 servers:
   - url: https://cloudstorage.adobe.io/v1
     description: Production Server
-    x-audience: prod
+    x-server: prod
+security:
+  - Authorization: []
 tags:
   - name: Projects
-    x-displayName: Projects
     description: |
-      Projects are durable spaces used by teams to organize and collaborate on cloud documents and related cloud content. Along with serving as a collection, they can be used to point to a particular asset.   
-
-      Operations include:
+      Projects are durable spaces used by teams to organize and collaborate on cloud documents and related cloud
+      content. Along with serving as a collection, they can be used to point to a particular asset.
   - name: Folders
-    x-displayName: Folders
     description: |
-      A construct that can contain assets and other folders, enabling logical organization of assets.  
-
-      Operations include:
-      - Set Permissions for a folder
+      A construct that can contain assets and other folders, enabling logical organization of assets.
   - name: Files
-    x-displayName: Files
     description: |
-      Assets typically created through non-Adobe applications. The MIME type indicates the asset type.  
-
-      Operations include:
-      - Modify file by ID (upload and or metadata)
+      Assets typically created through non-Adobe applications. The MIME type indicates the asset type.
   - name: Jobs
-    x-displayName: Jobs Operations
     description: |
-      This endpoint manages asynchronous jobs in the system.
-  - name: PolicyOperations
-    x-displayName: Policy Operations
-    description: |
-      This endpoint manages policies in the system.
+      Represents long running tasks in the system that are created by invoking specific operations.
 paths:
   /projects:
     get:
@@ -48,7 +35,6 @@ paths:
         ---
         > NOTE:  
         > * Includes only **CC Projects**.
-        > * List does not include **discarded** projects.
         > * The response supports **cursor-based pagination** and includes a `nextUrl` field when additional pages are available.
         > * If there are no further results, the `nextUrl` field is omitted.
         > * Each item in the response provides **basic metadata** about the project.
@@ -62,27 +48,12 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/paginatedProjectsResponse"
-        "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                invalidLimitType:
-                  $ref: "#/components/examples/invalidLimitType"
-                invalidLimitRange:
-                  $ref: "#/components/examples/invalidLimitRange"
-                invalidPaginationParameterCombination:
-                  $ref: "#/components/examples/invalidPaginationParameterCombination"
-                multipleInvalidRequestViolations:
-                  $ref: "#/components/examples/multipleInvalidRequestViolations"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "422":
+          $ref: "#/components/responses/invalidRequestPagedResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -105,8 +76,6 @@ paths:
           headers:
             location:
               $ref: "#/components/headers/location"
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -117,41 +86,19 @@ paths:
                 createProject:
                   $ref: "#/components/examples/singleProject"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorProjectCreateResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
         "415":
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
-          description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequiredField:
-                  $ref: "#/components/examples/missingRequiredField"
-                invalidName:
-                  $ref: "#/components/examples/invalidName"
+          $ref: "#/components/responses/unprocessableEntityResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -176,15 +123,12 @@ paths:
         - Projects
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifNoneMatch"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
           description: |
             **Success** - Retrieved information about the project
           headers:
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -202,40 +146,38 @@ paths:
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
-  /projects/{assetId}/discard:
-    post:
-      operationId: discardProject
-      summary: Discard a project by ID
+    delete:
+      operationId: deleteProject
+      summary: Delete project by ID
+      description: |
+        This endpoint deletes(soft deletion) or permanently deletes(hard deletion) an existing CC Project, identified by its `assetId`, along with
+        all its descendant assets, from the organization’s ESM shared storage.
+
+        ---
+        > NOTE:  
+        > * In order to perform hard deletion, the project must be in DELETED state.
+        > * The requester must have sufficient permission to perform destructive actions on the project.
+        > * If the project is not found or access is denied, appropriate error responses will be returned.
+        ---
       tags:
         - Projects
-      description: |
-        This endpoint marks an existing CC Project, identified by its `assetId`, for discard (soft deletion) along with
-        all its descendant assets, from the organization’s ESM shared storage. This operation is allowed only if the
-        requester has sufficient permissions to perform destructive actions on the project.
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifMatch"
         - $ref: "#/components/parameters/requestId"
+        - $ref: "#/components/parameters/permanent"
       responses:
-        "200":
+        "204":
           description: |
-            **Success** - The project was discarded successfully
+            **Success** - The project was deleted successfully
           headers:
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/projectAsset"
-              examples:
-                Discarded Project:
-                  $ref: "#/components/examples/200.projectDiscard"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -246,14 +188,143 @@ paths:
           $ref: "#/components/responses/invalidOperationResponse"
         "412":
           $ref: "#/components/responses/preconditionFailedResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "504":
+          description: |
+            **Operation Timed Out** - The operation took longer than 60 seconds. The operation will continue after the timeout.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                operationTimedOut:
+                  $ref: "#/components/examples/operationTimedOut"
+  /projects/{assetId}/rename:
+    post:
+      operationId: renameProject
+      summary: Rename a project.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Projects
+      description: |
+        This endpoint updates the name of an existing Project, identified by its `assetId`, within the organization's
+        ESM shared storage. This operation is only permitted if the requester has appropriate write-level permissions
+        on the project.  
+
+        ---
+        > NOTE:  
+        > * Only the name of the project can be modified using this endpoint.
+        > * All other project metadata remains unchanged.
+        > * If the requester lacks the required permissions or the project does not exist, an appropriate error response
+        > will be returned.
+        ---
+      requestBody:
+        $ref: "#/components/requestBodies/projectRenameRequest"
+      responses:
+        "200":
+          description: |
+            **Updated** - The project was renamed successfully.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectAsset"
+              examples:
+                renameProject:
+                  $ref: "#/components/examples/singleProject"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "412":
+          $ref: "#/components/responses/preconditionFailedResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
-  /projects/{assetId}/list:
+        "507":
+          $ref: "#/components/responses/storageQuotaExceededResponse"
+  /projects/{assetId}/restore:
+    post:
+      operationId: restoreProject
+      summary: Restore a soft-deleted project.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Projects
+      description: |
+        This endpoint restores an existing project, identified by its `assetId`, within the organization's ESM shared storage 
+        to an ACTIVE state. Descendants of the project will have their states recomputed to their previous state. This operation
+        is only permitted if the requester has appropriate write-level permissions on the project.
+
+        ---
+        > NOTE:
+        > * Projects already in an ACTIVE state will remain ACTIVE and return 200 OK.
+        > * Descendants that were in a DELETED state prior to the deletion of this project will remain DELETED. Their respective
+        descendants will also remain in the DELETED_PARENT or DELETED state as before.
+        > * Hard-deleted projects will return a 404 Not Found error.
+        > * If the requester lacks the required permissions or the project does not exist, an appropriate error response
+        > will be returned.
+        ---
+      responses:
+        "200":
+          description: |
+            **Success** - Retrieved information about the project
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectAsset"
+              examples:
+                restoreProject:
+                  $ref: "#/components/examples/singleProject"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /projects/{assetId}/children:
     get:
-      operationId: getProjectAssets
-      summary: Get Paginated List of Assets inside a Project
+      operationId: getProjectChildren
+      summary: Get Paginated List of Children of a Project
       tags:
         - Projects
       description: |
@@ -282,31 +353,16 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/paginatedAssetsResponse"
-        "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                invalidLimitType:
-                  $ref: "#/components/examples/invalidLimitType"
-                invalidLimitRange:
-                  $ref: "#/components/examples/invalidLimitRange"
-                invalidPaginationParameterCombination:
-                  $ref: "#/components/examples/invalidPaginationParameterCombination"
-                multipleInvalidRequestViolations:
-                  $ref: "#/components/examples/multipleInvalidRequestViolations"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "422":
+          $ref: "#/components/responses/invalidRequestPagedResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -321,19 +377,21 @@ paths:
         The endpoint retrieves the **effective permission (role)** assigned to the user for a specific project,
         identified by its `assetId`. It evaluates the users access based on: 
           * **Direct permissions** assigned to the project.
-          * **Predefined principals**, such as `_everybody` or group-based access rules.
+          * **Predefined principals**, such as `orgEverybody` or group-based access rules.
       parameters:
         - $ref: "#/components/parameters/assetId"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
-          $ref: "#/components/responses/assetPermissionResponse"
+          $ref: "#/components/responses/projectPermissionResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -341,19 +399,22 @@ paths:
   /projects/{assetId}/permissions:
     get:
       operationId: getProjectPermissions
-      summary: Get All permissions for a Project
+      summary: Get All roles for a Project
+      deprecated: true
       tags:
         - Projects
       description: |
-        The endpoint retrieves the **explicit roles and permissions** assigned to all users and groups for a specific project,
-        identified by its `assetId` . This includes only the **direct access control entries** defined on the project itself
-        and does not include any permissions that are inherited from parent folders or collections.  
+        > This endpoint is deprecated and will be removed on 3/31/2025. Please use the /projects/{assetId}/roles endpoint instead.
+
+        The endpoint retrieves the **explicit roles** assigned to all users and groups for a specific project,
+        identified by its `assetId`. This includes only the **direct access control entries** defined on the project itself
+        and does not include any roles that are inherited from parent folders or collections.
 
         ---
         > NOTE:  
         > * The response lists all users and groups that have direct access to the project, along with their respective
         >   roles (e.g., comment, edit).
-        > * This data is useful for auditing and permission management but does not represent the full effective access
+        > * This data is useful for auditing and role management but does not represent the full effective access
         >   unless inheritance is also considered.
         > * The project must exist and the requester must have at least read-level access. If the project is not found or
         >   access is denied, appropriate error responses will be returned.
@@ -363,25 +424,30 @@ paths:
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
-          $ref: "#/components/responses/200.getAssetPermissions"
+          $ref: "#/components/responses/getAssetRolesResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
     patch:
       operationId: patchProjectPermissions
-      summary: Patch Permissions for a Project
+      summary: Patch Roles for a Project
+      deprecated: true
       tags:
         - Projects
       description: |
-        This endpoint is used to manage the direct permissions of a specific project, identified by its `assetId`. It allows
-        clients to perform multiple types of permission changes in a single request, including:
+        > This endpoint is deprecated and will be removed on 3/31/2025. Please use the /projects/{assetId}/roles endpoint instead.
+
+        This endpoint is used to manage the direct roles of a specific project, identified by its `assetId`. It allows
+        clients to perform multiple types of role changes in a single request, including:
           * Addition of new users or groups to the access control list.
           * Update of roles for existing users or groups.
           * Removal of users or groups from the access control list.
@@ -391,7 +457,7 @@ paths:
         > * The request body supports three arrays: `additions`, `updates`, and `deletions`.
         > * Multiple principals can be included across each action type.
         > * Each principal must be mentioned only once across the entire request body.
-        > * Permission changes are deeply inherited — they apply to the project and all of its descendant assets.
+        > * Role changes are deeply inherited — they apply to the project and all of its descendant assets.
 
         > ## Validation Rules
         > | Action | Behavior |
@@ -404,36 +470,25 @@ paths:
         - $ref: "#/components/parameters/assetId"
         - $ref: "#/components/parameters/requestId"
       requestBody:
-        $ref: "#/components/requestBodies/patchAssetPermissions"
+        $ref: "#/components/requestBodies/patchAssetRoles"
       responses:
         "200":
-          $ref: "#/components/responses/200.patchAssetPermissions"
+          $ref: "#/components/responses/patchAssetRolesResponse"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "415":
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
           description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
           headers:
             x-request-id:
               $ref: "#/components/headers/requestId"
@@ -448,38 +503,103 @@ paths:
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
-  /projects/{assetId}/package:
-    post:
-      operationId: packageProject
-      summary: Package a Project
+  /projects/{assetId}/roles:
+    get:
+      operationId: getProjectRoles
+      summary: Get All roles for a Project
       tags:
         - Projects
       description: |
-        This endpoint packages a project, identified by its `assetId`, into a downloadable format. The packaging process
-        initiates an asynchronous job that prepares the project for export, creating one or multiple ZIP files that contains
-        all assets and metadata associated with the project. In case of asynchronous operation succeed, the assets field 
-        will contain the list of file assets as defined by File Schema. Each file item in the list contains basic metadata 
-        about the file such as name, mediaType, path, and identifiers.
-
-        The requester can then download each file individually.
+        The endpoint retrieves the **explicit roles** assigned to all users and groups for a specific project,
+        identified by its `assetId`. This includes only the **direct access control entries** defined on the project itself
+        and does not include any roles that are inherited from parent folders or collections.
 
         ---
         > NOTE:  
-        > * The request must include the `assetId` of the project to be packaged.
-        > * The requester must have at least read-level access to the project.
+        > * The response lists all users and groups that have direct access to the project, along with their respective
+        >   roles (e.g., comment, edit).
+        > * This data is useful for auditing and role management but does not represent the full effective access
+        >   unless inheritance is also considered.
+        > * The project must exist and the requester must have at least read-level access. If the project is not found or
+        >   access is denied, appropriate error responses will be returned.
         ---
       parameters:
         - $ref: "#/components/parameters/assetId"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
-          $ref: "#/components/responses/packageAssetResponse"
+          $ref: "#/components/responses/getAssetRolesResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+    patch:
+      operationId: patchProjectRoles
+      summary: Patch Roles for a Project
+      tags:
+        - Projects
+      description: |
+        This endpoint is used to manage the direct roles of a specific project, identified by its `assetId`. It allows
+        clients to perform multiple types of role changes in a single request, including:
+          * Addition of new users or groups to the access control list.
+          * Update of roles for existing users or groups.
+          * Removal of users or groups from the access control list.
+
+        ---
+        > NOTE:  
+        > * The request body supports three arrays: `additions`, `updates`, and `deletions`.
+        > * Multiple principals can be included across each action type.
+        > * Each principal must be mentioned only once across the entire request body.
+        > * Role changes are deeply inherited — they apply to the project and all of its descendant assets.
+
+        > ## Validation Rules
+        > | Action | Behavior |
+        > | ------ | -------- |
+        > | additions | Must include users/groups that **do not already exist** in the current ACL. |
+        > | updates | Must target users/groups that **already exist** in the current ACL. |
+        > | deletions | Must target users/groups that **already exist** in the current ACL. |
+        ---
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/patchAssetRoles"
+      responses:
+        "200":
+          $ref: "#/components/responses/patchAssetRolesResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          description: |
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                missingRequiredField:
+                  $ref: "#/components/examples/missingRequiredField"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -504,8 +624,6 @@ paths:
           headers:
             location:
               $ref: "#/components/headers/location"
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -516,41 +634,21 @@ paths:
                 createFolder:
                   $ref: "#/components/examples/singleFolder"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorFolderCreateResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
         "415":
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
-          description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequiredField:
-                  $ref: "#/components/examples/missingRequiredField"
-                invalidName:
-                  $ref: "#/components/examples/invalidName"
+          $ref: "#/components/responses/unprocessableEntityResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -575,15 +673,12 @@ paths:
         - Folders
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifNoneMatch"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
           description: |
             **Success** - Retrieved information about the folder
           headers:
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -601,14 +696,185 @@ paths:
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
-  /folders/{assetId}/list:
+    delete:
+      operationId: deleteFolder
+      summary: Delete folder by ID
+      description: |
+        This endpoint deletes(soft deletion) or permanently deletes(hard deletion) an existing folder, identified by its `assetId`, along with
+        all its descendant assets, from the organization’s ESM shared storage.
+
+        ---
+        > NOTE:  
+        > * In order to perform hard deletion, the folder must be in DELETED state. 
+        > * The requester must have sufficient permission to perform destructive actions on the folder.
+        > * If the folder is not found or access is denied, appropriate error responses will be returned.
+        ---
+      tags:
+        - Folders
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+        - $ref: "#/components/parameters/permanent"
+      responses:
+        "204":
+          description: |
+            **Success** - The folder was deleted successfully
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "412":
+          $ref: "#/components/responses/preconditionFailedResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "504":
+          description: |
+            **Operation Timed Out** - The operation took longer than 60 seconds. The operation will continue after the timeout.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                operationTimedOut:
+                  $ref: "#/components/examples/operationTimedOut"
+  /folders/{assetId}/rename:
+    post:
+      operationId: renameFolder
+      summary: Rename a folder.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Folders
+      description: |
+        This endpoint updates the name of an existing Folder, identified by its `assetId`. This operation is only permitted if the requester has appropriate write-level permissions
+        on the folder.  
+
+        ---
+        > NOTE:  
+        > * Only the name of the folder can be modified using this endpoint.
+        > * All other folder metadata remains unchanged.
+        > * If the requester lacks the required permissions or the folder does not exist, an appropriate error response
+        > will be returned.
+        ---
+      requestBody:
+        $ref: "#/components/requestBodies/folderRenameRequest"
+      responses:
+        "200":
+          description: |
+            **Updated** - The folder was renamed successfully.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/folderAsset"
+              examples:
+                renameFolder:
+                  $ref: "#/components/examples/singleFolder"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+        "507":
+          $ref: "#/components/responses/storageQuotaExceededResponse"
+  /folders/{assetId}/restore:
+    post:
+      operationId: restoreFolder
+      summary: Restore a soft-deleted folder.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Folders
+      description: |
+        This endpoint restores an existing folder, identified by its `assetId`, within the organization's ESM shared storage 
+        to an ACTIVE state. Descendants of the folder will have their states recomputed to their previous state. This operation
+        is only permitted if the requester has appropriate write-level permissions on the folder.
+
+        ---
+        > NOTE:
+        > * Folders already in an ACTIVE state will remain ACTIVE and return 200 OK.
+        > * Restore operations can only be invoked on roots of DELETED trees. Restore calls made on assets in a DELETED_PARENT
+        state will return a 409 Conflict error.
+        > * Descendants of this folder that were in a DELETED state prior its deletion will remain DELETED. Their respective
+        descendants will also remain in a DELETED_PARENT or DELETED state as before.
+        > * Hard-deleted folders will return a 404 Not Found error.
+        > * If an asset with the same path already exists, the restored folder will be renamed automatically.
+        > * If the requester lacks the required permissions or the folder does not exist, an appropriate error response
+        > will be returned.
+        ---
+      responses:
+        "200":
+          description: |
+            **Success** - Retrieved information about the folder
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/folderAsset"
+              examples:
+                restoreFolder:
+                  $ref: "#/components/examples/singleFolder"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /folders/{assetId}/children:
     get:
-      operationId: getFolderAssets
-      summary: Get Paginated List of Assets inside a Folder
+      operationId: getFolderChildren
+      summary: Get Paginated List of Children of a Folder
       tags:
         - Folders
       description: |
@@ -637,31 +903,16 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/paginatedAssetsResponse"
-        "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                invalidLimitType:
-                  $ref: "#/components/examples/invalidLimitType"
-                invalidLimitRange:
-                  $ref: "#/components/examples/invalidLimitRange"
-                invalidPaginationParameterCombination:
-                  $ref: "#/components/examples/invalidPaginationParameterCombination"
-                multipleInvalidRequestViolations:
-                  $ref: "#/components/examples/multipleInvalidRequestViolations"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "422":
+          $ref: "#/components/responses/invalidRequestPagedResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -677,19 +928,21 @@ paths:
         identified by its `assetId`. It evaluates the users access based on: 
           * **Direct permissions** assigned to the folder.
           * **Inherited permissions** from ancestor folders or the containing project.
-          * **Predefined principals**, such as `_everybody` or group-based access rules.
+          * **Predefined principals**, such as `orgEverybody` or group-based access rules.
       parameters:
         - $ref: "#/components/parameters/assetId"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
-          $ref: "#/components/responses/assetPermissionResponse"
+          $ref: "#/components/responses/folderPermissionResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -714,15 +967,12 @@ paths:
         - Files
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifNoneMatch"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
           description: |
             **Success** - Retrieved information about the file
           headers:
-            etag:
-              $ref: "#/components/headers/etag"
             x-request-id:
               $ref: "#/components/headers/requestId"
           content:
@@ -740,6 +990,159 @@ paths:
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+    delete:
+      operationId: deleteFile
+      summary: Delete file by ID
+      description: |
+        This endpoint deletes(soft deletion) or permanently deletes(hard deletion) an existing file, identified by its `assetId`, from the organization’s ESM shared storage.
+
+        ---
+        > NOTE:  
+        > * In order to perform hard delete, the file must be in DELETED state.
+        > * The requester must have sufficient permissions to perform destructive actions on the file.
+        > * If the file is not found or access is denied, appropriate error responses will be returned.
+        ---
+      tags:
+        - Files
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+        - $ref: "#/components/parameters/permanent"
+      responses:
+        "204":
+          description: |
+            **Success** - The file was deleted successfully
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "412":
+          $ref: "#/components/responses/preconditionFailedResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+  /files/{assetId}/rename:
+    post:
+      operationId: renameFile
+      summary: Rename a file.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Files
+      description: |
+        This endpoint updates the name of an existing File, identified by its `assetId`. This operation is only permitted if the requester has appropriate write-level permissions
+        on the file.  
+
+        ---
+        > NOTE:  
+        > * Only the name of the file can be modified using this endpoint.
+        > * All other file metadata remains unchanged.
+        > * If the requester lacks the required permissions or the file does not exist, an appropriate error response
+        > will be returned.
+        ---
+      requestBody:
+        $ref: "#/components/requestBodies/fileRenameRequest"
+      responses:
+        "200":
+          description: |
+            **Updated** - The file was renamed successfully.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fileAsset"
+              examples:
+                renameFile:
+                  $ref: "#/components/examples/singleFile"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+        "507":
+          $ref: "#/components/responses/storageQuotaExceededResponse"
+  /files/{assetId}/restore:
+    post:
+      operationId: restoreFile
+      summary: Restore a soft-deleted file.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Files
+      description: |
+        This endpoint restores an existing file, identified by its `assetId`, within the organization's ESM shared storage 
+        to an ACTIVE state. This operation is only permitted if the requester has appropriate write-level permissions on the file.
+
+        ---
+        > NOTE:
+        > * Files already in an ACTIVE state will remain ACTIVE and return 200 OK.
+        > * Restore calls made on assets in a DELETED_PARENT state will return a 409 Conflict error.
+        > * Hard-deleted files will return a 404 Not Found error.
+        > * If an asset with the same path already exists, the restored file will be renamed automatically.
+        > * If the requester lacks the required permissions or the file does not exist, an appropriate error response
+        > will be returned.
+        ---
+      responses:
+        "200":
+          description: |
+            **Success** - Retrieved information about the file
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fileAsset"
+              examples:
+                restoreFile:
+                  $ref: "#/components/examples/singleFile"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -755,13 +1158,54 @@ paths:
         identified by its `assetId`. It evaluates the users access based on: 
           * **Direct permissions** assigned to the file.
           * **Inherited permissions** from ancestor folders or the containing project.
-          * **Predefined principals**, such as `_everybody` or group-based access rules.
+          * **Predefined principals**, such as `orgEverybody` or group-based access rules.
       parameters:
         - $ref: "#/components/parameters/assetId"
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
-          $ref: "#/components/responses/assetPermissionResponse"
+          $ref: "#/components/responses/filePermissionResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /files/{assetId}/permissions:
+    get:
+      operationId: getFilePermissions
+      summary: Get All roles for a File
+      deprecated: true
+      tags:
+        - Files
+      description: |
+        > This endpoint is deprecated and will be removed on 3/31/2025. Please use the /files/{assetId}/roles endpoint instead.
+
+        The endpoint retrieves the **explicit roles** assigned to all users and groups for a specific file,
+        identified by its `assetId`. This includes only the **direct access control entries** defined on the file itself
+        and does not include any roles that are inherited from parent folders or the containing project.
+
+        ---
+        > NOTE:  
+        > * The response lists all users and groups that have direct access to the file, along with their respective
+        >   roles (e.g., comment, edit).
+        > * This data is useful for auditing and role management but does not represent the full effective access
+        >   unless inheritance is also considered.
+        > * The file must exist and the requester must have at least read-level access. If the file is not found or
+        >   access is denied, appropriate error responses will be returned.
+        ---
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          $ref: "#/components/responses/getAssetRolesResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
@@ -772,6 +1216,266 @@ paths:
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
+    patch:
+      operationId: patchFilePermissions
+      summary: Patch Roles for a File
+      deprecated: true
+      tags:
+        - Files
+      description: |
+        > This endpoint is deprecated and will be removed on 3/31/2025. Please use the /files/{assetId}/roles endpoint instead.
+
+        This endpoint is used to manage the direct roles of a specific file, identified by its `assetId`. It allows
+        clients to perform multiple types of role changes in a single request, including:
+          * Addition of new users or groups to the access control list.
+          * Update of roles for existing users or groups.
+          * Removal of users or groups from the access control list.
+
+        ---
+        > NOTE:  
+        > * The request body supports three arrays: `additions`, `updates`, and `deletions`.
+        > * Multiple principals can be included across each action type.
+        > * Each principal must be mentioned only once across the entire request body.
+        > * Role changes apply directly to the file.
+
+        > ## Validation Rules
+        > | Action | Behavior |
+        > | ------ | -------- |
+        > | additions | Must include users/groups that **do not already exist** in the current ACL. |
+        > | updates | Must target users/groups that **already exist** in the current ACL. |
+        > | deletions | Must target users/groups that **already exist** in the current ACL. |
+        ---
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/patchAssetRoles"
+      responses:
+        "200":
+          $ref: "#/components/responses/patchAssetRolesResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          description: |
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                missingRequiredField:
+                  $ref: "#/components/examples/missingRequiredField"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /files/{assetId}/roles:
+    get:
+      operationId: getFileRoles
+      summary: Get All roles for a File
+      tags:
+        - Files
+      description: |
+        The endpoint retrieves the **explicit roles** assigned to all users and groups for a specific file,
+        identified by its `assetId`. This includes only the **direct access control entries** defined on the file itself
+        and does not include any roles that are inherited from parent folders or the containing project.
+
+        ---
+        > NOTE:  
+        > * The response lists all users and groups that have direct access to the file, along with their respective
+        >   roles (e.g., comment, edit).
+        > * This data is useful for auditing and role management but does not represent the full effective access
+        >   unless inheritance is also considered.
+        > * The file must exist and the requester must have at least read-level access. If the file is not found or
+        >   access is denied, appropriate error responses will be returned.
+        ---
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          $ref: "#/components/responses/getAssetRolesResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+    patch:
+      operationId: patchFileRoles
+      summary: Patch Roles for a File
+      tags:
+        - Files
+      description: |
+        This endpoint is used to manage the direct roles of a specific file, identified by its `assetId`. It allows
+        clients to perform multiple types of role changes in a single request, including:
+          * Addition of new users or groups to the access control list.
+          * Update of roles for existing users or groups.
+          * Removal of users or groups from the access control list.
+
+        ---
+        > NOTE:  
+        > * The request body supports three arrays: `additions`, `updates`, and `deletions`.
+        > * Multiple principals can be included across each action type.
+        > * Each principal must be mentioned only once across the entire request body.
+        > * Role changes apply directly to the file.
+
+        > ## Validation Rules
+        > | Action | Behavior |
+        > | ------ | -------- |
+        > | additions | Must include users/groups that **do not already exist** in the current ACL. |
+        > | updates | Must target users/groups that **already exist** in the current ACL. |
+        > | deletions | Must target users/groups that **already exist** in the current ACL. |
+        ---
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/patchAssetRoles"
+      responses:
+        "200":
+          $ref: "#/components/responses/patchAssetRolesResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          description: |
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                missingRequiredField:
+                  $ref: "#/components/examples/missingRequiredField"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /files/{assetId}/copy:
+    post:
+      operationId: copyFile
+      summary: Copies a file to a new location.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Files
+      description: |
+        This endpoint performs an asynchronous copy of an existing file asset, identified by its `assetId`, into another
+        folder or project. The operation requires the requester to have, at minimum, the following roles:
+        | Location | Role(s) |
+        | -------- | ------- |
+        | Source   | comment |
+        | Target   | edit    |
+
+        ---
+        > NOTE:  
+        > * If the requester lacks the required roles or the file does not exist, an appropriate error response will be
+        > returned.
+        ---
+      requestBody:
+        $ref: "#/components/requestBodies/fileCopyRequest"
+      responses:
+        "202":
+          $ref: "#/components/responses/fileCopyAcceptedResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+        "507":
+          $ref: "#/components/responses/storageQuotaExceededResponse"
+  /files/{assetId}/move:
+    post:
+      operationId: moveFile
+      summary: Move a file to a new location.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Files
+      description: |
+        This endpoint performs an asynchronous move of an existing file asset, identified by its `assetId`, into another
+        folder or project. The operation requires the requester to have, at minimum, the following roles:
+        | Location          | Role(s) |
+        | ----------------- | ------- |
+        | Source            | comment |
+        | Source's parent   | edit    |
+        | Target            | edit    |
+
+        ---
+        > NOTE:  
+        > * If the requester lacks the required roles or the file does not exist, an appropriate error response will be
+        > returned.
+        ---
+      requestBody:
+        $ref: "#/components/requestBodies/fileMoveRequest"
+      responses:
+        "202":
+          $ref: "#/components/responses/fileMoveAcceptedResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+        "507":
+          $ref: "#/components/responses/storageQuotaExceededResponse"
   /files/{assetId}/download:
     get:
       operationId: downloadFile
@@ -798,13 +1502,19 @@ paths:
         - $ref: "#/components/parameters/requestId"
       responses:
         "200":
-          $ref: "#/components/responses/fileDownloadUrlResponse"
+          $ref: "#/components/responses/fileDownloadOKResponse"
+        "202":
+          $ref: "#/components/responses/fileDownloadAcceptedResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -829,8 +1539,6 @@ paths:
         - Files
       parameters:
         - $ref: "#/components/parameters/assetId"
-        - $ref: "#/components/parameters/ifMatch"
-        - $ref: "#/components/parameters/ifNoneMatch"
         - $ref: "#/components/parameters/requestId"
         - $ref: "#/components/parameters/size"
         - $ref: "#/components/parameters/mediaType"
@@ -848,19 +1556,26 @@ paths:
                 format: binary
         "304":
           $ref: "#/components/responses/matchedEtagResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "412":
           $ref: "#/components/responses/preconditionFailedResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
   /files/upload/init:
+    x-filetype-restriction: true
     post:
       operationId: initBlockBasedFileUpload
       summary: Initialize a block based file upload job
@@ -868,6 +1583,12 @@ paths:
         This, along with the set of related APIs enables the upload of large files by splitting the content into multiple blocks,
         transferred over separate requests. This method is ideal for files larger than 10 MB, offering parallelism, resumability,
         and efficient error recovery.
+
+        ---
+        > NOTE:
+        > For files 10 MB or larger, direct upload is not supported. Clients must use this block-based upload workflow.
+        > block-based transfer is allowed for any size
+        ---  
 
         ## Upload Flow Overview
         ### 1. Initiate Upload:
@@ -879,7 +1600,7 @@ paths:
 
         ---
         > NOTE:
-        > #### Uploading File Blocks 
+        > ####Uploading File Blocks 
         > After receiving `transferLinks`, clients can use them to upload individual blocks:
         > **PUT <transferURL>**
         > **<binary data>**  
@@ -914,29 +1635,20 @@ paths:
         "200":
           $ref: "#/components/responses/fileUploadInitResponse"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "415":
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
           description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
           headers:
             x-request-id:
               $ref: "#/components/headers/requestId"
@@ -947,8 +1659,10 @@ paths:
               examples:
                 missingRequiredField:
                   $ref: "#/components/examples/missingRequiredField"
-                invalidName:
-                  $ref: "#/components/examples/invalidName"
+                invalidNameType:
+                  $ref: "#/components/examples/invalidNameType"
+                invalidNameValue:
+                  $ref: "#/components/examples/invalidNameValue"
                 ancestorNotFound:
                   $ref: "#/components/examples/ancestorNotFound"
                 invalidDestination:
@@ -967,7 +1681,7 @@ paths:
       summary: Finalize a block based file upload job
       description: |
         This endpoint finalizes the block upload process by initiating an asynchronous job that will merge all uploaded blocks and
-        creates the final file asset. In case of asynchronous operation succeed, the asset field will contain the newly created file's
+        creates the final file asset. In case of asynchronous operation success, the asset field will contain the newly created file's
         metadata as defined by File Schema.
 
         ---
@@ -981,7 +1695,8 @@ paths:
         > * In future, clients will be able to extend block sets if their initial estimate is too low (see Future Enhancements).
 
         > #### Skipped Blocks
-        > * Clients are allowed to skip any block from the original transferLinks list, as long as part numbers remain ordered and are accurately reported in the `usedTransferLinks` array during finalize.
+        > * Clients are allowed to skip any block from the original transferLinks list, as long as part numbers remain ordered and
+        > are accurately reported in the `usedTransferLinks` array during finalize.
         > * Skipped parts should simply be omitted from `usedTransferLinks`.
 
         > #### Finalization is based on:
@@ -999,29 +1714,20 @@ paths:
         "202":
           $ref: "#/components/responses/fileUploadFinalizeResponse"
         "400":
-          description: |
-            **Invalid Request** - The server cannot process the request due to a client error
-          headers:
-            x-request-id:
-              $ref: "#/components/headers/requestId"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errorResponse"
-              examples:
-                missingRequestBody:
-                  $ref: "#/components/examples/missingRequestBody"
-                invalidRequestBody:
-                  $ref: "#/components/examples/invalidRequestBody"
+          $ref: "#/components/responses/invalidRequestResponse"
         "401":
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/accessErrorResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
         "415":
           $ref: "#/components/responses/invalidContentTypeResponse"
         "422":
           description: |
-            **Unprocessable Entity** - The request cannot be processed due to semantic errors
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
           headers:
             x-request-id:
               $ref: "#/components/headers/requestId"
@@ -1032,16 +1738,192 @@ paths:
               examples:
                 missingRequiredField:
                   $ref: "#/components/examples/missingRequiredField"
-                invalidName:
-                  $ref: "#/components/examples/invalidName"
-                ancestorNotFound:
-                  $ref: "#/components/examples/ancestorNotFound"
-                invalidDestination:
-                  $ref: "#/components/examples/invalidDestination"
+                invalidFieldType:
+                  $ref: "#/components/examples/invalidUploadIdType"
+                invalidFieldValue:
+                  $ref: "#/components/examples/invalidUsedTransferLinksValue"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /files/{assetId}/upload/init:
+    post:
+      operationId: initBlockBasedFileReplacement
+      summary: Initialize a block based file replacement job
+      description: |
+        Initializes a block based replacement job for an existing file. The init response provides a set of pre-signed URLs
+        for uploading individual blocks, transferred over separate requests. Once the replacement file content is uploaded,
+        the finalize endpoint is called to finalize the replacement.
+
+        The file's `assetId`, permissions, and metadata are preserved while the content is replaced.
+
+        ---
+        > NOTE:
+        > For files 10 MB or larger, direct replacement is not supported. Clients must use this block-based replacement workflow.
+        > block-based transfer is allowed for any size
+        ---  
+
+        ## Replacement Flow Overview
+        ### 1. Initiate Replacement:
+        Client sends a POST request to initiate the block replacement and receives a response with URLs for uploading individual blocks
+        and finalizing the transfer.
+
+        ### 2. Upload Blocks:
+        Client issues PUT requests to the provided Block Transfer URLs, sending file data in chunks. These can be uploaded in parallel.  
+
+        ---
+        > NOTE:
+        > ####Uploading File Blocks 
+        > After receiving `transferLinks`, clients can use them to upload individual blocks:
+        > **PUT <transferURL>**
+        > **<binary data>**  
+        >
+        > * **Authorization Header**: Must NOT be included in the request.
+        > * **Success Response**: 200 OK indicates successful block upload.
+        > * **Expiration Handling**: Each upload session is time-bound. If blocks are not uploaded within the specified expiration window
+        > (urlExpirationDate field from the initiation response), the operation may fail.
+        >   - **Always check and respect the urlExpirationDate timestamp** in the response from the Block Upload Init endpoint.
+        ---
+
+        ### 3. Finalize Replacement:
+        After all blocks are uploaded, the client calls the [Block Finalize URL](#/Files/finalizeBlockBasedFileReplacement) to trigger the replacement.
+
+        ### 4. Monitor:
+        Finalize operation's response includes a Monitor URL to check the final status.
+
+        # Initialize the Block-Based Replacement
+        This endpoint allows clients to initiate the replacement of an existing file's content using block-based transfer.
+
+        ---
+        > NOTE:
+        > * The expiration duration of transfer URLs is explicitly provided to the client in the response
+        > * The Content-Type must match the existing file's media type. Attempting to change the content type will result in a **415 Unsupported Media Type** error.
+        ---
+      tags:
+        - Files
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/fileReplaceInitRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/fileUploadInitResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "415":
+          $ref: "#/components/responses/contentTypeChangeNotAllowedResponse"
+        "422":
+          description: |
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                missingRequiredField:
+                  $ref: "#/components/examples/missingRequiredField"
                 invalidSize:
                   $ref: "#/components/examples/invalidSize"
-                unsupportedMediaType:
-                  $ref: "#/components/examples/unsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /files/{assetId}/upload/finalize:
+    post:
+      operationId: finalizeBlockBasedFileReplacement
+      summary: Finalize a block based file replacement job
+      description: |
+        This endpoint finalizes the block replacement process by initiating an asynchronous job that will merge all uploaded
+        blocks and replace the existing file's content. The file's `assetId`, permissions, and metadata are preserved.
+
+        ---
+        > NOTE:
+        > ### Validation and Behavior for Finalize (Block-Based Replacement)
+        > The following rules govern how the server interprets the finalization request for a block-based replacement:
+        > 
+        > #### File Size in Initialization
+        > * The size provided during the initiate request is treated as an estimate, not a strict validation boundary.
+        > * Clients are not penalized if the actual uploaded content size differs from the declared size.
+        > * In future, clients will be able to extend block sets if their initial estimate is too low (see Future Enhancements).
+
+        > #### Skipped Blocks
+        > * Clients are allowed to skip any block from the original transferLinks list, as long as part numbers remain ordered and
+        > are accurately reported in the `usedTransferLinks` array during finalize.
+        > * Skipped parts should simply be omitted from `usedTransferLinks`.
+
+        > #### Finalization is based on:
+        > * The used part numbers explicitly listed in the `usedTransferLinks` array.
+        > * The server will stitch together content in the order of these part numbers.
+        > * Any parts not listed will be ignored even if data was uploaded to them.
+        ---
+      tags:
+        - Files
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/fileUploadFinalizeRequest"
+      responses:
+        "202":
+          $ref: "#/components/responses/fileUploadFinalizeResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          description: |
+            **Conflict** - The requested operation is invalid based on the current state of the resource
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                expiredUpload:
+                  $ref: "#/components/examples/expiredOrAlreadyUsed"
+                alreadyFinalized:
+                  $ref: "#/components/examples/expiredOrAlreadyUsed"
+                invalidOperation:
+                  $ref: "#/components/examples/invalidOperation"
+        "415":
+          $ref: "#/components/responses/contentTypeChangeNotAllowedResponse"
+        "422":
+          description: |
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                missingRequiredField:
+                  $ref: "#/components/examples/missingRequiredField"
+                invalidFieldType:
+                  $ref: "#/components/examples/invalidUploadIdType"
+                invalidFieldValue:
+                  $ref: "#/components/examples/invalidUsedTransferLinksValue"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -1085,6 +1967,8 @@ paths:
           $ref: "#/components/responses/unauthorizedResponse"
         "404":
           $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
         "500":
@@ -1102,76 +1986,87 @@ components:
       title: ErrorCodeEnums
       description: |
         It describes the type of error through a human readable code.  
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as new error codes are added. Clients should expect new error codes to be added in the future.
+        ---
       enum:
-        - invalid_request
+        - bad_request
         - unauthorized
         - access_error
         - resource_not_found
+        - not_acceptable
         - invalid_operation
+        - conflict
         - cursor_expired
         - precondition_failed
         - etag_mismatch
+        - payload_too_large
         - invalid_content_type
         - validation_error
+        - resource_too_large
         - rate_limited
         - runtime_error
         - not_implemented
+        - operation_timeout
         - storage_quota_exceeded
     assetTypeEnums:
       type: string
       title: AssetType
       description: |
         Describes the type of asset.  
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as new asset types are added. Clients should expect new asset types to be added in the future.
+        ---
       enum:
         - folder
         - file
         - project
         - library
         - cloudDoc
-    patchPermissionResultEnums:
-      type: string
-      title: PatchPermissionResultEnums
-      description: |
-        Describes the result of the permission patch for each principal.  
-      enum:
-        - successful
-        - failed
-        - pending
     jobTypeEnums:
       type: string
       title: JobTypeEnums
       description: |
         It describes the type of asynchronous job, depends on the original API invocation that created the job.  
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as new job types are added. Clients should expect new job types to be added in the future.
+        ---
       enum:
         - file_upload
-        - copy_asset
-        - move_asset
-        - package_asset
+        - file_download
+        - file_copy
+        - file_move
+        - folder_copy
+        - folder_move
+        - project_package
     jobStatusEnums:
       type: string
       title: JobStatusEnums
       description: |
         It describes the status of an asynchronous job.  
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as new job types are added. Clients should expect new job types to be added in the future.
+        ---
       enum:
         - running
         - succeeded
         - failed
         - partially_succeeded
-    asset:
-      description: |
-        Represents a generic asset in the system.
-      required:
-        - assetType
-      oneOf:
-        - $ref: "#/components/schemas/fileAsset"
-        - $ref: "#/components/schemas/folderAsset"
-        - $ref: "#/components/schemas/projectAsset"
-      discriminator:
-        propertyName: assetType
-        mapping:
-          file: "#/components/schemas/fileAsset"
-          folder: "#/components/schemas/folderAsset"
-          project: "#/components/schemas/projectAsset"
+    requestId:
+      type: string
+      title: RequestId
+      description: An identifier provided by the client to identify the request.
+      example: "1234567890"
+      minLength: 1
+      maxLength: 128
     pagination:
       type: object
       title: Pagination
@@ -1193,6 +2088,7 @@ components:
     assetId:
       type: string
       title: Asset Id
+      minLength: 1
       description: A globally unique identifier for the asset
       example: urn:aaid:sc:US:4f2fc15c-c062-4951-b37b-1f65ed62a174
     date:
@@ -1275,8 +2171,8 @@ components:
           description: Current state of the asset
           enum:
             - active
-            - discarded
-            - discarded_parent
+            - deleted
+            - deleted_parent
           default: active
     projectAsset:
       type: object
@@ -1318,21 +2214,53 @@ components:
           type: string
           description: A human-readable explanation specific to this occurrence of the problem.
           readOnly: true
-        requestId:
-          type: string
-          description: A unique identifier for the request that caused the error.
-          readOnly: true
       additionalProperties: true
     assetName:
       type: string
-      description: The name of the asset (including the extension, in case of a file)
-      minLength: 1
+      description: |
+        The name of the asset (including the extension, in case of a file)
+
+        The name must not be a 
+        * reserved Windows name
+          - `CON`
+          - `PRN`
+          - `AUX`
+          - `NUL`
+          - `COM1` through `COM9`
+          - `LPT1` through `LPT9`
+        * contain any of the following characters: 
+          - `\`
+          - `/`
+          - `:`
+          - `*`
+          - `?`
+          - `"`
+          - `|`
+          - `>`
+          - `<`
       maxLength: 255
       nullable: false
-    etag:
-      type: string
-      description: Entity tag used for optimistic concurrency control
-      example: 33a64df551425fcc55e4d42a148795d9f25f89d4
+      pattern: ^(?!^([Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][1-9]|[Ll][Pp][Tt][1-9])$)[^\\\/:*?"|><]+$
+    autorename:
+      type: boolean
+      title: Autorename
+      description: |
+        Controls whether to automatically rename assets when name conflicts occur during
+        create, rename, copy, move, or restore operations.
+
+        - **false**: Operation fails with 409 Conflict if a name collision occurs (default)
+        - **true**: System automatically renames the asset by appending a uniqueness token
+          consisting of a non-breaking space(\u00A0) followed by a counter in round parentheses, e.g. "\u00A0(1)"
+      default: false
+      example: true
+    operationOptions:
+      type: object
+      title: OperationOptions
+      description: |
+        Optional configuration for operation behavior. This object allow clients to customize how operations are executed.
+      properties:
+        autorename:
+          $ref: "#/components/schemas/autorename"
     fileAsset:
       type: object
       title: FileAsset
@@ -1354,15 +2282,10 @@ components:
               format: int64
               minimum: 0
               example: 1048576
-            contentEtag:
-              allOf:
-                - $ref: "#/components/schemas/etag"
-              description: ETag of the file content's
           required:
             - assetType
             - mediaType
             - size
-            - contentEtag
     folderAsset:
       type: object
       title: FolderAsset
@@ -1376,6 +2299,21 @@ components:
               default: folder
           required:
             - assetType
+    asset:
+      description: |
+        Represents a generic asset in the system.
+      required:
+        - assetType
+      oneOf:
+        - $ref: "#/components/schemas/fileAsset"
+        - $ref: "#/components/schemas/folderAsset"
+        - $ref: "#/components/schemas/projectAsset"
+      discriminator:
+        propertyName: assetType
+        mapping:
+          file: "#/components/schemas/fileAsset"
+          folder: "#/components/schemas/folderAsset"
+          project: "#/components/schemas/projectAsset"
     paginatedAssets:
       title: PaginatedAssets
       description: Represents a paginated list of assets
@@ -1383,7 +2321,7 @@ components:
       properties:
         paging:
           $ref: "#/components/schemas/pagination"
-        items:
+        children:
           type: array
           items:
             $ref: "#/components/schemas/asset"
@@ -1397,13 +2335,94 @@ components:
            as well as the ability to share the asset with other users.
         - `comment` - The subject has comment access to the asset. It includes the ability to view the asset
            and add comments to it.
+        - `undefined` - In some cases, a permission that cannot be expressed by `edit` or `comment` is returned as `undefined`.
+           The user has some underlying permission to the asset, but the access is not specific enough to be classified as `edit` or `comment`.
+           User operations may be limited. 
+
+        ---
+        > NOTE:  
+        > This list is not exhaustive and will be updated as roles are added. Clients should expect new roles to be added in the future.
+        ---
       enum:
         - edit
         - comment
+        - undefined
       example: edit
-    baseDirectPermissionEntry:
+    commonPermissions:
       type: object
-      title: BaseDirectPermissionEntry
+      title: CommonPermissions
+      description: Common Permissions for the user on any kind of asset
+      properties:
+        can_share:
+          type: boolean
+          description: Whether the user can share the asset with other users
+          default: false
+        can_comment:
+          type: boolean
+          description: Whether the user can comment on the asset
+          default: false
+        can_download_assets:
+          type: boolean
+          description: Whether the user can download the asset
+          default: false
+      required:
+        - can_share
+        - can_comment
+        - can_download_assets
+    containerOnlyPermissions:
+      type: object
+      title: ContainerOnlyPermissions
+      description: The permissions for the user applicable to container type of asset
+      properties:
+        can_move_assets_inside:
+          type: boolean
+          description: Whether the user can move assets inside the container
+          default: false
+        can_move_assets_outside:
+          type: boolean
+          description: Whether the user can move assets outside the container
+          default: false
+      required:
+        - can_move_assets_inside
+        - can_move_assets_outside
+    projectPermissions:
+      type: object
+      title: ProjectPermissions
+      description: The permissions for the user on a project
+      allOf:
+        - $ref: "#/components/schemas/commonPermissions"
+        - $ref: "#/components/schemas/containerOnlyPermissions"
+        - type: object
+          properties:
+            can_edit_project:
+              type: boolean
+              description: Whether the user can edit the project
+              default: false
+            can_view_project:
+              type: boolean
+              description: Whether the user can view the project
+              default: false
+            can_restore:
+              type: boolean
+              description: Whether the user can restore the project
+              default: false
+            can_delete:
+              type: boolean
+              description: Whether the user can soft delete the project
+              default: false
+            can_permanent_delete:
+              type: boolean
+              description: Whether the user can permanently delete the project
+              default: false
+          required:
+            - can_edit_project
+            - can_view_project
+            - can_restore
+            - can_delete
+            - can_permanent_delete
+    baseDirectRoleEntry:
+      type: object
+      title: BaseDirectRoleEntry
       properties:
         id:
           $ref: "#/components/schemas/principalId"
@@ -1417,11 +2436,11 @@ components:
         - id
         - name
         - role
-    userDirectPermissionEntry:
+    userDirectRoleEntry:
       type: object
-      title: UserDirectPermissionEntry
+      title: UserDirectRoleEntry
       allOf:
-        - $ref: "#/components/schemas/baseDirectPermissionEntry"
+        - $ref: "#/components/schemas/baseDirectRoleEntry"
         - type: object
           properties:
             type:
@@ -1434,11 +2453,11 @@ components:
           required:
             - type
             - email
-    groupDirectPermissionEntry:
+    groupDirectRoleEntry:
       type: object
-      title: GroupDirectPermissionEntry
+      title: GroupDirectRoleEntry
       allOf:
-        - $ref: "#/components/schemas/baseDirectPermissionEntry"
+        - $ref: "#/components/schemas/baseDirectRoleEntry"
         - type: object
           properties:
             type:
@@ -1450,11 +2469,11 @@ components:
           required:
             - type
             - organizationName
-    predefinedGroupsDirectPermissionEntry:
+    predefinedGroupsDirectRoleEntry:
       type: object
-      title: PredefinedGroupsDirectPermissionEntry
+      title: PredefinedGroupsDirectRoleEntry
       allOf:
-        - $ref: "#/components/schemas/baseDirectPermissionEntry"
+        - $ref: "#/components/schemas/baseDirectRoleEntry"
         - type: object
           properties:
             type:
@@ -1466,24 +2485,24 @@ components:
           required:
             - type
             - organizationName
-    directPermissionEntry:
+    directRoleEntry:
       type: object
-      title: DirectPermissionEntry
+      title: DirectRoleEntry
       description: Represents a principal (user, group, or predefined groups) with associated role.
       oneOf:
-        - $ref: "#/components/schemas/userDirectPermissionEntry"
-        - $ref: "#/components/schemas/groupDirectPermissionEntry"
-        - $ref: "#/components/schemas/predefinedGroupsDirectPermissionEntry"
+        - $ref: "#/components/schemas/userDirectRoleEntry"
+        - $ref: "#/components/schemas/groupDirectRoleEntry"
+        - $ref: "#/components/schemas/predefinedGroupsDirectRoleEntry"
       discriminator:
         propertyName: type
         mapping:
-          user: "#/components/schemas/userDirectPermissionEntry"
-          group: "#/components/schemas/groupDirectPermissionEntry"
-          predefined: "#/components/schemas/predefinedGroupsDirectPermissionEntry"
-    pendingPermissionEntry:
+          user: "#/components/schemas/userDirectRoleEntry"
+          group: "#/components/schemas/groupDirectRoleEntry"
+          predefined: "#/components/schemas/predefinedGroupsDirectRoleEntry"
+    pendingRoleEntry:
       type: object
-      title: PendingPermissionEntry
-      description: Represents a pending permission entry for a user along with the role and the timestamp of the invitation.
+      title: PendingRoleEntry
+      description: Represents a pending role entry for a user along with the role and the timestamp of the invitation.
       properties:
         email:
           type: string
@@ -1505,57 +2524,66 @@ components:
         - role
         - created
         - id
-    assetPermissionsResponse:
+    assetRolesResponse:
       type: object
-      title: AssetPermissionsResponse
+      title: AssetRolesResponse
       properties:
         direct:
           type: array
-          title: Direct Permissions
+          title: Direct Roles
           items:
-            $ref: "#/components/schemas/directPermissionEntry"
+            $ref: "#/components/schemas/directRoleEntry"
           default: []
         pending:
           type: array
           title: Pending Invitations
           items:
-            $ref: "#/components/schemas/pendingPermissionEntry"
+            $ref: "#/components/schemas/pendingRoleEntry"
           default: []
     principalTypeEnums:
       description: |
         Represents all the types of principals
+        ---
+          > Note:
+            The list is not exhaustive and will be updated as new types of principals are added.
+        ---
       type: string
       enum:
         - user
         - group
         - predefined
-    patchAssetPermissionsRequest:
+    patchAssetRolesRequest:
       type: object
-      title: PatchAssetPermissionsRequest
-      description: Represents the request body for a patch operation on permissions for an asset
+      title: PatchAssetRolesRequest
+      description: Represents the request body for a patch operation on roles for an asset
       properties:
         direct:
           type: object
-          title: DirectPermissionsModification
+          title: DirectRolesModification
           properties:
             additions:
               type: array
               title: AdditionsList
-              description: Represents a list of users or groups that are being granted permission for an asset
+              description: Represents a list of users or groups that are being granted role for an asset
               items:
-                description: Represents a user or group that is being granted permission for an asset
+                description: Represents a user or group that is being granted role for an asset
                 type: object
-                title: NewPermissionEntry
+                title: NewRoleEntry
                 properties:
                   recipient:
                     type: string
                     description: |
                       Provides identifier for the recipient. It can be one of the following formats:
-                      | Type of Recipient | Format | Description | Example |
-                      | ----------------- | ------ | ----------- | ------- |
-                      | User              | mailto:<email of the user | Email address of the recipient | mailto:john.doe@example.com |
-                      | Group             | name:<group name> | Group name defined in the organization | name:Example Group |
-                      | Predefined        | name:<predefined principal name> | Predefined principal name | name:_everybody |
+                      | Type of Recipient | Format                           | Description                            | Example                     |
+                      | ----------------- | -------------------------------- | -------------------------------------- | --------------------------- |
+                      | User              | mailto:<email of the user        | Email address of the recipient         | mailto:john.doe@example.com |
+                      | Group             | name:<group name>                | Group name defined in the organization | name:Example Group          |
+                      | Predefined        | name:<predefined principal name> | Predefined principal name              | name:_everybody             |
+
+                      **Note for Predefined Principals:**
+                      - `_everybody`: Limited to `comment` (grants access to all org users)
+                      - `authenticated`: Can have `comment` or `edit` roles (requires authentication)
+                      - `all`: Read-only principal, cannot be added to new permissions
                   type:
                     $ref: "#/components/schemas/principalTypeEnums"
                   role:
@@ -1573,7 +2601,7 @@ components:
               items:
                 description: Represents a user or group with a new role
                 type: object
-                title: UpdatedPermissionEntry
+                title: UpdatedRoleEntry
                 properties:
                   id:
                     $ref: "#/components/schemas/principalId"
@@ -1594,7 +2622,7 @@ components:
               items:
                 description: Represents a user or group that is being removed from the asset
                 type: object
-                title: DeletionPermissionEntry
+                title: DeletionRoleEntry
                 properties:
                   id:
                     $ref: "#/components/schemas/principalId"
@@ -1604,10 +2632,10 @@ components:
               default: []
       required:
         - direct
-    basePatchPermissionEntry:
+    basePatchRoleEntry:
       type: object
-      title: BasePatchPermissionEntry
-      description: Represents a base permission entry
+      title: BasePatchRoleEntry
+      description: Represents a base role entry
       properties:
         id:
           $ref: "#/components/schemas/principalId"
@@ -1616,12 +2644,12 @@ components:
       required:
         - id
         - type
-    successfulPatchPermissionEntry:
-      description: Represents a successful permission entry
-      title: SuccessfulPatchPermissionEntry
+    successfulPatchRoleEntry:
+      description: Represents a successful role entry
+      title: SuccessfulPatchRoleEntry
       type: object
       allOf:
-        - $ref: "#/components/schemas/basePatchPermissionEntry"
+        - $ref: "#/components/schemas/basePatchRoleEntry"
         - type: object
           properties:
             status:
@@ -1631,12 +2659,12 @@ components:
               $ref: "#/components/schemas/roleEnums"
       required:
         - status
-    failedPatchPermissionEntry:
-      description: Represents a failed permission entry
-      title: FailedPatchPermissionEntry
+    failedPatchRoleEntry:
+      description: Represents a failed role entry
+      title: FailedPatchRoleEntry
       type: object
       allOf:
-        - $ref: "#/components/schemas/basePatchPermissionEntry"
+        - $ref: "#/components/schemas/basePatchRoleEntry"
         - type: object
           properties:
             status:
@@ -1653,12 +2681,12 @@ components:
         - status
         - error_code
         - message
-    pendingPatchPermissionEntry:
-      description: Represents a pending permission entry
-      title: PendingPatchPermissionEntry
+    pendingPatchRoleEntry:
+      description: Represents a pending role entry
+      title: PendingPatchRoleEntry
       type: object
       allOf:
-        - $ref: "#/components/schemas/basePatchPermissionEntry"
+        - $ref: "#/components/schemas/basePatchRoleEntry"
         - type: object
           properties:
             status:
@@ -1677,58 +2705,185 @@ components:
         - email
         - role
         - created
-    patchPermissionResultEntry:
+    patchRoleResultEntry:
       description: |
-        Represents a permission patch result entry.
-      title: PatchPermissionResultEntry
+        Represents a role patch result entry.
+      title: PatchRoleResultEntry
       required:
         - status
       oneOf:
-        - $ref: "#/components/schemas/successfulPatchPermissionEntry"
-        - $ref: "#/components/schemas/failedPatchPermissionEntry"
-        - $ref: "#/components/schemas/pendingPatchPermissionEntry"
+        - $ref: "#/components/schemas/successfulPatchRoleEntry"
+        - $ref: "#/components/schemas/failedPatchRoleEntry"
+        - $ref: "#/components/schemas/pendingPatchRoleEntry"
       discriminator:
         propertyName: status
         mapping:
-          successful: "#/components/schemas/successfulPatchPermissionEntry"
-          failed: "#/components/schemas/failedPatchPermissionEntry"
-          pending: "#/components/schemas/pendingPatchPermissionEntry"
-    patchAssetPermissionsResponse:
+          successful: "#/components/schemas/successfulPatchRoleEntry"
+          failed: "#/components/schemas/failedPatchRoleEntry"
+          pending: "#/components/schemas/pendingPatchRoleEntry"
+    patchAssetRolesResponse:
       type: object
-      title: PatchAssetPermissionsResponse
+      title: PatchAssetRolesResponse
       properties:
         direct:
-          title: PatchAssetDirectPermissionsResult
+          title: PatchAssetDirectRolesResult
           type: object
           properties:
             additions:
               type: array
               title: AdditionsList
-              description: Status of each permission addition.
+              description: Status of each role addition.
               items:
-                $ref: "#/components/schemas/patchPermissionResultEntry"
+                $ref: "#/components/schemas/patchRoleResultEntry"
               default: []
             updates:
               type: array
               title: UpdatesList
-              description: Status of each permission update.
+              description: Status of each role update.
               items:
-                $ref: "#/components/schemas/patchPermissionResultEntry"
+                $ref: "#/components/schemas/patchRoleResultEntry"
               default: []
             deletions:
               type: array
               title: DeletionsList
-              description: Status of each permission deletion.
+              description: Status of each role deletion.
               items:
-                $ref: "#/components/schemas/patchPermissionResultEntry"
+                $ref: "#/components/schemas/patchRoleResultEntry"
               default: []
       required:
         - direct
+    copyOperationOptions:
+      type: object
+      title: CopyOperationOptions
+      description: |
+        Optional configuration for controlling common aspects of copy operation. This object allows clients to customize how
+        copy operations are executed.
+      allOf:
+        - $ref: "#/components/schemas/operationOptions"
+        - type: object
+    copyRequest:
+      type: object
+      title: CopyRequest
+      description: |
+        Represents the request body for a copy operation on an asset.
+      nullable: false
+      required:
+        - parentId
+      properties:
+        parentId:
+          allOf:
+            - $ref: "#/components/schemas/assetId"
+          description: Asset Id of the target parent container (project/folder).
+        name:
+          $ref: "#/components/schemas/assetName"
+        options:
+          $ref: "#/components/schemas/copyOperationOptions"
+    jobId:
+      type: string
+      title: JobId
+      description: A globally unique identifier for the asynchronous job
+    moveOperationOptions:
+      type: object
+      title: MoveOperationOptions
+      description: |
+        Optional configuration for controlling common aspects of move operation. This object allows clients to customize how
+        move operations are executed.
+      allOf:
+        - $ref: "#/components/schemas/operationOptions"
+        - type: object
+    moveRequest:
+      type: object
+      title: MoveRequest
+      description: |
+        Represents the request body for a move operation on an asset.
+      nullable: false
+      required:
+        - parentId
+      properties:
+        parentId:
+          allOf:
+            - $ref: "#/components/schemas/assetId"
+          description: Asset Id of the target parent container (project/folder).
+        name:
+          $ref: "#/components/schemas/assetName"
+        options:
+          $ref: "#/components/schemas/moveOperationOptions"
+    commonNonProjectPermissions:
+      type: object
+      title: NonProjectPermissions
+      description: The permissions for the user applicable to non-project type of asset
+      properties:
+        can_edit_assets:
+          type: boolean
+          description: Whether the user can edit the asset
+          default: false
+        can_view_assets:
+          type: boolean
+          description: Whether the user can view the asset
+          default: false
+        can_restore_assets:
+          type: boolean
+          description: Whether the user can restore the asset
+          default: false
+        can_delete_assets:
+          type: boolean
+          description: Whether the user can soft delete the asset
+          default: false
+        can_permanent_delete_assets:
+          type: boolean
+          description: Whether the user can permanently delete the asset
+          default: false
+      required:
+        - can_edit_assets
+        - can_view_assets
+        - can_restore_assets
+        - can_delete_assets
+        - can_permanent_delete_assets
+    folderPermissions:
+      type: object
+      title: FolderPermissions
+      description: The permissions for the user on a folder
+      allOf:
+        - $ref: "#/components/schemas/commonPermissions"
+        - $ref: "#/components/schemas/containerOnlyPermissions"
+        - $ref: "#/components/schemas/commonNonProjectPermissions"
+    filePermissions:
+      type: object
+      title: FilePermissions
+      description: The permissions for the user on a file
+      allOf:
+        - $ref: "#/components/schemas/commonPermissions"
+        - $ref: "#/components/schemas/commonNonProjectPermissions"
     url:
       type: string
       title: URL
       description: A URL for the asset
       format: uri
+    fileDownloadOKResponse:
+      title: FileDownloadOKResponse
+      description: A pre-signed download URL for the asset
+      properties:
+        url:
+          allOf:
+            - $ref: "#/components/schemas/url"
+          description: The pre-signed URL that supports HTTP range requests for partial downloads
+        urlExpirationDate:
+          allOf:
+            - $ref: "#/components/schemas/date"
+          description: The expiration date of the pre-signed URL
+        size:
+          type: integer
+          description: Size of the file in bytes
+          format: int64
+          minimum: 0
+        mediaType:
+          type: string
+          description: The MIME type of the file
+      example:
+        mediaType: application/zip
+        size: 234567890
+        url: https://cloud-storage.adobe.io/download?signature=abc123
+        urlExpirationDate: "2025-05-13T10:15:30Z"
     fileSize:
       type: integer
       title: FileSize
@@ -1736,17 +2891,6 @@ components:
       minimum: 1
       format: int64
       example: 1048576
-    jobId:
-      type: string
-      title: JobId
-      description: A globally unique identifier for the asynchronous job
-    requestId:
-      type: string
-      title: RequestId
-      description: An identifier provided by the client to identify the request.
-      example: "1234567890"
-      minLength: 1
-      maxLength: 128
     baseJobStatus:
       type: object
       title: BaseJobStatus
@@ -1772,9 +2916,17 @@ components:
             The type of the asynchronous job, depends on the original API invocation that created the job.  
             Currently, the following job types are supported:
             - file_upload
-            - copy_asset
-            - move_asset
-            - package_asset
+            - file_download
+            - file_copy
+            - file_move
+            - folder_copy
+            - folder_move
+            - project_package
+
+            ---
+            > NOTE:  
+            > This list is not exhaustive and will be updated as new job types are added. Clients should expect new job types to be added in the future.
+            ---
     runningJobStatus:
       type: object
       title: RunningJobStatus
@@ -1804,10 +2956,10 @@ components:
       required:
         - asset
         - status
-    packageAssetSucceededJobStatus:
+    projectPackageSucceededJobStatus:
       type: object
-      title: PackageAssetSucceededJobStatus
-      description: Represents the status of a package asset succeeded asynchronous job in the system
+      title: ProjectPackageSucceededJobStatus
+      description: Represents the status of a project package succeeded asynchronous job in the system
       allOf:
         - $ref: "#/components/schemas/baseJobStatus"
         - type: object
@@ -1822,6 +2974,86 @@ components:
       required:
         - assets
         - status
+    fileDownloadSucceededJobStatus:
+      type: object
+      title: FileDownloadSucceededJobStatus
+      description: Represents the status of a file download succeeded asynchronous job in the system
+      allOf:
+        - $ref: "#/components/schemas/baseJobStatus"
+        - type: object
+          properties:
+            status:
+              type: string
+              default: succeeded
+            downloadResponse:
+              $ref: "#/components/schemas/fileDownloadOKResponse"
+      required:
+        - downloadResponse
+        - status
+    fileCopySucceededJobStatus:
+      type: object
+      title: FileCopySucceededJobStatus
+      description: Represents the status of a file copy succeeded asynchronous job in the system
+      allOf:
+        - $ref: "#/components/schemas/baseJobStatus"
+        - type: object
+          properties:
+            status:
+              type: string
+              default: succeeded
+            asset:
+              $ref: "#/components/schemas/fileAsset"
+      required:
+        - asset
+        - status
+    fileMoveSucceededJobStatus:
+      type: object
+      title: FileMoveSucceededJobStatus
+      description: Represents the status of a file move succeeded asynchronous job in the system
+      allOf:
+        - $ref: "#/components/schemas/baseJobStatus"
+        - type: object
+          properties:
+            status:
+              type: string
+              default: succeeded
+            asset:
+              $ref: "#/components/schemas/fileAsset"
+      required:
+        - asset
+        - status
+    folderCopySucceededJobStatus:
+      type: object
+      title: FolderCopySucceededJobStatus
+      description: Represents the status of a folder copy succeeded asynchronous job in the system
+      allOf:
+        - $ref: "#/components/schemas/baseJobStatus"
+        - type: object
+          properties:
+            status:
+              type: string
+              default: succeeded
+            asset:
+              $ref: "#/components/schemas/folderAsset"
+      required:
+        - asset
+        - status
+    folderMoveSucceededJobStatus:
+      type: object
+      title: FolderMoveSucceededJobStatus
+      description: Represents the status of a folder move succeeded asynchronous job in the system
+      allOf:
+        - $ref: "#/components/schemas/baseJobStatus"
+        - type: object
+          properties:
+            status:
+              type: string
+              default: succeeded
+            asset:
+              $ref: "#/components/schemas/folderAsset"
+      required:
+        - asset
+        - status
     succeededJobStatus:
       description: |
         Represents the status of a succeeded asynchronous job in the system
@@ -1829,12 +3061,107 @@ components:
         - jobType
       oneOf:
         - $ref: "#/components/schemas/fileUploadSucceededJobStatus"
-        - $ref: "#/components/schemas/packageAssetSucceededJobStatus"
+        - $ref: "#/components/schemas/projectPackageSucceededJobStatus"
+        - $ref: "#/components/schemas/fileDownloadSucceededJobStatus"
+        - $ref: "#/components/schemas/fileCopySucceededJobStatus"
+        - $ref: "#/components/schemas/fileMoveSucceededJobStatus"
+        - $ref: "#/components/schemas/folderCopySucceededJobStatus"
+        - $ref: "#/components/schemas/folderMoveSucceededJobStatus"
       discriminator:
         propertyName: jobType
         mapping:
           file_upload: "#/components/schemas/fileUploadSucceededJobStatus"
-          package_asset: "#/components/schemas/packageAssetSucceededJobStatus"
+          project_package: "#/components/schemas/projectPackageSucceededJobStatus"
+          file_download: "#/components/schemas/fileDownloadSucceededJobStatus"
+          file_copy: "#/components/schemas/fileCopySucceededJobStatus"
+          file_move: "#/components/schemas/fileMoveSucceededJobStatus"
+          folder_copy: "#/components/schemas/folderCopySucceededJobStatus"
+          folder_move: "#/components/schemas/folderMoveSucceededJobStatus"
+    folderCopyPartiallySucceededJobStatus:
+      type: object
+      title: FolderCopyPartiallySucceededJobStatus
+      description: Represents the status of a folder copy partially succeeded asynchronous job in the system
+      allOf:
+        - $ref: "#/components/schemas/baseJobStatus"
+        - type: object
+          required:
+            - status
+            - asset
+            - errors
+          properties:
+            status:
+              type: string
+              default: partially_succeeded
+            asset:
+              $ref: "#/components/schemas/folderAsset"
+            errors:
+              type: array
+              description: The errors that occurred during the job
+              items:
+                type: object
+                title: FailedAssetReferenceWithErrorResponse
+                required:
+                  - error_code
+                  - message
+                  - asset
+                allOf:
+                  - $ref: "#/components/schemas/errorResponse"
+                  - type: object
+                    properties:
+                      asset:
+                        title: FailedAssetReference
+                        properties:
+                          assetId:
+                            allOf:
+                              - $ref: "#/components/schemas/assetId"
+                            readOnly: true
+                          name:
+                            type: string
+                            description: Human-readable name of the asset
+                            example: My Asset
+                          assetType:
+                            $ref: "#/components/schemas/assetTypeEnums"
+                        required:
+                          - assetId
+                          - name
+                          - assetType
+    projectPackagePartiallySucceededJobStatus:
+      type: object
+      title: ProjectPackagePartiallySucceededJobStatus
+      description: Represents the status of a project package partially succeeded asynchronous job in the system
+      allOf:
+        - $ref: "#/components/schemas/baseJobStatus"
+        - type: object
+          properties:
+            status:
+              type: string
+              default: partially_succeeded
+            assets:
+              type: array
+              items:
+                $ref: "#/components/schemas/asset"
+            errors:
+              type: array
+              description: The errors that occurred during the job
+              items:
+                $ref: "#/components/schemas/errorResponse"
+      required:
+        - assets
+        - status
+        - errors
+    partiallySucceededJobStatus:
+      description: |
+        Represents the status of a partially succeeded asynchronous job in the system
+      required:
+        - jobType
+      oneOf:
+        - $ref: "#/components/schemas/folderCopyPartiallySucceededJobStatus"
+        - $ref: "#/components/schemas/projectPackagePartiallySucceededJobStatus"
+      discriminator:
+        propertyName: jobType
+        mapping:
+          folder_copy: "#/components/schemas/folderCopyPartiallySucceededJobStatus"
+          project_package: "#/components/schemas/projectPackagePartiallySucceededJobStatus"
     failedJobStatus:
       type: object
       title: FailedJobStatus
@@ -1862,12 +3189,14 @@ components:
       oneOf:
         - $ref: "#/components/schemas/runningJobStatus"
         - $ref: "#/components/schemas/succeededJobStatus"
+        - $ref: "#/components/schemas/partiallySucceededJobStatus"
         - $ref: "#/components/schemas/failedJobStatus"
       discriminator:
         propertyName: status
         mapping:
           running: "#/components/schemas/runningJobStatus"
           succeeded: "#/components/schemas/succeededJobStatus"
+          partially_succeeded: "#/components/schemas/partiallySucceededJobStatus"
           failed: "#/components/schemas/failedJobStatus"
   parameters:
     limit:
@@ -1897,6 +3226,7 @@ components:
         ---
       schema:
         type: string
+      allowReserved: true
       example: 123e4567e89b12d3a456426614174000
     projectsSortBy:
       name: sortBy
@@ -1923,34 +3253,56 @@ components:
       in: query
       required: false
       description: |
-        [FIQL-based](https://datatracker.ietf.org/doc/html/draft-nottingham-atompub-fiql-00) filter string  
+        [FIQL-based](https://datatracker.ietf.org/doc/html/draft-nottingham-atompub-fiql-00) filter string
 
         Following fields are supported for filtering:
-          - `view`: Filters the results to only a specific view. The possible values are `yours`, `all`, `shared_with_you`, `discoverable`.
-             Here is how each view works:
-             - `Yours`:
-                - Projects in the calling user's User Home storage
-                - Projects in the calling user's Org's ESM shared storage for which the user has access, excluding those which they only
-                have read permissions through membership in the org_everybody group.
-             - `Shared with you`:
-                - Projects in other user's User Home storage for which the calling user has permissions
-                - Projects in other Org's ESM shared storage for which the calling user has permissions
-             - `All`:
-                - Combination of Projects returned from `Yours` and `Shared with you`
+          - `view`: (**deprecated**) Filters the results to only a specific view (operators allowed are `==`). Single value is only supported.
+            The possible values are `yours`, `all`, `shared_with_you`, `discoverable`.
+            Here is how each view works:
+            - `Yours`:
+              - Projects in the calling user's User Home storage
+              - Projects in the calling user's Org's ESM shared storage for which the user has **write access** through
+                membership in the _everybody group.
+            - `Shared with you`:
+              - Projects in other user's User Home storage for which the calling user has permissions
+              - Projects in other Org's ESM shared storage for which the calling user has permissions
+            - `All`:
+              - Combination of Projects returned from `Yours` and `Shared with you`
+            - `Discoverable`:
+              - Projects returned from `All` view
+              - Projects in the calling user's Org's ESM shared storage for which the user has **read access** through
+                membership in the _everybody group.
+          - `state`: Filter by project state (operators allowed are ==). Single value is only supported.
+            - `active` (default): Filter by active projects.
+            - `deleted`: Filter by (soft)deleted projects.
+          - `state`: Filter by asset state (operators allowed are `==`). Single value is only supported.
+              - `active` (default): Filter by active assets.
+              - `deleted`: Filter by (soft)deleted assets.
 
+          - `createdBy`: Filter by project creator (operators allowed are `==` and `!=`). Single value is only supported.
+             - `current_user` is a predefined constant representing the user initiating the request. Currently, this is the sole supported value.
         ---
         > NOTE:  
+        > * The `view` parameter is deprecated and will be removed in a future release. Clients should use the `createdBy` parameter instead.
         > * Only applicable for the first page. Subsequent pages must use the cursor.
         ---
       schema:
         type: string
-      example: view==discoverable
+      examples:
+        All Projects:
+          value: " "
+        Deleted Projects:
+          value: state==deleted
+        Created By Me:
+          value: createdBy==current_user
+        Shared With Me:
+          value: createdBy!=current_user
     requestId:
       name: x-request-id
       in: header
       schema:
         type: string
-        example: 1234567890
+        example: "1234567890"
         minLength: 1
         maxLength: 128
       description: |
@@ -1964,28 +3316,19 @@ components:
         The ID of the asset to get.
       schema:
         $ref: "#/components/schemas/assetId"
-    ifNoneMatch:
-      name: If-None-Match
-      in: header
-      schema:
-        type: string
-        example: \"33a64df551425fcc55e4d42a148795d9f25f89d4\", W/\"0815\"
+    permanent:
+      name: permanent
+      in: query
       required: false
       description: |
-        One or more ETag values to compare, separated by commas.  
-        The request will succeed only if the resource's current ETag does **not** match any of the provided values.
-        This allows clients to avoid unnecessary data transfer if the resource has not changed since their last fetch.
-    ifMatch:
-      name: If-Match
-      in: header
+        Permanent used for indicating the mode of delete operation.
+        * If true, the operation will do a permanent delete.
+        * If false, the operation will do a soft delete.
+        * If not provided, the default value is false.
       schema:
-        type: string
-        example: \"33a64df551425fcc55e4d42a148795d9f25f89d4\", W/\"0815\"
-      required: false
-      description: |
-        One or more ETag values to compare, separated by commas.
-        The request will succeed only if the resource's current ETag matches any of the provided values.
-        This allows clients to prevent resource conflicts when multiple clients try to update the same resource simultaneously.
+        type: boolean
+        default: false
+      example: true
     assetsSortBy:
       name: sortBy
       in: query
@@ -2015,10 +3358,11 @@ components:
         [FIQL-based](https://datatracker.ietf.org/doc/html/draft-nottingham-atompub-fiql-00) filter string
 
         Following fields are supported for filtering:
-          - `mediaType`: Filter by media type (operators allowed are ==). Multiple values can be provided by following the FIQL syntax.
-          - `assetType`: Filter by asset type (operators allowed are ==). Multiple values can be provided by following the FIQL syntax.
-          - `modified`: Filter by last modified date (operators allowed are date comparison operators).
-          - `created`: Filter by creation date (operators allowed are date comparison operators).
+          - `mediaType`: Filter by media type (operators allowed are `==` and `=in=`). Multiple values are supported.
+          - `assetType`: Filter by asset type (operators allowed are `==`). Single value is only supported.
+          - `state`: Filter by asset state (operators allowed are `==`). Single value is only supported.
+              - `active` (default): Filter by active assets.
+              - `deleted`: Filter by (soft)deleted assets.
 
         ---
         > NOTE:  
@@ -2026,7 +3370,17 @@ components:
         ---
       schema:
         type: string
-      example: assetType==file;mediaType==application/vnd.adobe.library+dcx;modified=gt=2025-01-01
+      examples:
+        All Assets:
+          value: ""
+        Files:
+          value: assetType==file
+        Folders:
+          value: assetType==folder
+        Deleted Assets:
+          value: state==deleted
+        PNG Images:
+          value: mediaType==image/png
     urlTTL:
       name: urlTTL
       in: query
@@ -2034,8 +3388,9 @@ components:
       description: |
         * Provides a **client provided hint** for Time-To-Live(TTL) in seconds for the pre-signed download URL.
         ---
-          > NOTE:
-          > * Clients must rely on the `urlExpirationDate` field in the response for the actual expiration time.
+          > NOTE:  
+            * The server may adjust it to enforce internal limits.
+            * Clients must rely on the `urlExpirationDate` field in the response for the actual expiration time.
         ---
       schema:
         type: integer
@@ -2050,6 +3405,8 @@ components:
         The desired dimension of the resulting rendition on the longest side, whether that is width or height.
       schema:
         type: integer
+        minimum: 1
+        maximum: 8192
     mediaType:
       name: mediaType
       in: query
@@ -2063,10 +3420,7 @@ components:
   headers:
     requestId:
       schema:
-        type: string
-        example: 1234567890
-        minLength: 1
-        maxLength: 128
+        $ref: "#/components/schemas/requestId"
       description: |
         The `X-Request-Id` header is used to identify a request.  
         It can be used to correlate logs and other resources and is intended to be a non-persistent identifier.
@@ -2137,32 +3491,41 @@ components:
             path: /Holiday Campaign
             ancestors: []
             state: active
+    unauthorized:
+      description: |
+        **Unauthorized** - The request is unauthorized.
+      value:
+        error_code: unauthorized
+        message: You are not authorized to access this resource.
+    notAcceptable:
+      description: |
+        **Not Acceptable** - The requested representation is not acceptable
+      value:
+        error_code: not_acceptable
+        message: The requested representation is not acceptable.
     invalidLimitType:
       description: |
         **Mismatch Parameter Type** - Provided value of limit parameter is not compatible with the expected type
       value:
-        error_code: invalid_request
+        error_code: validation_error
         message: "Provided value: (abc) for query parameter: limit is of invalid type. Allowed Type is Integer"
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     invalidLimitRange:
       description: |
         **Invalid Range** - Provided value of limit parameter is out of the allowed range
       value:
-        error_code: invalid_request
+        error_code: validation_error
         message: "Provided value: (1000) for query parameter: limit is out of the allowed range. Allowed Range is 1-100"
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     invalidPaginationParameterCombination:
       description: |
         **Invalid Combination** - Combination of pagination parameters is invalid
       value:
-        error_code: invalid_request
+        error_code: validation_error
         message: "Following query parameters: [cursor and sortBy] are not allowed together"
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     multipleInvalidRequestViolations:
       description: |
         **Multiple Violations** - Multiple problems with the request
       value:
-        error_code: invalid_request
+        error_code: validation_error
         message: Multiple issues with request, refer details array for more information
         details:
           - field: limit
@@ -2194,27 +3557,18 @@ components:
             message: Invalid type
             allowedType: Integer
             location: query
-    unauthorized:
-      description: |
-        **Unauthorized** - The request is unauthorized.
-      value:
-        error_code: unauthorized
-        message: You are not authorized to access this resource.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     rateLimited:
       description: |
         **Rate Limited** - The server has rate limited the request
       value:
         error_code: rate_limited
         message: Too many requests have been made. Please try after specified time.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     runtimeError:
       description: |
         **Runtime Error** - An unexpected error occurred while processing the request
       value:
         error_code: runtime_error
         message: An unexpected error occurred while processing your request.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     singleProject:
       value:
         assetId: urn:aaid:sc:US:4f2fc15c-c062-4951-b37b-1f65ed62a174
@@ -2227,96 +3581,98 @@ components:
         ancestors: []
         assetType: project
         state: active
+    invalidRequestBody:
+      description: |
+        **Bad Request Body** - The server cannot proceed because the request body is not valid JSON
+      value:
+        error_code: bad_request
+        message: The provided request body is not a valid JSON
     missingRequestBody:
       description: |
         **Missing Request Body** - The server cannot proceed because the request body is missing
       value:
-        error_code: invalid_request
+        error_code: bad_request
         message: The request is missing the required body
-        requestId: 123e4567-e89b-12d3-a456-426614174000
-    invalidRequestBody:
-      description: |
-        **Invalid Request Body** - The server cannot proceed because the request body is not valid JSON
-      value:
-        error_code: invalid_request
-        message: The provided request body is not a valid JSON
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     accessErrorProjectCreate:
       description: |
         **Project Create Error** - Access to create a project is denied
       value:
         error_code: access_error
         message: You do not have permission to create projects.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
+    invalidOperation:
+      description: |
+        **Invalid Operation** - The requested operation is invalid based on the current state of the resource
+      value:
+        error_code: invalid_operation
+        message: The operation is invalid as it resulted in a conflict or is not allowed.
     invalidContentType:
       description: |
         **Invalid Content Type** - The server does not support the provided content type
       value:
         error_code: invalid_content_type
         message: The request content type is not supported.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     missingRequiredField:
       description: |
         **Missing Required Field** - The server cannot proceed because the request body is missing a required field
       value:
         error_code: validation_error
         message: The request body is missing the required field (#name)
-        requestId: 123e4567-e89b-12d3-a456-426614174000
-    invalidName:
+    invalidNameType:
       description: |
-        **Invalid Name** - The server cannot proceed because the name is invalid
+        **Invalid Name Type** - The server cannot proceed because the name is of invalid type
+      value:
+        error_code: validation_error
+        message: The provided name has an invalid type.
+    invalidNameValue:
+      description: |
+        **Invalid Name Value** - The server cannot proceed because the name is invalid
       value:
         error_code: validation_error
         message: The provided name has an invalid value.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
+    invalidAssetIdValue:
+      description: |
+        **Invalid AssetId Value** - The server cannot proceed because the assetId is invalid
+      value:
+        error_code: validation_error
+        message: The provided assetId has an invalid value.
     accessError:
       description: |
         **Access Error** - Access to a resource is denied
       value:
         error_code: access_error
         message: "You do not have following permission(s) to perform this action on the resource: [write, delete]."
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     resourceNotFound:
       description: |
         **Resource Not Found** - The requested resource was not found
       value:
         error_code: resource_not_found
         message: The requested resource (urn:uuid:123e4567-e89b-12d3-a456-426614174000) was not found.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
-    200.projectDiscard:
-      value:
-        assetId: urn:aaid:sc:US:4f2fc15c-c062-4951-b37b-1f65ed62a174
-        name: My New Project
-        createdDate: "2024-01-05T14:00:00Z"
-        modifiedDate: "2024-01-10T10:25:30Z"
-        createdBy: 08D81E3B665BE5640A495C2C@AdobeOrg
-        modifiedBy: 08D81E3B665BE5640A495C2C@AdobeOrg
-        path: /My New Project
-        ancestors: []
-        assetType: project
-        state: discarded
-    invalidOperation:
-      description: |
-        **Invalid Operation** - The requested operation is invalid based on the current state of the resource
-      value:
-        error_code: invalid_operation
-        message: The requested operation (discard) is invalid based on the current state of the resource.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     etagMismatch:
       description: |
         **Precondition Failed** - The request failed due to a precondition
       value:
         error_code: etag_mismatch
         message: Expected etag is different for the current.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
+    operationTimedOut:
+      description: |
+        **Operation Timed Out** - The server failed to complete the operation within 60 seconds.
+      value:
+        error_code: operation_timeout
+        message: The operation is taking longer than 60 seconds. The operation is still in progress and will be completed soon.
+    storageQuotaExceeded:
+      description: |
+        **Storage Quota Exceeded** - The user has exceeded their storage quota
+      value:
+        error_code: storage_quota_exceeded
+        message: Your quota has been exceeded. Please try later after cleanup or contact support.
     paginatedAssets:
       description: |
         **Paginated Assets** - The server successfully retrieved the assets
       value:
         paging:
-          nextUrl: https://cloudstorage.adobe.io/v1/projects/7eb8f0f0-dbe8-466d-9f74-84c653dfaf22/list?cursor=eyJvZmZzZXQiOjN9
+          nextUrl: https://cloudstorage.adobe.io/v1/projects/7eb8f0f0-dbe8-466d-9f74-84c653dfaf22/children?cursor=eyJvZmZzZXQiOjN9
           limit: 20
-        items:
+        children:
           - assetType: folder
             assetId: urn:aaid:sc:US:11111111-aaaa-bbbb-cccc-222222222222
             name: Design Assets
@@ -2327,7 +3683,6 @@ components:
             path: /Marketing Launch Plan/Design Assets
             ancestors:
               - urn:aaid:sc:US:f860f2fc-7942-4e49-ab37-5e2b32afe97a
-            etag: "1683839000001"
             state: active
           - assetType: file
             assetId: urn:aaid:sc:US:22222222-aaaa-bbbb-cccc-333333333333
@@ -2339,13 +3694,12 @@ components:
             path: /Marketing Launch Plan/logo.png
             ancestors:
               - urn:aaid:sc:US:11111111-aaaa-bbbb-cccc-222222222222
-            contentEtag: "1683839000010"
             mediaType: image/png
             size: 2418293
             state: active
-    200.assetPermissions:
+    200.assetRoles:
       description: |
-        **Asset Permissions** - The permissions for the asset
+        **Asset Roles** - The roles for the asset
       value:
         direct:
           - id: 13A5316551352CF40A490D35@AdobeID
@@ -2368,7 +3722,7 @@ components:
             role: edit
             created: "2021-01-01T00:00:00Z"
             id: mailto:john.doe@example.com
-    patchAssetPermissions:
+    patchAssetRoles:
       description: |
         **Modify Asset Permissions** - The request body for a patch operation on permissions for an asset
       value:
@@ -2410,7 +3764,6 @@ components:
       value:
         error_code: access_error
         message: You do not have permission to create folders.
-        requestId: 123e4567-e89b-12d3-a456-426614174000
     singleFile:
       value:
         assetType: file
@@ -2423,7 +3776,6 @@ components:
         path: /Marketing Launch Plan/logo.png
         ancestors:
           - urn:aaid:sc:US:11111111-aaaa-bbbb-cccc-222222222222
-        contentEtag: "1683839000010"
         mediaType: image/png
         size: 2418293
         state: active
@@ -2451,6 +3803,24 @@ components:
       value:
         error_code: validation_error
         message: The requested media type is not supported.
+    invalidUploadIdType:
+      description: |
+        **Invalid UploadId Type** - The server cannot proceed because the uploadId is of invalid type
+      value:
+        error_code: validation_error
+        message: The provided uploadId has an invalid type.
+    invalidUsedTransferLinksValue:
+      description: |
+        **Invalid UsedTransferLinks Value** - The server cannot proceed because the usedTransferLinks value is invalid
+      value:
+        error_code: validation_error
+        message: The provided usedTransferLinks value is invalid.
+    expiredOrAlreadyUsed:
+      description: |
+        **Invalid Operation** - Upload has either expired or has already been finalized
+      value:
+        error_code: invalid_operation
+        message: Upload has either expired or has already been finalized.
   responses:
     paginatedProjectsResponse:
       description: |
@@ -2479,6 +3849,38 @@ components:
           examples:
             unauthorized:
               $ref: "#/components/examples/unauthorized"
+    notAcceptableResponse:
+      description: |
+        **Not Acceptable** - The requested representation is not acceptable
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            notAcceptable:
+              $ref: "#/components/examples/notAcceptable"
+    invalidRequestPagedResponse:
+      description: |
+        **Unprocessable Request** - The server cannot process the request due to a semantic error
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            invalidLimitType:
+              $ref: "#/components/examples/invalidLimitType"
+            invalidLimitRange:
+              $ref: "#/components/examples/invalidLimitRange"
+            invalidPaginationParameterCombination:
+              $ref: "#/components/examples/invalidPaginationParameterCombination"
+            multipleInvalidRequestViolations:
+              $ref: "#/components/examples/multipleInvalidRequestViolations"
     rateLimitResponse:
       description: |
         **Too Many Requests** - The request was rejected due to rate limiting
@@ -2507,6 +3909,21 @@ components:
           examples:
             runtimeError:
               $ref: "#/components/examples/runtimeError"
+    invalidRequestResponse:
+      description: |
+        **Invalid Request** - The server cannot process the request due to a client error
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            invalidRequestBody:
+              $ref: "#/components/examples/invalidRequestBody"
+            missingRequestBody:
+              $ref: "#/components/examples/missingRequestBody"
     accessErrorProjectCreateResponse:
       description: |
         **Forbidden** - The user does not have permission to create projects
@@ -2520,6 +3937,19 @@ components:
           examples:
             accessProjectCreateError:
               $ref: "#/components/examples/accessErrorProjectCreate"
+    invalidOperationResponse:
+      description: |
+        **Conflict** - The requested operation is invalid based on the current state of the resource
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            invalidOperation:
+              $ref: "#/components/examples/invalidOperation"
     invalidContentTypeResponse:
       description: |
         **Unsupported Media Type** - The server cannot process the request due to an unsupported media type
@@ -2533,6 +3963,25 @@ components:
           examples:
             invalidContentType:
               $ref: "#/components/examples/invalidContentType"
+    unprocessableEntityResponse:
+      description: |
+        **Unprocessable Request** - The request cannot be processed due to semantic errors
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            missingRequiredField:
+              $ref: "#/components/examples/missingRequiredField"
+            invalidNameType:
+              $ref: "#/components/examples/invalidNameType"
+            invalidNameValue:
+              $ref: "#/components/examples/invalidNameValue"
+            invalidAssetIdValue:
+              $ref: "#/components/examples/invalidAssetIdValue"
     matchedEtagResponse:
       description: |
         **Success** - The ETag of the asset matches the etag provided in the headers.
@@ -2568,19 +4017,6 @@ components:
           examples:
             resourceNotFound:
               $ref: "#/components/examples/resourceNotFound"
-    invalidOperationResponse:
-      description: |
-        **Conflict** - The requested operation is invalid based on the current state of the resource
-      headers:
-        x-request-id:
-          $ref: "#/components/headers/requestId"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/errorResponse"
-          examples:
-            invalidOperation:
-              $ref: "#/components/examples/invalidOperation"
     preconditionFailedResponse:
       description: |
         **Precondition Failed** - The request failed due to a precondition
@@ -2592,8 +4028,21 @@ components:
           schema:
             $ref: "#/components/schemas/errorResponse"
           examples:
-            etag Mismatch:
+            etagMismatch:
               $ref: "#/components/examples/etagMismatch"
+    storageQuotaExceededResponse:
+      description: |
+        **Insufficient Storage** - The request cannot be processed because the storage quota has been exceeded
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+          examples:
+            storageQuotaExceeded:
+              $ref: "#/components/examples/storageQuotaExceeded"
     paginatedAssetsResponse:
       description: |
         **Success** - Paginated response containing an array of object with each element containing basic information about the project,
@@ -2601,8 +4050,6 @@ components:
       headers:
         x-request-id:
           $ref: "#/components/headers/requestId"
-        etag:
-          $ref: "#/components/headers/etag"
       content:
         application/json:
           schema:
@@ -2610,9 +4057,9 @@ components:
           examples:
             paginatedAssets:
               $ref: "#/components/examples/paginatedAssets"
-    assetPermissionResponse:
+    projectPermissionResponse:
       description: |
-        **Success** - Effective permission for the user
+        **Success** - Effective permission for the user for a project asset
       headers:
         x-request-id:
           $ref: "#/components/headers/requestId"
@@ -2620,32 +4067,48 @@ components:
         application/json:
           schema:
             type: object
-            title: AssetPermission
-            description: The effective permission for the user
+            title: ProjectEffectivePermissionResponse
+            description: The effective permission for the user for a project asset
             properties:
               role:
                 $ref: "#/components/schemas/roleEnums"
+                deprecated: true
+              permissions:
+                $ref: "#/components/schemas/projectPermissions"
+            required:
+              - permissions
           examples:
-            assetPermission:
+            Project's Effective Permissions:
               value:
                 role: edit
-    200.getAssetPermissions:
+                permissions:
+                  can_edit_project: true
+                  can_view_project: true
+                  can_share: true
+                  can_comment: true
+                  can_restore: false
+                  can_delete: false
+                  can_permanent_delete: false
+                  can_download_assets: true
+                  can_move_assets_inside: true
+                  can_move_assets_outside: false
+    getAssetRolesResponse:
       description: |
-        **Success** - A list of collaborators and their permissions for the asset
+        **Success** - A list of collaborators and their roles for the asset
       headers:
         x-request-id:
           $ref: "#/components/headers/requestId"
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/assetPermissionsResponse"
+            $ref: "#/components/schemas/assetRolesResponse"
           examples:
-            All Permissions:
-              $ref: "#/components/examples/200.assetPermissions"
-    200.patchAssetPermissions:
+            All Roles:
+              $ref: "#/components/examples/200.assetRoles"
+    patchAssetRolesResponse:
       description: |
         **Success/Partial Success**  
-        Patching the permissions was tried and from the response body result of each request can be
+        Patching the roles was tried and from the response body result of each request can be
         determined based on the status.
       headers:
         x-request-id:
@@ -2653,7 +4116,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/patchAssetPermissionsResponse"
+            $ref: "#/components/schemas/patchAssetRolesResponse"
           example:
             direct:
               additions:
@@ -2688,31 +4151,6 @@ components:
                 - status: successful
                   id: A495C2C08D81E3B665BE5640@e
                   type: user
-    packageAssetResponse:
-      description: |
-        **Success** - Asynchronous job id along with monitor url
-      headers:
-        x-request-id:
-          $ref: "#/components/headers/requestId"
-        location:
-          $ref: "#/components/headers/location"
-        retry-after:
-          $ref: "#/components/headers/retryAfter"
-      content:
-        application/json:
-          schema:
-            type: object
-            title: packageAssetResponse
-            description: Asynchronous job id along with monitor url
-            properties:
-              jobId:
-                type: string
-                description: The asynchronous job id
-                example: 123e4567-e89b-12d3-a456-426614174000
-          examples:
-            packageAssetResponse:
-              value:
-                jobId: 85f7c90a-a252-4e82-8cf3-3c989829cdf9
     accessErrorFolderCreateResponse:
       description: |
         **Forbidden** - The user does not have permission to create folders
@@ -2726,7 +4164,127 @@ components:
           examples:
             accessFolderCreateError:
               $ref: "#/components/examples/accessErrorFolderCreate"
-    fileDownloadUrlResponse:
+    folderPermissionResponse:
+      description: |
+        **Success** - Effective permission for the user for a folder asset
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            type: object
+            title: FolderEffectivePermissionResponse
+            description: The effective permission for the user for a folder asset
+            properties:
+              role:
+                $ref: "#/components/schemas/roleEnums"
+                deprecated: true
+              permissions:
+                $ref: "#/components/schemas/folderPermissions"
+            required:
+              - permissions
+          examples:
+            Folder's Effective Permissions:
+              value:
+                role: edit
+                permissions:
+                  can_edit_assets: true
+                  can_view_assets: true
+                  can_share: true
+                  can_comment: true
+                  can_restore_assets: false
+                  can_delete_assets: false
+                  can_permanent_delete_assets: false
+                  can_download_assets: true
+                  can_move_assets_inside: true
+                  can_move_assets_outside: false
+    filePermissionResponse:
+      description: |
+        **Success** - Effective permission for the user for a file asset
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            type: object
+            title: FileEffectivePermissionResponse
+            description: The effective permission for the user for a file asset
+            properties:
+              role:
+                $ref: "#/components/schemas/roleEnums"
+                deprecated: true
+              permissions:
+                $ref: "#/components/schemas/filePermissions"
+            required:
+              - permissions
+          examples:
+            File's Effective Permissions:
+              value:
+                role: edit
+                permissions:
+                  can_edit_assets: true
+                  can_view_assets: true
+                  can_share: true
+                  can_comment: true
+                  can_restore_assets: false
+                  can_delete_assets: false
+                  can_permanent_delete_assets: false
+                  can_download_assets: true
+    fileCopyAcceptedResponse:
+      description: |
+        **Accepted** - Request to copy a file was accepted and will be processed asynchronously.
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+        retry-after:
+          $ref: "#/components/headers/retryAfter"
+      content:
+        application/json:
+          schema:
+            type: object
+            title: FileCopyAcceptedResponse
+            description: Asynchronous job id used to call the status endpoint.
+            properties:
+              jobId:
+                $ref: "#/components/schemas/jobId"
+          examples:
+            File Copy Accepted:
+              value:
+                jobId: 85f7c90a-a252-4e82-8cf3-3c989829cdf9
+    fileMoveAcceptedResponse:
+      description: |
+        **Accepted** - Request to move a file was accepted and will be processed asynchronously.
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+        retry-after:
+          $ref: "#/components/headers/retryAfter"
+      content:
+        application/json:
+          schema:
+            type: object
+            title: FileMoveAcceptedResponse
+            description: Asynchronous job id used to call the status endpoint.
+            properties:
+              jobId:
+                $ref: "#/components/schemas/jobId"
+          examples:
+            File Move Accepted:
+              value:
+                jobId: 85f7c90a-a252-4e82-8cf3-3c989829cdf9
+    contentTypeChangeNotAllowedResponse:
+      description: |
+        **Unsupported Media Type** - Content type cannot be changed from original file type.
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+    fileDownloadOKResponse:
       description: |
         **Success** - A pre-signed download URL for the asset
       headers:
@@ -2735,31 +4293,30 @@ components:
       content:
         application/json:
           schema:
+            $ref: "#/components/schemas/fileDownloadOKResponse"
+    fileDownloadAcceptedResponse:
+      description: |
+        **Accepted** - Asynchronous job id used to call the status endpoint.
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+        retry-after:
+          $ref: "#/components/headers/retryAfter"
+      content:
+        application/json:
+          schema:
             type: object
-            title: FileDownloadUrl
-            description: A pre-signed download URL for the asset
+            title: FileDownloadAcceptedResponse
+            description: Asynchronous job id used to call the status endpoint.
             properties:
-              url:
-                allOf:
-                  - $ref: "#/components/schemas/url"
-                description: The pre-signed URL that supports HTTP range requests for partial downloads
-              urlExpirationDate:
-                allOf:
-                  - $ref: "#/components/schemas/date"
-                description: The expiration date of the pre-signed URL
-              size:
-                type: integer
-                description: Size of the file in bytes
-                format: int64
-                minimum: 0
-              mediaType:
+              jobId:
                 type: string
-                description: The MIME type of the file
-          example:
-            mediaType: application/zip
-            size: 234567890
-            url: https://<storage-url>/download?signature=abc123
-            urlExpirationDate: "2025-05-13T10:15:30Z"
+                description: The asynchronous job id
+                example: 123e4567-e89b-12d3-a456-426614174000
+          examples:
+            downloadAcceptedResponse:
+              value:
+                jobId: 85f7c90a-a252-4e82-8cf3-3c989829cdf9
     fileUploadInitResponse:
       description: |
         **Success** - Upload Id along with urls for upload
@@ -2849,15 +4406,33 @@ components:
             properties:
               name:
                 $ref: "#/components/schemas/assetName"
-    patchAssetPermissions:
+              options:
+                $ref: "#/components/schemas/operationOptions"
+    projectRenameRequest:
       required: true
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/patchAssetPermissionsRequest"
+            type: object
+            title: ProjectRenameRequest
+            description: Represents a request body for renaming a project.
+            nullable: false
+            required:
+              - name
+            properties:
+              name:
+                $ref: "#/components/schemas/assetName"
+              options:
+                $ref: "#/components/schemas/operationOptions"
+    patchAssetRoles:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/patchAssetRolesRequest"
           examples:
             patchPermissions:
-              $ref: "#/components/examples/patchAssetPermissions"
+              $ref: "#/components/examples/patchAssetRoles"
     folderCreateRequest:
       required: true
       content:
@@ -2887,6 +4462,8 @@ components:
                 $ref: "#/components/schemas/assetName"
               path:
                 $ref: "#/components/schemas/path"
+              options:
+                $ref: "#/components/schemas/operationOptions"
           examples:
             Single Folder Create Request:
               value:
@@ -2896,6 +4473,78 @@ components:
               value:
                 path: Marketing/2024/CampaignA
                 parentId: urn:aaid:sc:US:f860f2fc-7942-4e49-ab37-5e2b32afe97a
+    folderRenameRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            title: FolderRenameRequest
+            description: |
+              Represents a request body for renaming a folder.
+            nullable: false
+            properties:
+              name:
+                $ref: "#/components/schemas/assetName"
+              options:
+                $ref: "#/components/schemas/operationOptions"
+            required:
+              - name
+    fileRenameRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            title: FileRenameRequest
+            description: |
+              Represents a request body for renaming a file.
+            nullable: false
+            properties:
+              name:
+                $ref: "#/components/schemas/assetName"
+              options:
+                $ref: "#/components/schemas/operationOptions"
+            required:
+              - name
+    fileCopyRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/copyRequest"
+          examples:
+            Copy Request With New Name:
+              value:
+                name: Renamed File.png
+                parentId: urn:aaid:sc:US:f860f2fc-7942-4e49-ab37-5e2b32afe97a
+            Copy Request With Original Name:
+              value:
+                parentId: urn:aaid:sc:US:f860f2fc-7942-4e49-ab37-5e2b32afe97a
+            Copy Request with autorename:
+              value:
+                parentId: urn:aaid:sc:US:f860f2fc-7942-4e49-ab37-5e2b32afe97a
+                options:
+                  autorename: true
+    fileMoveRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/moveRequest"
+          examples:
+            Move Request With New Name:
+              value:
+                name: Renamed File.png
+                parentId: urn:aaid:sc:US:f860f2fc-7942-4e49-ab37-5e2b32afe97a
+            Move Request With Original Name:
+              value:
+                parentId: urn:aaid:sc:US:f860f2fc-7942-4e49-ab37-5e2b32afe97a
+            Move Request with autorename:
+              value:
+                parentId: urn:aaid:sc:US:f860f2fc-7942-4e49-ab37-5e2b32afe97a
+                options:
+                  autorename: true
     fileUploadInitRequest:
       required: true
       content:
@@ -2909,8 +4558,9 @@ components:
               size:
                 $ref: "#/components/schemas/fileSize"
               parentId:
-                type: string
-                description: The assetId of the containing asset
+                allOf:
+                  - $ref: "#/components/schemas/assetId"
+                description: Asset Id of the parent container (project/folder).
               name:
                 $ref: "#/components/schemas/assetName"
               mediaType:
@@ -2921,6 +4571,8 @@ components:
                 type: integer
                 description: The size of each block in bytes. The block size returned may differ from the size requested.
                 example: 1048576
+              options:
+                $ref: "#/components/schemas/operationOptions"
             required:
               - size
               - parentId
@@ -2956,10 +4608,28 @@ components:
               - 1
               - 3
               - 5
-x-tagGroups:
-  - name: Asset Operations
-    tags:
-      - Projects
-      - Folders
-      - Files
-      - Jobs
+    fileReplaceInitRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            title: FileReplacementUploadInitRequest
+            description: |
+              This request body is used to initialize a block based file replacement upload job.
+            properties:
+              size:
+                $ref: "#/components/schemas/fileSize"
+              mediaType:
+                type: string
+                description: The MIME type of the file
+                example: image/jpeg
+              blockSize:
+                type: integer
+                description: The size of each block in bytes. The block size returned may differ from the size requested.
+                example: 1048576
+              options:
+                $ref: "#/components/schemas/operationOptions"
+            required:
+              - size
+              - mediaType

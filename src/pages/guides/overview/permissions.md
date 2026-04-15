@@ -8,7 +8,7 @@ keywords:
   - Creative production workflows
   - Adobe workflows
   - Cloud Storage endpoints
-  - Cloud Storage autorization
+  - Cloud Storage authorization
   - User roles
   - Access Control
   - Permissions
@@ -16,19 +16,20 @@ keywords:
 contributors:
   - https://github.com/michael-hodgson
   - https://github.com/lijumjose
+  - https://github.com/irwin-dolobowsky-adobe
 layout: none
 ---
 
 # Roles and permissions
 
-Adobe cloud storage provides an access control system to enaure only authorized users can access cloud content. Access to projects, folders, and files is based on the permissions granted to a user through their assigned role.
+Adobe cloud storage provides an access control system to ensure only authorized users can access cloud content. Access to projects, folders, and files is based on the permissions granted to a user through their assigned role.
 
 The following table indicates the permissions available to each role:
 
 | Permission                           | Administrator | Creator | Edit | Comment |
 | :----------------------------------- | :-----------: | :-----: | :--: | :-----: |
 | Rename a project                     |      ✅       |   ✅    |      |         |
-| Discard a project                    |      ✅       |   ✅    |      |         |
+| Delete a project                     |      ✅       |   ✅    |      |         |
 | View files and folders               |      ✅       |   ✅    |  ✅  |   ✅    |
 | Edit files                           |      ✅       |   ✅    |  ✅  |         |
 | Create and add files, create folders |      ✅       |   ✅    |  ✅  |         |
@@ -49,12 +50,14 @@ The Creator role is automatically assigned to a user who creates a project.
 
 The Edit and Comment roles can be assigned to a user or group in two ways:
 
-1. By inviting collaborators through an Adobe UI, such as Creative Cloud Home. See [Share Projects](https://helpx.adobe.com/creative-cloud/help/share-project.html) for more information.
+1. By inviting collaborators through an Adobe UI, such as Creative Cloud Home. See [Share Projects](https://helpx.adobe.com/creative-cloud/apps/access-collaboration-tools/manage-projects/share-project.html) for more information.
 2. By using the **Adobe Cloud Storage and Collaboration API**.
 
 ## Setting roles with the API
 
-The [Project permissions API](../api/specification.md#operation/patchProjectPermissions) accepts a JSON document that defines changes to a project's permissions. This document includes up to three optional sections:
+The [Project roles API](../api/specification.md#operation/patchProjectRoles) accepts a JSON document that defines changes to a project's roles. This document includes up to three optional sections:
+
+**Note:** The `/permissions` endpoint (`PATCH /projects/{assetId}/permissions`) is deprecated. Use the `/roles` endpoint (`PATCH /projects/{assetId}/roles`) for all new integrations.
 
 1. additions: Grants a role to one or more principals.
 2. updates: Modifies existing roles for one or more principals.
@@ -66,20 +69,20 @@ Each section contains an array of objects that specify the principal and the rol
 
 ### Additions
 
-To grant access, include entries in the _additions_ section. Each entry must include:
+To grant access, include entries in the *additions* section. Each entry must include:
 
 - **type**: The type of principal. There are three types of principals:
   - **user** - An individual user
   - **group** - A named group of users. See [Manage user groups](https://helpx.adobe.com/enterprise/using/user-groups.html).
   - **predefined** - One of the special [predefined principals](./permissions.md#predefined-principals).
 - **recipient**: The principal to whom you are giving access
-  - The recipient value for _user_ types is the prefix _mailto:_ followed by the user's email address
-  - The recipient value for _group_ or _predefined_ types is the prefix _name:_ followed by the name of the group or predefined principal
+  - The recipient value for *user* types is the prefix *mailto:* followed by the user's email address
+  - The recipient value for *group* or *predefined* types is the prefix *name:* followed by the name of the group or predefined principal
 - **role**: The role they will be assigned. Possible values are edit and comment. See [Roles and Permissions](#roles-and-permissions).
 
 For example, the following invites Bob Smith to be an editor, sets all members of the Graphic Design group to be editors, and allows anyone in the organization to comment on the files in a project.
 
-```bash
+```json
 {
   "direct": {
     "additions": [
@@ -105,15 +108,15 @@ For example, the following invites Bob Smith to be an editor, sets all members o
 
 ### Updates
 
-Changing existing permissions is done using the _updates_ section of the request. Each update entry consists of three properties:
+Changing existing permissions is done using the *updates* section of the request. Each update entry consists of three properties:
 
 - **type**: The type of principal. Same as with [additions](#additions).
-- **id**: The unique identifier for a user, group, or predefined principal. The _id_ is not the same as the additions _recipient_ property. It is a unique identifier that the system assigns when permission is granted.
+- **id**: The unique identifier for a user, group, or predefined principal. The *id* is not the same as the additions *recipient* property. It is a unique identifier that the system assigns when permission is granted.
 - **role** - the role they will be assigned. Same as with [additions](#additions).
 
-  - You can find a user or group's _id_ using the [GET permissions](../api/specification.md/#operation/getProjectPermissions) call for the project.
+  - You can find a user or group's *id* using the [GET roles](../api/specification.md#operation/getProjectRoles) call for the project.
 
-  For example, the following _GET permissions_ response provides the _id_ properties for the _\_everybody_ predefined principal, as well as two users. One who has accepted the invitation, and one whose invitation is pending.
+  For example, the following *GET permissions* response provides the *id* properties for the *_everybody* predefined principal, as well as two users. One who has accepted the invitation, and one whose invitation is pending.
 
   ```json
   {
@@ -140,10 +143,11 @@ Changing existing permissions is done using the _updates_ section of the request
     }
   ]
   }
+  ```
 
 For example, the following request updates the permissions of two users to the *comment* role. The first user has accepted the invitation and therefore their ID is a unique GUID. The second user has not yet accepted the invitation, so their id is still their email address.
 
-```bash
+```json
 {
 "direct": {
   "updates": [
@@ -198,8 +202,14 @@ There are two special principals:
 
 ### Summary
 
-| Principal Type | Additions recipient              | Updates and Deletion id   | Notes                                                                               |
-| -------------- | -------------------------------- | ------------------------- | ----------------------------------------------------------------------------------- |
-| user           | mailto:{user's email address}    | {user id}                 | Indicates a specific user                                                           |
-| group          | name:{user group name}           | {group id}                | Indicates a [user goup](https://helpx.adobe.com/enterprise/using/user-groups.html) |
-| predefined     | name:{predefined principal name} | {predifined principal id} | Indicates a special [predefined principal](#predefined-principals)                  |
+| Principal Type | Additions recipient                | Updates and Deletion id     | Notes                                                                               |
+| -------------- | ---------------------------------- | --------------------------- | ----------------------------------------------------------------------------------- |
+| user           | `mailto:{user's email address}`    | `{user id}`                 | Indicates a specific user                                                           |
+| group          | `name:{user group name}`           | `{group id}`                | Indicates a [user group](https://helpx.adobe.com/enterprise/using/user-groups.html) |
+| predefined     | `name:{predefined principal name}` | `{predefined principal id}` | Indicates a special [predefined principal](#predefined-principals)                  |
+
+## Roles on files
+
+Individual files also support role-based access control through the `GET /files/{assetId}/roles` and `PATCH /files/{assetId}/roles` endpoints. The request and response format is identical to the project roles API described above.
+
+File-level roles are useful when you need to grant access to a specific file without changing the permissions of the project or folder that contains it.
