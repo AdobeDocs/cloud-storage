@@ -19,6 +19,9 @@ tags:
   - name: Files
     description: |
       Assets typically created through non-Adobe applications. The MIME type indicates the asset type.
+  - name: Brands
+    description: |
+      Brands are collections of reusable assets and guidelines for content reuse across documents. They contain elements such as logos, colors, fonts, and graphics.
   - name: Jobs
     description: |
       Represents long running tasks in the system that are created by invoking specific operations.
@@ -602,6 +605,130 @@ paths:
                   $ref: "#/components/examples/missingRequiredField"
         "429":
           $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /projects/{projectId}/references:
+    post:
+      operationId: addProjectReference
+      summary: Add a brand reference to a project
+      tags:
+        - Projects
+      description: |
+        Adds a reference (link) to a brand within a project. References allow projects to include
+        content from brands. A project can have a maximum of 200 references.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier (URN) of the project to add the reference to.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/addProjectReferenceRequest"
+      responses:
+        "201":
+          description: "**Created** - The reference was successfully added to the project."
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+            Location:
+              description: URL of the newly created reference.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectReferenceResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+    get:
+      operationId: listProjectReferences
+      summary: List brand references for a project
+      tags:
+        - Projects
+      description: |
+        Returns a list of brand references associated with the specified project.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier (URN) of the project to list the references from.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          description: "**Success** - List of brand references for the project."
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectReferencesListResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /projects/{projectId}/references/{referenceId}:
+    delete:
+      operationId: removeProjectReference
+      summary: Remove a brand reference from a project
+      tags:
+        - Projects
+      description: |
+        Removes a brand reference from a project identified by its referenceId.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier (URN) of the project to remove the reference from.
+          schema:
+            type: string
+        - name: referenceId
+          in: path
+          required: true
+          description: The unique identifier (URN) of the referenced brand to remove.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "204":
+          description: "**No Content** - The reference was successfully removed."
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
   /folders:
@@ -1973,6 +2100,796 @@ paths:
           $ref: "#/components/responses/rateLimitResponse"
         "500":
           $ref: "#/components/responses/runtimeErrorResponse"
+  /brands:
+    post:
+      operationId: createBrand
+      summary: Create a new Brand
+      parameters:
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Brands
+      description: |
+        This endpoint creates an empty Brand that can be populated later with elements such as logos, colors, fonts, and graphics.
+
+        The brand is created within a specified project, provided the user has the necessary permissions.
+      requestBody:
+        $ref: "#/components/requestBodies/brandCreateRequest"
+      responses:
+        "201":
+          description: |
+            **Created** - The brand was created successfully.
+          headers:
+            location:
+              $ref: "#/components/headers/location"
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/brandAsset"
+              examples:
+                createBrand:
+                  $ref: "#/components/examples/singleBrand"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /brands/{assetId}:
+    get:
+      operationId: getBrand
+      summary: Get a brand by ID
+      description: |
+        This endpoint retrieves full metadata for a specific Brand identified by its assetId.
+      tags:
+        - Brands
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          description: |
+            **Success** - Retrieved information about the brand
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/brandAsset"
+              examples:
+                singleBrand:
+                  $ref: "#/components/examples/singleBrand"
+        "400":
+          description: |
+            **Bad Request** - The request is invalid.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                invalidRequestBody:
+                  $ref: "#/components/examples/invalidRequestBody"
+        "401":
+          description: |
+            **Unauthorized** - The authorization token is not accepted.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                unauthorized:
+                  $ref: "#/components/examples/unauthorized"
+        "403":
+          description: |
+            **Forbidden** - Client ID is not authorized, or access is denied.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                accessErrorResponse:
+                  $ref: "#/components/examples/accessError"
+        "404":
+          description: |
+            **Not Found** - The specified resource could not be found.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                resourceNotFound:
+                  $ref: "#/components/examples/resourceNotFound"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "422":
+          description: |
+            **Unprocessable Entity** - The request cannot be processed due to semantic errors (invalid assetId, invalid assetType).
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                invalidAssetIdValue:
+                  $ref: "#/components/examples/invalidAssetIdValue"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+    delete:
+      operationId: deleteBrand
+      summary: Delete brand by ID
+      description: |
+        This endpoint deletes(soft deletion) or permanently deletes(hard deletion) an existing Brand, identified by its `assetId`.
+      tags:
+        - Brands
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+        - $ref: "#/components/parameters/permanent"
+      responses:
+        "204":
+          description: |
+            **Success** - The brand was deleted successfully
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+  /brands/{assetId}/rename:
+    post:
+      operationId: renameBrand
+      summary: Rename a brand.
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          description: |
+            The unique identifier (URN) of the brand to be renamed.
+          schema:
+            $ref: "#/components/schemas/assetId"
+        - $ref: "#/components/parameters/requestId"
+      tags:
+        - Brands
+      description: |
+        This endpoint updates the name of an existing Brand, identified by its `assetId`.
+
+        ---
+        > NOTE:
+        > * Only the name of the brand can be modified using this endpoint.
+        > * All other brand metadata remains unchanged.
+        > * If the requester lacks the required permissions or the brand does not exist, an appropriate error response
+        > will be returned.
+        ---
+      requestBody:
+        $ref: "#/components/requestBodies/brandRenameRequest"
+      responses:
+        "200":
+          description: |
+            **Updated** - The brand was renamed successfully.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/brandAsset"
+              examples:
+                renameBrand:
+                  $ref: "#/components/examples/renameBrand"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /brands/{assetId}/elements:
+    get:
+      operationId: listBrandElements
+      summary: List elements inside a brand
+      tags:
+        - Brands
+      description: |
+        Returns a paginated list of elements inside the specified brand.
+        Use the `cursor` parameter to fetch subsequent pages.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of items per page.
+          schema:
+            type: integer
+            format: int32
+        - name: start
+          in: query
+          required: false
+          description: Zero-based start offset. Required when limit is specified and cursor is absent.
+          schema:
+            type: integer
+            format: int32
+        - name: sortBy
+          in: query
+          required: false
+          description: "Sort order. Fields: name, created, modified. Prefix - for descending, + (optional) for ascending."
+          schema:
+            type: string
+            default: +name
+        - name: mediaType
+          in: query
+          required: false
+          description: "Filter elements by media type. Example: application/vnd.adobe.element.image+dcx"
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          required: false
+          description: Cursor used for fetching the next set of results.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          description: "**Success** - Paginated list of brand elements."
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/brandElementsListResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /brands/{assetId}/elements/init:
+    post:
+      operationId: initBrandElementUpload
+      summary: Initialize a brand element binary upload
+      description: |
+        This endpoint initializes a block-based upload session for a new binary element within a Brand identified by its `assetId`.
+        It validates the element metadata, reserves upload capacity, and returns pre-signed transfer URLs along with an `uploadId`
+        to be used in the finalize call.
+
+        ---
+        > NOTE:
+        > This flow is intended for binary brand elements such as images, videos, and other files.
+        >
+        > After receiving `transferLinks`, clients upload raw binary blocks directly to the provided URLs:
+        > **PUT <transferURL>**
+        > **<binary data>**
+        >
+        > * **Authorization Header**: Must NOT be included in the request.
+        > * **Success Response**: 200 OK indicates successful block upload.
+        > * **Expiration Handling**: Each upload session is time-bound. If blocks are not uploaded within the specified expiration
+        >   window (`urlExpirationDate`), the operation may fail.
+        ---
+      tags:
+        - Brands
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/brandElementUploadInitRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/fileUploadInitResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          description: |
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                missingRequiredField:
+                  $ref: "#/components/examples/missingRequiredField"
+                invalidNameType:
+                  $ref: "#/components/examples/invalidNameType"
+                invalidNameValue:
+                  $ref: "#/components/examples/invalidNameValue"
+                invalidAssetIdValue:
+                  $ref: "#/components/examples/invalidAssetIdValue"
+                invalidSize:
+                  $ref: "#/components/examples/invalidSize"
+                unsupportedMediaType:
+                  $ref: "#/components/examples/unsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /brands/{assetId}/elements/finalize:
+    post:
+      operationId: finalizeBrandElementUpload
+      summary: Finalize a brand element binary upload
+      description: |
+        This endpoint finalizes a block-based binary upload for a brand element, waits for the repository upload to
+        complete, creates the brand element, and returns the created element.
+
+        ---
+        > NOTE:
+        > * Clients must provide the `uploadId` received from the init response.
+        > * `usedTransferLinks` must list the uploaded part numbers in the order they should be stitched together.
+        > * Upload sessions may expire before finalization if the transfer URLs are no longer valid.
+        ---
+      tags:
+        - Brands
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/brandElementUploadFinalizeRequest"
+      responses:
+        "202":
+          description: |
+            **Accepted** - The brand element upload finalize has been accepted and is being processed asynchronously.
+            Use the returned `jobId` to poll for the result via the status endpoint.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Suggested number of seconds to wait before polling the status endpoint.
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/brandElementFinalizeAcceptedResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "409":
+          $ref: "#/components/responses/invalidOperationResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          description: |
+            **Unprocessable Entity** - The request cannot be processed due to semantic errors (invalid assetId, invalid assetType).
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                invalidAssetIdValue:
+                  $ref: "#/components/examples/invalidAssetIdValue"
+                invalidFieldType:
+                  $ref: "#/components/examples/invalidUploadIdType"
+                invalidFieldValue:
+                  $ref: "#/components/examples/invalidUsedTransferLinksValue"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /brands/{assetId}/elements/content:
+    post:
+      operationId: createJsonBrandElement
+      summary: Create a JSON brand element
+      description: |
+        Creates a new JSON-based element (such as a font definition or color theme) within a Brand identified by its `assetId`.
+        Unlike binary element upload, this endpoint accepts the element content directly as the `data` part of a multipart
+        request and returns the created element synchronously.
+
+        The `Content-Type` of the `data` part determines the element's media type and must be a supported JSON element
+        media type (e.g. `application/vnd.adobe.element.font+json` or `application/vnd.adobe.element.colortheme+json`).
+      tags:
+        - Brands
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/brandElementContentRequest"
+      responses:
+        "201":
+          description: |
+            **Created** - The brand element was successfully created.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/brandElement"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          description: |
+            **Unprocessable Request** - The request cannot be processed due to semantic errors.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                missingRequiredField:
+                  $ref: "#/components/examples/missingRequiredField"
+                invalidNameType:
+                  $ref: "#/components/examples/invalidNameType"
+                invalidNameValue:
+                  $ref: "#/components/examples/invalidNameValue"
+                invalidAssetIdValue:
+                  $ref: "#/components/examples/invalidAssetIdValue"
+                unsupportedMediaType:
+                  $ref: "#/components/examples/unsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /brands/{assetId}/elements/{elementId}:
+    delete:
+      operationId: deleteBrandElement
+      summary: Delete a brand element
+      description: |
+        Deletes an element from the specified brand.
+      tags:
+        - Brands
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - name: elementId
+          in: path
+          required: true
+          description: The unique identifier of the element inside the brand.
+          schema:
+            type: string
+            minLength: 1
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "204":
+          description: "**No Content** - The element was deleted successfully."
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+    get:
+      operationId: getBrandElement
+      summary: Get a brand element by ID
+      description: |
+        Returns detailed information about a single element inside a Brand identified by its `assetId`.
+      tags:
+        - Brands
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - name: elementId
+          in: path
+          required: true
+          description: The unique identifier of the element inside the brand.
+          schema:
+            type: string
+            minLength: 1
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          description: |
+            **Success** - Retrieved information about the brand element.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/brandElement"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /brands/{assetId}/elements/{elementId}/content:
+    get:
+      operationId: getBrandElementContent
+      summary: Get the content of a JSON brand element
+      description: |
+        Returns the representations (inline JSON content) of a brand element identified by its `elementId`.
+        This endpoint is intended for JSON-based elements such as fonts and color themes.
+      tags:
+        - Brands
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - name: elementId
+          in: path
+          required: true
+          description: The unique identifier of the element inside the brand.
+          schema:
+            type: string
+            minLength: 1
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          description: |
+            **Success** - Retrieved the content of the brand element.
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+              examples:
+                font:
+                  summary: Font element data
+                  value:
+                    - name: Abolition Soft Oblique
+                      postScriptName: Abolition-SoftOblique
+                      fontId: TkD-25250-2aaf0176c5aafdb3cd9a0b0cd799fc0e45ad190e
+                      family: Abolition
+                      style: Soft Oblique
+                      premium: true
+                      isUserAdded: false
+                colorTheme:
+                  summary: Color theme element data
+                  value:
+                    - mood: calm
+                      swatches:
+                        - mode: RGB
+                          value:
+                            - 0
+                            - 114
+                            - 239
+                          type: process
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableEntityResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /brands/{assetId}/roles:
+    get:
+      operationId: getBrandRoles
+      summary: Get All roles for a Brand
+      tags:
+        - Brands
+      description: |
+        The endpoint retrieves the **explicit roles** assigned to all users and groups for a specific brand,
+        identified by its `brandId`. This includes only the **direct access control entries** defined on the brand itself.
+
+        ---
+        > NOTE:
+        > * The response lists all users and groups that have direct access to the brand, along with their respective
+        >   roles (e.g., comment, edit).
+        > * This data is useful for auditing and role management but does not represent the full effective access
+        >   unless inheritance is also considered.
+        > * The brand must exist and the requester must have at least read-level access. If the brand is not found or
+        >   access is denied, appropriate error responses will be returned.
+        ---
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          $ref: "#/components/responses/getAssetRolesResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "422":
+          description: |
+            **Unprocessable Entity** - The request cannot be processed due to semantic errors (invalid brandId, invalid assetType).
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+    patch:
+      operationId: patchBrandRoles
+      summary: Patch Roles for a Brand
+      tags:
+        - Brands
+      description: |
+        This endpoint is used to manage the direct roles of a specific brand, identified by its `brandId`. It allows
+        clients to perform multiple types of role changes in a single request, including:
+          * Addition of new users or groups to the access control list.
+          * Update of roles for existing users or groups.
+          * Removal of users or groups from the access control list.
+
+        ---
+        > NOTE:
+        > * The request body supports three arrays: `additions`, `updates`, and `deletions`.
+        > * Multiple principals can be included across each action type.
+        > * Each principal must be mentioned only once across the entire request body.
+        > * Role changes apply directly to the brand.
+
+        > ## Validation Rules
+        > | Action | Behavior |
+        > | ------ | -------- |
+        > | additions | Must include users/groups that **do not already exist** in the current ACL. |
+        > | updates | Must target users/groups that **already exist** in the current ACL. |
+        > | deletions | Must target users/groups that **already exist** in the current ACL. |
+        ---
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        $ref: "#/components/requestBodies/patchAssetRoles"
+      responses:
+        "200":
+          $ref: "#/components/responses/patchAssetRolesResponse"
+        "400":
+          $ref: "#/components/responses/invalidRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "415":
+          $ref: "#/components/responses/invalidContentTypeResponse"
+        "422":
+          description: |
+            **Unprocessable Request** - The request cannot be processed due to semantic errors
+          headers:
+            x-request-id:
+              $ref: "#/components/headers/requestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                missingRequiredField:
+                  $ref: "#/components/examples/missingRequiredField"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
+  /brands/{assetId}/effective-permission:
+    get:
+      operationId: getBrandEffectivePermission
+      summary: Get User's Effective Permissions for a Brand
+      tags:
+        - Brands
+      description: |
+        The endpoint retrieves the **effective permission (role)** assigned to the user for a specific brand,
+        identified by its `assetId`. It evaluates the user's access based on:
+          * **Direct permissions** assigned to the brand.
+          * **Predefined principals**, such as `orgEverybody` or group-based access rules.
+      parameters:
+        - $ref: "#/components/parameters/assetId"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          $ref: "#/components/responses/brandEffectivePermissionResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/accessErrorResponse"
+        "404":
+          $ref: "#/components/responses/resourceNotFoundResponse"
+        "406":
+          $ref: "#/components/responses/notAcceptableResponse"
+        "429":
+          $ref: "#/components/responses/rateLimitResponse"
+        "500":
+          $ref: "#/components/responses/runtimeErrorResponse"
 components:
   securitySchemes:
     Authorization:
@@ -2027,6 +2944,7 @@ components:
         - project
         - library
         - cloudDoc
+        - brand
     jobTypeEnums:
       type: string
       title: JobTypeEnums
@@ -2045,6 +2963,7 @@ components:
         - folder_copy
         - folder_move
         - project_package
+        - brand_element_finalize
     jobStatusEnums:
       type: string
       title: JobStatusEnums
@@ -2299,6 +3218,23 @@ components:
               default: folder
           required:
             - assetType
+    brandAsset:
+      type: object
+      title: BrandAsset
+      description: Represents a brand in the system. A brand is a collection of reusable assets, containing elements such as logos, colors, fonts, and graphics.
+      allOf:
+        - $ref: "#/components/schemas/fileAsset"
+        - type: object
+          properties:
+            assetType:
+              type: string
+              default: brand
+            elementsCount:
+              type: integer
+              description: The number of elements inside the brand
+              example: 0
+          required:
+            - assetType
     asset:
       description: |
         Represents a generic asset in the system.
@@ -2308,12 +3244,14 @@ components:
         - $ref: "#/components/schemas/fileAsset"
         - $ref: "#/components/schemas/folderAsset"
         - $ref: "#/components/schemas/projectAsset"
+        - $ref: "#/components/schemas/brandAsset"
       discriminator:
         propertyName: assetType
         mapping:
           file: "#/components/schemas/fileAsset"
           folder: "#/components/schemas/folderAsset"
           project: "#/components/schemas/projectAsset"
+          brand: "#/components/schemas/brandAsset"
     paginatedAssets:
       title: PaginatedAssets
       description: Represents a paginated list of assets
@@ -2752,6 +3690,47 @@ components:
               default: []
       required:
         - direct
+    projectReferenceResponse:
+      type: object
+      title: ProjectReferenceResponse
+      description: Represents a brand reference associated with a project.
+      properties:
+        referenceId:
+          type: string
+          description: The asset ID (URN) of the referenced brand.
+          example: urn:aaid:sc:US:a0620477-6ba4-3c41-9a4c-ffd7a4a60291
+        referenceType:
+          type: string
+          description: The type of the reference.
+          example: brand
+        asset:
+          $ref: "#/components/schemas/brandAsset"
+    projectReferencesListResponse:
+      type: object
+      title: ProjectReferencesListResponse
+      description: A list of brand references associated with a project.
+      properties:
+        items:
+          type: array
+          description: The list of brand references.
+          items:
+            $ref: "#/components/schemas/projectReferenceResponse"
+    addProjectReferenceRequest:
+      type: object
+      title: AddProjectReferenceRequest
+      description: Request body for adding a brand reference to a project.
+      properties:
+        assetId:
+          type: string
+          description: The asset ID (URN) of the brand to reference.
+          example: urn:aaid:sc:US:a0620477-6ba4-3c41-9a4c-ffd7a4a60291
+        referenceType:
+          type: string
+          description: The type of the reference.
+          example: brand
+      required:
+        - assetId
+        - referenceType
     copyOperationOptions:
       type: object
       title: CopyOperationOptions
@@ -3054,6 +4033,109 @@ components:
       required:
         - asset
         - status
+    brandElementMediaType:
+      type: string
+      title: BrandElementMediaType
+      description: The media type of the brand element.
+      example: application/vnd.adobe.element.image+dcx
+    userId:
+      type: string
+      description: The Unique ID for the user in the system
+      example: 46372D2768435C800A494229@techacct.adobe.com
+    brandElementRole:
+      type: object
+      title: BrandElementRole
+      description: |
+        Describes the role of a brand element within the brand. The fields present depend on the element type:
+
+        - **Logo** (binary upload): set `usage: logo` and optionally `priority: primary | secondary`. No role → `[]`.
+        - **Graphic** (binary upload): always pass an empty `elementRoles` array — no role object.
+        - **Font** (JSON content): set `usage: header | footer`. No `priority` field. No role → `[]`.
+        - **Color theme** (JSON content): set `priority: primary | secondary`. No `usage` field. No role → `[]`.
+      properties:
+        usage:
+          type: string
+          description: |
+            The usage type for the element. Present for logo and font elements; omitted for color themes and graphics.
+            - `logo` — logo image element (binary upload).
+            - `header` — font element used as a header style.
+            - `body` — font element used as a body style.
+          enum:
+            - logo
+            - header
+            - body
+          example: logo
+        priority:
+          type: string
+          description: |
+            Priority level. Present for logo and color theme elements; omitted for fonts and graphics.
+            Supported values: `primary`, `secondary`. No priority → pass an empty `elementRoles` array.
+          enum:
+            - primary
+            - secondary
+          example: primary
+    brandElement:
+      type: object
+      title: BrandElement
+      description: Represents an element stored within a brand.
+      properties:
+        elementId:
+          type: string
+          description: Unique element identifier.
+          example: urn:aaid:sc:US:brand-element-7f8bc25d-d173-5a62-c48c-2g76fe73b285
+        name:
+          $ref: "#/components/schemas/assetName"
+        size:
+          $ref: "#/components/schemas/fileSize"
+        mediaType:
+          $ref: "#/components/schemas/brandElementMediaType"
+        createdDate:
+          allOf:
+            - $ref: "#/components/schemas/date"
+          description: ISO 8601 timestamp when the element was created.
+        createdBy:
+          allOf:
+            - $ref: "#/components/schemas/userId"
+          description: User ID of the creator.
+        modifiedDate:
+          allOf:
+            - $ref: "#/components/schemas/date"
+          description: ISO 8601 timestamp when the element was last modified.
+        modifiedBy:
+          allOf:
+            - $ref: "#/components/schemas/userId"
+          description: User ID of the last modifier.
+        elementRoles:
+          type: array
+          description: Roles assigned to the element within the brand.
+          items:
+            $ref: "#/components/schemas/brandElementRole"
+      required:
+        - elementId
+        - name
+        - size
+        - mediaType
+        - createdDate
+        - createdBy
+        - modifiedDate
+        - modifiedBy
+        - elementRoles
+    brandElementFinalizeSucceededJobStatus:
+      type: object
+      title: BrandElementFinalizeSucceededJobStatus
+      description: Represents the status of a brand element finalize succeeded asynchronous job in the system
+      allOf:
+        - $ref: "#/components/schemas/baseJobStatus"
+        - type: object
+          properties:
+            status:
+              type: string
+              default: succeeded
+            element:
+              $ref: "#/components/schemas/brandElement"
+      required:
+        - element
+        - status
     succeededJobStatus:
       description: |
         Represents the status of a succeeded asynchronous job in the system
@@ -3067,6 +4149,7 @@ components:
         - $ref: "#/components/schemas/fileMoveSucceededJobStatus"
         - $ref: "#/components/schemas/folderCopySucceededJobStatus"
         - $ref: "#/components/schemas/folderMoveSucceededJobStatus"
+        - $ref: "#/components/schemas/brandElementFinalizeSucceededJobStatus"
       discriminator:
         propertyName: jobType
         mapping:
@@ -3077,6 +4160,7 @@ components:
           file_move: "#/components/schemas/fileMoveSucceededJobStatus"
           folder_copy: "#/components/schemas/folderCopySucceededJobStatus"
           folder_move: "#/components/schemas/folderMoveSucceededJobStatus"
+          brand_element_finalize: "#/components/schemas/brandElementFinalizeSucceededJobStatus"
     folderCopyPartiallySucceededJobStatus:
       type: object
       title: FolderCopyPartiallySucceededJobStatus
@@ -3198,6 +4282,53 @@ components:
           succeeded: "#/components/schemas/succeededJobStatus"
           partially_succeeded: "#/components/schemas/partiallySucceededJobStatus"
           failed: "#/components/schemas/failedJobStatus"
+    brandElementsListResponse:
+      type: object
+      title: BrandElementsListResponse
+      description: Paginated list of elements inside a brand.
+      properties:
+        items:
+          type: array
+          description: The list of brand elements.
+          items:
+            $ref: "#/components/schemas/brandElement"
+        paging:
+          $ref: "#/components/schemas/pagination"
+    brandElementFinalizeAcceptedResponse:
+      type: object
+      title: BrandElementFinalizeAcceptedResponse
+      description: Represents the accepted response for a brand element finalize asynchronous job
+      properties:
+        jobId:
+          $ref: "#/components/schemas/jobId"
+      required:
+        - jobId
+    brandPermissions:
+      type: object
+      title: BrandPermissions
+      description: The permissions for the user on a brand
+      properties:
+        can_share_brand:
+          type: boolean
+          description: Whether the user can share the brand with other users
+          default: false
+        can_edit_brand:
+          type: boolean
+          description: Whether the user can edit the brand
+          default: false
+        can_view_brand:
+          type: boolean
+          description: Whether the user can view the brand
+          default: false
+        can_delete_brand:
+          type: boolean
+          description: Whether the user can soft delete the brand
+          default: false
+      required:
+        - can_share_brand
+        - can_edit_brand
+        - can_view_brand
+        - can_delete_brand
   parameters:
     limit:
       name: limit
@@ -3821,6 +4952,35 @@ components:
       value:
         error_code: invalid_operation
         message: Upload has either expired or has already been finalized.
+    singleBrand:
+      value:
+        assetId: urn:aaid:sc:US:7f8bc25d-d173-5a62-c48c-2g76fe73b285
+        name: My Brand
+        createdDate: "2026-02-23T14:00:00Z"
+        modifiedDate: "2026-02-23T14:00:00Z"
+        createdBy: 08D81E3B665BE5640A495C2C@AdobeOrg
+        modifiedBy: 08D81E3B665BE5640A495C2C@AdobeOrg
+        path: /My Project/My Brand
+        ancestors:
+          - urn:aaid:sc:US:4f2fc15c-c062-4951-b37b-1f65ed62a174
+        state: active
+        assetType: brand
+        mediaType: application/vnd.adobe.library+dcx
+        elementsCount: 0
+        size: 0
+    renameBrand:
+      value:
+        assetId: urn:aaid:sc:US:7f8bc25d-d173-5a62-c48c-2g76fe73b285
+        name: My Brand
+        createdDate: "2026-02-23T14:00:00Z"
+        modifiedDate: "2026-02-23T14:00:00Z"
+        createdBy: 08D81E3B665BE5640A495C2C@AdobeOrg
+        modifiedBy: 08D81E3B665BE5640A495C2C@AdobeOrg
+        path: /My Project/My Brand
+        state: active
+        assetType: brand
+        mediaType: application/vnd.adobe.library+dcx
+        elementsCount: 0
   responses:
     paginatedProjectsResponse:
       description: |
@@ -4391,6 +5551,35 @@ components:
             uploadFinalizeResponse:
               value:
                 jobId: 85f7c90a-a252-4e82-8cf3-3c989829cdf9
+    brandEffectivePermissionResponse:
+      description: |
+        **Success** - Effective permission for the user for a brand asset
+      headers:
+        x-request-id:
+          $ref: "#/components/headers/requestId"
+      content:
+        application/json:
+          schema:
+            type: object
+            title: BrandEffectivePermissionResponse
+            description: The effective permission for the user for a brand asset
+            properties:
+              role:
+                $ref: "#/components/schemas/roleEnums"
+                deprecated: true
+              permissions:
+                $ref: "#/components/schemas/brandPermissions"
+            required:
+              - permissions
+          examples:
+            Brand's Effective Permissions:
+              value:
+                role: edit
+                permissions:
+                  can_edit_brand: true
+                  can_view_brand: true
+                  can_share_brand: true
+                  can_delete_brand: false
   requestBodies:
     projectCreateRequest:
       required: true
@@ -4633,3 +5822,151 @@ components:
             required:
               - size
               - mediaType
+    brandCreateRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            title: BrandCreateRequest
+            description: Represents a request body for creating a brand.
+            nullable: false
+            required:
+              - name
+              - parentId
+            properties:
+              name:
+                $ref: "#/components/schemas/assetName"
+              parentId:
+                $ref: "#/components/schemas/assetId"
+          examples:
+            createBrand:
+              summary: Create a new brand
+              value:
+                name: My Brand
+                parentId: urn:aaid:sc:US:4f2fc15c-c062-4951-b37b-1f65ed62a174
+    brandRenameRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            title: BrandRenameRequest
+            description: |
+              Represents a request body for renaming a brand.
+            nullable: false
+            properties:
+              name:
+                $ref: "#/components/schemas/assetName"
+            required:
+              - name
+    brandElementUploadInitRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            title: BrandElementUploadInitRequest
+            description: |
+              This request body is used to initialize a block-based upload for a new binary brand element.
+            properties:
+              name:
+                $ref: "#/components/schemas/assetName"
+              size:
+                $ref: "#/components/schemas/fileSize"
+              mediaType:
+                $ref: "#/components/schemas/brandElementMediaType"
+              blockSize:
+                type: integer
+                description: The size of each block in bytes. The block size returned may differ from the size requested.
+                example: 1048576
+              elementRoles:
+                type: array
+                description: |
+                  Roles assigned to the element within the brand.
+                  - **Logo elements**: set `usage: logo` with optional `priority: primary | secondary`. Pass `[]` for no priority.
+                  - **Graphic elements**: always pass `[]` — graphics carry no role.
+                items:
+                  $ref: "#/components/schemas/brandElementRole"
+            required:
+              - name
+              - size
+              - mediaType
+    brandElementUploadFinalizeRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            title: BrandElementUploadFinalizeRequest
+            description: |
+              This request body is used to finalize a block-based upload for a brand element.
+            properties:
+              uploadId:
+                type: string
+                description: Upload session ID from the init response.
+                example: 123e4567-e89b-12d3-a456-426614174000
+              usedTransferLinks:
+                type: array
+                description: The part numbers of the transfer links used for uploading the content.
+                items:
+                  type: number
+                  description: The part number of the blocks used for uploading the content
+                minItems: 1
+            required:
+              - uploadId
+              - usedTransferLinks
+          example:
+            uploadId: 123e4567-e89b-12d3-a456-426614174000
+            usedTransferLinks:
+              - 1
+              - 2
+    brandElementContentRequest:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              metadata:
+                type: object
+                title: BrandElementContentMetadata
+                description: |
+                  JSON metadata for the brand element being created.
+                properties:
+                  name:
+                    $ref: "#/components/schemas/assetName"
+                  description:
+                    type: string
+                    description: Optional description for the brand element.
+                    example: Primary brand font
+                  elementRoles:
+                    type: array
+                    description: |
+                      Roles assigned to the element within the brand.
+                      - **Font elements**: set `usage: header | body`. No `priority` field. Pass `[]` for no role.
+                      - **Color theme elements**: set `priority: primary | secondary`. No `usage` field. Pass `[]` for no role.
+                    items:
+                      $ref: "#/components/schemas/brandElementRole"
+                required:
+                  - name
+              data:
+                type: string
+                format: binary
+                description: |
+                  The JSON content of the brand element. The `Content-Type` header of this part determines
+                  the element's media type. Supported types:
+
+                  - `application/vnd.adobe.element.colortheme+dcx` — color palette. Body must be a JSON
+                    object with `mood` (string) and `swatches` (array of swatch arrays). A minimum of 2
+                    swatches is required. Each swatch is an array of color stop objects with `mode`, `value`
+                    (`r`, `g`, `b`), and `alpha` fields.
+                  - `application/vnd.adobe.element.font+dcx` — font definition.
+            required:
+              - metadata
+              - data
+          encoding:
+            metadata:
+              contentType: application/json
+            data:
+              contentType: application/vnd.adobe.element.font+dcx, application/vnd.adobe.element.colortheme+dcx
