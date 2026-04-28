@@ -117,7 +117,7 @@ paths:
         > NOTE:  
         > * The project must exist and the requester must have at least read-level access.
         > * If the project is not found or access is denied, appropriate error responses will be returned.
-        > * Discarded projects can be retrieved using this endpoint.
+        > * Deleted projects can be retrieved using this endpoint.
         > * If the project exists, but the requester does not have the requisite permissions:
         >   - The API will behave as if the project does not exist.
         >   - It will return a 404 Not Found response, even though the asset technically exists in the system.
@@ -402,7 +402,7 @@ paths:
   /projects/{assetId}/roles:
     get:
       operationId: getProjectRoles
-      summary: Get All roles for a Project
+      summary: Get Roles for a Project
       tags:
         - Projects
       description: |
@@ -4185,7 +4185,6 @@ components:
              - `current_user` is a predefined constant representing the user initiating the request. Currently, this is the sole supported value.
         ---
         > NOTE:  
-        > * The `view` parameter is deprecated and will be removed in a future release. Clients should use the `createdBy` parameter instead.
         > * Only applicable for the first page. Subsequent pages must use the cursor.
         ---
       schema:
