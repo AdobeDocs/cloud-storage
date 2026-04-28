@@ -1200,7 +1200,7 @@ paths:
   /files/{assetId}/roles:
     get:
       operationId: getFileRoles
-      summary: Get All roles for a File
+      summary: Get Roles for a File
       tags:
         - Files
       description: |
