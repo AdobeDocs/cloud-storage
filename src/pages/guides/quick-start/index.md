@@ -82,7 +82,7 @@ Depending on your learning style, you may prefer to walk through this tutorial s
      });
      const config = {
        method: "post",
-       url: "https://ims-na1.adobelogin.com/ims/token/v2",
+       url: "https://ims-na1.adobelogin.com/ims/token/v3",
        headers: { "Content-Type": "application/x-www-form-urlencoded" },
        data: data,
      };
@@ -399,6 +399,7 @@ async function inviteUser(accessToken, projectId, userEmail, userRole) {
     } catch (error) {
         console.error("Error during invite user: ", error.response?.data || error.message);
     }
+}
 ```
 
 Sample response:
@@ -1165,7 +1166,7 @@ const STORAGE_ENDPOINT = "https://cloudstorage.adobe.io/v1";
 
     //Replace the uploaded file with a new version
     await replaceFile(accessToken, fileId, fileName);
-  } catch {
+  } catch (error) {
     console.error("Error executing quickstart. ", error.response?.data || error.message);
   }
 })();
@@ -1183,7 +1184,7 @@ async function retrieveAccessToken() {
 
   const config = {
     method: "post",
-    url: "https://ims-na1.adobelogin.com/ims/token/v2",
+    url: "https://ims-na1.adobelogin.com/ims/token/v3",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     data: data,
   };

@@ -4387,25 +4387,6 @@ components:
         [FIQL-based](https://datatracker.ietf.org/doc/html/draft-nottingham-atompub-fiql-00) filter string
 
         Following fields are supported for filtering:
-          - `view`: (**deprecated**) Filters the results to only a specific view (operators allowed are `==`). Single value is only supported.
-            The possible values are `yours`, `all`, `shared_with_you`, `discoverable`.
-            Here is how each view works:
-            - `Yours`:
-              - Projects in the calling user's User Home storage
-              - Projects in the calling user's Org's ESM shared storage for which the user has **write access** through
-                membership in the _everybody group.
-            - `Shared with you`:
-              - Projects in other user's User Home storage for which the calling user has permissions
-              - Projects in other Org's ESM shared storage for which the calling user has permissions
-            - `All`:
-              - Combination of Projects returned from `Yours` and `Shared with you`
-            - `Discoverable`:
-              - Projects returned from `All` view
-              - Projects in the calling user's Org's ESM shared storage for which the user has **read access** through
-                membership in the _everybody group.
-          - `state`: Filter by project state (operators allowed are ==). Single value is only supported.
-            - `active` (default): Filter by active projects.
-            - `deleted`: Filter by (soft)deleted projects.
           - `state`: Filter by asset state (operators allowed are `==`). Single value is only supported.
               - `active` (default): Filter by active assets.
               - `deleted`: Filter by (soft)deleted assets.
